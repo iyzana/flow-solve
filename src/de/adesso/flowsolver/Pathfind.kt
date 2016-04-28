@@ -9,7 +9,7 @@ import java.util.*
  * Created on 28.04.2016
  */
 data class Path(val nodes: MutableList<Node>) : MutableList<Node> by nodes {
-    constructor(vararg node: Node) : this(node.toMutableList())
+    constructor(vararg nodes: Node) : this(LinkedList<Node>(nodes.toList()))
     
     override fun toString() = "Path(color = " + nodes[0].color + ", path = [" +
             nodes.joinToString(separator = ", ") { "(${it.x}, ${it.y})" } + "]"
@@ -68,33 +68,33 @@ fun shortestPath(grid: Grid, start: Node, end: Node): Path {
     throw IllegalArgumentException("no path found")
 }
 
-fun allPaths(grid: Grid, start: Node, end: Node): List<Path> {
+fun allPaths(grid: Grid, start: Node, end: Node, maxLength: Int = 0, depth: Int = 0): List<Path> {
     val solutions = LinkedList<Path>()
     
-    if (start == end) return mutableListOf(Path(end))
+    if(depth + distance(start, end) > maxLength) return solutions
     
-    for (d in 0..3) {
-        var x = start.x
-        var y = start.y
-        
-        when (d) {
-            0 -> y--
-            1 -> x++
-            2 -> y++
-            3 -> x--
-        }
-        
+    if (start == end) {
+        solutions.add(Path(end))
+        return solutions
+    }
+    
+    for ((x, y) in neighbors(start.x, start.y)) {
         if (x < 0 || y < 0 || x >= grid.w || y >= grid.h) continue
         
         val node = grid[x][y]
         if (node.color != 0 && node != end) continue
         
+        val previousColor = node.color
         node.color = start.color
-        val paths = allPaths(grid, node, end)
+        val paths = allPaths(grid, node, end, maxLength, depth + 1)
         paths.forEach { path -> path.add(0, start) }
         solutions.addAll(paths)
-        node.color = 0
+        node.color = previousColor
     }
     
     return solutions
+}
+
+private fun neighbors(x: Int, y: Int): List<Pair<Int, Int>> {
+    return listOf(x to y-1, x+1 to y, x to y+1, x-1 to y)
 }
