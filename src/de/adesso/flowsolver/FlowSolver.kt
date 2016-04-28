@@ -69,7 +69,7 @@ fun main(args: Array<String>) {
             println("${paths.size} paths")
         }
     }
-    println("timePaths = $timePaths")
+    println("timePaths = $timePaths ms")
 
     //    val paths = allPaths(grid, grid[0][0], grid[w - 1][h - 1])
     //    
