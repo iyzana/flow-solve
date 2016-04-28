@@ -1,7 +1,6 @@
 package de.adesso.flowsolver
 
-import java.util.HashMap
-import java.util.LinkedList
+import java.util.*
 
 /**
  * FlowSolve
@@ -23,9 +22,9 @@ fun shortestPath(grid: Grid, start: Node, end: Node): Path {
     val queue = LinkedList<Node>()
     val closed = mutableSetOf<Node>()
     queue.add(start)
+    closed.add(start)
     
     while (!queue.isEmpty()) {
-        println(queue.size)
         val current = queue.pop()
         
         if (current == end) {

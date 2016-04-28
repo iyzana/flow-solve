@@ -46,7 +46,7 @@ fun main(args: Array<String>) {
     
     val shortest = shortestPath(grid, grid[0][0], grid[w - 1][h - 1])
     
-    println(shortest)
+    println(shortest.size)
     
 //    val paths = allPaths(grid, grid[0][0], grid[w - 1][h - 1])
 //    
