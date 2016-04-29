@@ -1,6 +1,8 @@
 package de.adesso.flowsolver
 
-import java.util.*
+import java.util.ArrayList
+import java.util.HashMap
+import java.util.LinkedList
 
 
 /**
@@ -9,10 +11,11 @@ import java.util.*
  * @author kaiser
  * Created on 28.04.2016
  */
-data class Path(val nodes: LinkedList<Node>) : Deque<Node> by nodes {
-    constructor(vararg nodes: Node) : this(LinkedList<Node>(nodes.toList()))
+data class Path(val nodes: ArrayList<SimpleNode>) : MutableList<SimpleNode> by nodes {
+    init { nodes.ensureCapacity(30) }
+    constructor(vararg nodes: SimpleNode) : this(ArrayList(nodes.toList()))
 
-    override fun toString() = "Path(color = " + nodes[0].color + ", path = [" +
+    override fun toString() = "Path(path = [" +
             nodes.joinToString(separator = ", ") { "(${it.x}, ${it.y})" } + "]"
 }
 
@@ -32,13 +35,13 @@ fun shortestPath(grid: Grid, start: Node, end: Node): Path {
             val path = Path()
             var parent = current
 
-            path.add(parent)
+            path.add(parent.simple())
             while (parent in parents) {
                 parent = parents[parent]
-                path.add(parent)
+                path.add(parent.simple())
             }
 
-            return Path(LinkedList(path.reversed()))
+            return Path(ArrayList(path.reversed()))
         }
 
         for (d in 0..3) {
@@ -54,7 +57,7 @@ fun shortestPath(grid: Grid, start: Node, end: Node): Path {
 
             if (x < 0 || y < 0 || x >= grid.w || y >= grid.h) continue
 
-            val node = grid[x][y]
+            val node = grid[x, y]
 
             if (node.color != 0 && node.color != start.color) continue
 
@@ -69,13 +72,16 @@ fun shortestPath(grid: Grid, start: Node, end: Node): Path {
     throw IllegalArgumentException("no path found")
 }
 
+var foundPaths = 0;
+
 fun allPaths(grid: Grid, start: Node, end: Node, maxLength: Int = 0, depth: Int = 0): List<Path> {
     val solutions = LinkedList<Path>()
 
     if (depth + distance(start, end) > maxLength) return solutions
-
+    
     if (start == end) {
-        solutions.add(Path(end))
+        if(++foundPaths % 10000 == 0) println("foundPaths = $foundPaths")
+        solutions.add(Path(end.simple()))
         return solutions
     }
 
@@ -87,16 +93,16 @@ fun allPaths(grid: Grid, start: Node, end: Node, maxLength: Int = 0, depth: Int 
 private fun processNeighbors(depth: Int, end: Node, grid: Grid, maxLength: Int, solutions: LinkedList<Path>, start: Node) {
     val x = start.x
     val y = start.y
-    processNeighbor(depth, end, grid, maxLength, solutions, start, x, y - 1)
-    processNeighbor(depth, end, grid, maxLength, solutions, start, x + 1, y)
-    processNeighbor(depth, end, grid, maxLength, solutions, start, x, y + 1)
-    processNeighbor(depth, end, grid, maxLength, solutions, start, x - 1, y)
+    processNeighbor(depth, end, grid, maxLength, solutions, start, x.toInt(), y - 1)
+    processNeighbor(depth, end, grid, maxLength, solutions, start, x + 1, y.toInt())
+    processNeighbor(depth, end, grid, maxLength, solutions, start, x.toInt(), y + 1)
+    processNeighbor(depth, end, grid, maxLength, solutions, start, x - 1, y.toInt())
 }
 
 private fun processNeighbor(depth: Int, end: Node, grid: Grid, maxLength: Int, solutions: LinkedList<Path>, start: Node, x: Int, y: Int) {
     if (x < 0 || y < 0 || x >= grid.w || y >= grid.h) return
 
-    val node = grid[x][y]
+    val node = grid[x, y]
     if (node.color != 0 && node != end) return
 
     setCallReset(depth, end, grid, maxLength, node, solutions, start)
@@ -118,7 +124,7 @@ private fun recursiveCall(depth: Int, end: Node, grid: Grid, maxLength: Int, nod
 private fun callRecursion(depth: Int, end: Node, grid: Grid, maxLength: Int, node: Node) = allPaths(grid, node, end, maxLength, depth + 1)
 
 private fun addCurrentFirst(paths: List<Path>, start: Node) {
-    paths.forEach { path -> path.add(start) }
+    for(path in paths) path.add(start.simple())
 }
 
 private fun addToSolutions(paths: List<Path>, solutions: LinkedList<Path>) {

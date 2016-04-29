@@ -6,10 +6,14 @@ package de.adesso.flowsolver
  * @author kaiser
  * Created on 28.04.2016
  */
-data class Grid(val w: Int, val h: Int,
-                val grid: List<List<Node>> =
-                Array<List<Node>>(w) { x -> Array<Node>(h) { y -> Node(x, y) }.toList() }.toList())
-: List<List<Node>> by grid {
+data class Grid(val w: Byte, val h: Byte) {
     
-    public fun copy() = Grid(w, h, map { list -> list.map { node -> node.copy() } })
+    val grid: Array<Array<Node>>
+    
+    init {
+        grid = Array<Array<Node>>(w.toInt()) { x -> Array<Node>(h.toInt()) { y -> Node(x.toByte(), y.toByte()) } }
+    }
+    
+    operator fun get(x: Int, y: Int) = grid[x][y]
+    operator fun get(x: Byte, y: Byte) = get(x.toInt(), y.toInt())
 }
