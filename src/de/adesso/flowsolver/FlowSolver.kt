@@ -26,7 +26,7 @@ private val N = 14;
 private val O = 15;
 
 fun main(args: Array<String>) {
-    val grid = create9Grid()
+    val grid = createHard9Grid()
 
     val points = extractPairs(grid).values.flatMap { listOf(it.first, it.second) }
     val newPoints = fillGrid(+grid, points)
@@ -91,28 +91,38 @@ private fun solve(grid: Grid, pairs: Map<Int, Pair<Path, Path>>) {
         }
     } + " ms")
 
+    // color -> x -> y -> List<Path>
+    println("building sorted paths...")
+    val pathsMap = Array(coloredPaths.size) { Array(grid.w) { Array(grid.h) { ArrayList<Path>(100000) } } }
+
+    coloredPaths.forEach { color, paths ->
+        fillColors(color, paths, pathsMap)
+    }
+
     println()
     println("filtering paths...")
 
-    fun Path.intersects(other: Path) = (0..pos - 1).any { i -> (0..other.pos - 1).any { j -> this[i] == other[j] } }
-    fun Path.intersectsAll(other: List<Path>): Boolean {
-        return other.all { this.intersects(it) }
-    }
-
     do {
         var changed = false
-        
+
         val sizeSorted = coloredPaths.toList().sortedBy { it.second.size }
         for ((color, paths) in sizeSorted) {
             val sizeSorted2 = sizeSorted.toList().sortedBy { it.second.size }
             for ((otherColor, otherPaths) in sizeSorted2) {
                 if (color == otherColor) continue
-                print("color $color with $otherColor start " + paths.size)
+                println("color $color with $otherColor start " + paths.size)
+                var index = 0
+                val colorsArray = pathsMap[otherColor - 1]
                 paths.retainAll { path ->
-                    if (path.intersectsAll(otherPaths)) {
-                        changed = true
-                        return@retainAll false
+                    if (++index % 100000 == 0) println("$index")
+
+                    path.forEach { node ->
+                        if (colorsArray[x(node)][y(node)].size == otherPaths.size) {
+                            changed = true
+                            return@retainAll false
+                        }
                     }
+
                     return@retainAll true
                 }
                 println(" end " + paths.size)
@@ -123,7 +133,7 @@ private fun solve(grid: Grid, pairs: Map<Int, Pair<Path, Path>>) {
     println("filling grid")
 
     coloredPaths.forEach { color, paths ->
-        paths.single().nodes().forEach { node ->
+        paths.single().forEach { node ->
             grid[x(node), y(node)].color = color
         }
     }
@@ -160,11 +170,31 @@ private fun solve(grid: Grid, pairs: Map<Int, Pair<Path, Path>>) {
     }
 }
 
+private fun fillColors(color: Int, paths: MutableList<Path>, pathsMap: Array<Array<Array<ArrayList<Path>>>>) {
+    println("color $color")
+    val colors = pathsMap[color - 1]
+    paths.forEach { path ->
+        fillNodes(colors, path)
+    }
+}
+
+private fun fillNodes(colors: Array<Array<ArrayList<Path>>>, path: Path) {
+    path.forEach { node -> 
+        addPath(colors, node, path)
+    }
+}
+
+private fun addPath(colors: Array<Array<ArrayList<Path>>>, node: Byte, path: Path) {
+    colors[x(node)][y(node)].add(path)
+}
+
 private fun readGrid(): Grid {
     val input = Scanner(System.`in`.reader()).nextLine()
 
     return Grid.fromString(input)
 }
+
+private fun createHard9Grid() = Grid.fromString("aaaaaaaaa,aaaaaaaea,aadaaaada,aahafaaaa,aaiahcaaa,aaaabgafa,aaaaiaaaa,aeaaaagca,aaabaaaaa")
 
 private fun create5Grid(): Grid {
     return Grid(5, 5).apply {
@@ -199,7 +229,7 @@ private fun create7Grid(): Grid {
 }
 
 private fun create9Grid(): Grid {
-    return Grid(10, 9).apply {
+    return Grid(10, 10).apply {
         this[0, 5].color = D
         this[1, 1].color = A
         this[1, 4].color = B

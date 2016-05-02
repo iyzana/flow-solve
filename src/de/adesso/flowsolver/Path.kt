@@ -1,7 +1,5 @@
 package de.adesso.flowsolver
 
-import java.util.*
-
 /**
  * FlowSolve
  * adesso AG
@@ -13,40 +11,33 @@ class Path(size: Int) {
         add(node)
     }
 
-    private val nodes = ByteArray(size)
-    var pos = 0
+    val nodes = ByteArray(size)
+    private var pos = 0
 
     val size: Int
         get() = pos
 
-    fun lastNode(color: Int): Node = Node(nodes[pos - 1], color)
-
-    private var dirty = true
-    private var nodesCache: List<Byte>? = null
-
-    fun nodes(): List<Byte> {
-        if (nodesCache == null || dirty) {
-            dirty = false
-            nodesCache = (0..pos - 1).map { nodes[it] }
-        }
-
-        return nodesCache ?: throw ConcurrentModificationException("Node cache changed in another thread")
-    }
-
     fun add(node: Byte) {
-        dirty = true
         nodes[pos++] = node
     }
 
     operator fun get(index: Int) = nodes[index]
 
+    fun lastNode(color: Int): Node = Node(nodes[pos - 1], color)
+
+    fun nodes() = (0..pos - 1).map { nodes[it] }
+
+    inline fun forEach(apply: (node: Byte) -> Unit) {
+        for (node in this) apply(node)
+    }
+
     operator fun iterator(): Iterator<Byte> {
         return object : Iterator<Byte> {
-            var iteratrion = 0
+            var iteration = 0
 
-            override fun hasNext() = iteratrion < size
+            override fun hasNext() = iteration < size
 
-            override fun next() = nodes[iteratrion++]
+            override fun next() = nodes[iteration++]
         }
     }
 
