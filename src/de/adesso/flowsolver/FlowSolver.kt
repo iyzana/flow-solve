@@ -26,17 +26,26 @@ private val N = 14;
 private val O = 15;
 
 fun main(args: Array<String>) {
-    val grid = Grid(0, 0)
+    val grid = create5Grid()
+    
+    val points = extractPairs(grid).values.flatMap { listOf(it.first, it.second) }
+    points.forEach { println(it) }
+    val newPoints = fillGrid(+grid, points)
+    newPoints.forEach { println(it) }
+    +grid
+    
+    val pairs = newPoints.groupBy { it.color }.values.map { it[0] to it[1] }
+    
+    solve(grid, pairs)
+}
 
-    val w = grid.w
-    val h = grid.h
-
+private fun extractPairs(grid: Grid): Map<Int, Pair<Node, Node>> {
     val pairs = HashMap<Int, Pair<Node, Node>>()
     colors@ for (color in A..O) {
         var first: Node? = null
-
-        for (x in 0..w - 1) {
-            for (y in 0..h - 1) {
+        
+        for (x in 0..grid.w - 1) {
+            for (y in 0..grid.h - 1) {
                 val node = grid[x, y]
                 if (node.color == color) {
                     if (first == null) first = node
@@ -48,29 +57,36 @@ fun main(args: Array<String>) {
             }
         }
     }
+    
+    return pairs
+}
 
-    val shortestPaths = pairs.mapValues { entry -> shortestPath(grid, entry.value.first, entry.value.second).size }
-    val shortestDistances = pairs.mapValues { entry -> distance(entry.value.first, entry.value.second) }
-
-    val pathSum = w * h - shortestPaths.values.sum()
-    val distancesSum = w * h - shortestDistances.values.sum()
+private fun solve(grid: Grid, pairs: List<Pair<Node, Node>>) {
+    val w = grid.w
+    val h = grid.h
+    
+    val shortestPaths = pairs.map { shortestPath(grid, it.first, it.second).size }
+//    val shortestDistances = pairs.map{ distance(it.first, it.second) }
+    
+    val pathSum = w * h - shortestPaths.sum()
+//    val distancesSum = w * h - shortestDistances.sum()
+    
     val timePaths = measureTimeMillis {
-        for (color in pairs.keys) {
-            print("$color: ")
-
-            val maxPathLengthPaths = pathSum + shortestPaths[color]!!
+        for ((index, pair) in pairs.withIndex()) {
+            print("color ${index+1} ")
+            
+            val maxPathLengthPaths = pathSum + shortestPaths[index]
             print("maxLength $maxPathLengthPaths ")
-//            val maxPathLengthDistances = distancesSum + shortestDistances[color]!!
-//            println("maxPathLengthDistances = $maxPathLengthDistances")
-
-            val pair = pairs[color]!!
+            //            val maxPathLengthDistances = distancesSum + shortestDistances[color]!!
+            //            println("maxPathLengthDistances = $maxPathLengthDistances")
+    
             val paths = allPaths(grid, pair.first, pair.second, maxPathLengthPaths)
-//                    .forEach { println(it) }
+            //                    .forEach { println(it) }
             println("${paths.size} paths")
         }
     }
     println("timePaths = $timePaths ms")
-
+    
     //    val paths = allPaths(grid, grid[0, 0], grid[w - 1, h - 1])
     //    
     //    paths.mapIndexed { i, path ->
@@ -122,7 +138,7 @@ private fun create7Grid(): Grid {
 }
 
 private fun create9Grid(): Grid {
-    return Grid(9, 10).apply {
+    return Grid(9, 9).apply {
         this[0, 5].color = D
         this[1, 1].color = A
         this[1, 4].color = B
@@ -179,12 +195,4 @@ private fun create14Grid(): Grid {
     grid[13, 10].color = H
     
     return grid
-}
-
-fun Grid.solve(): Grid {
-    val solved = copy()
-
-    solved[0, 0].color = 1
-
-    return solved;
 }

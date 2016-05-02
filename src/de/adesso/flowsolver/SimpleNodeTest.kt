@@ -12,12 +12,12 @@ import org.junit.Test
 class SimpleNodeTest {
     @Test
     fun testMax() {
-        val x: Byte = 15
-        val y: Byte = 15
-        val node = SimpleNode(x, y)
-    
-        println(Integer.toBinaryString(node.point.toInt()))
-        println("node.x = ${node.x}")
-        println("node.y = ${node.y}")
+        val node = Node(0, 0)
+        
+        val compressed = node.compressed()
+        
+        println(Integer.toBinaryString(compressed.toInt()))
+        println("node.x = ${x(compressed)}")
+        println("node.y = ${y(compressed)}")
     }
 }
