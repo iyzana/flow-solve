@@ -75,29 +75,27 @@ private fun solve(grid: Grid, pairs: Map<Int, Pair<Path, Path>>) {
 
     val coloredPaths = HashMap<Int, MutableList<Path>>()
 
+    // color -> x -> y -> List<Path>
+    val pathsMap = PathsData(pairs.keys, w, h)
+
     println("timePaths = " + measureTimeMillis {
         for ((color, pair) in pairs.entries) {
             print("color $color")
 
-            val maxPathLengthPaths = pathSum + shortestPaths[color]!!
-            print(" maxLength $maxPathLengthPaths ")
+            val maxLength = pathSum + shortestPaths[color]!!
+            print(" maxLength $maxLength ")
 
             val start = pair.first.lastNode(color)
             val end = pair.second.lastNode(color)
 
-            val paths = allPaths(grid, start, end, maxPathLengthPaths).toMutableList()
+            val paths = allPaths(grid, start, end, pathsMap, maxLength).toMutableList()
             println("${paths.size} paths")
             coloredPaths.put(color, paths)
+
+            println("building sorted paths...")
+            pathsMap.add(color, paths)
         }
     } + " ms")
-
-    // color -> x -> y -> List<Path>
-    println("building sorted paths...")
-    val pathsMap = Array(coloredPaths.size) { Array(grid.w) { Array(grid.h) { ArrayList<Path>(100000) } } }
-
-    coloredPaths.forEach { color, paths ->
-        fillColors(color, paths, pathsMap)
-    }
 
     println()
     println("filtering paths...")
@@ -112,15 +110,12 @@ private fun solve(grid: Grid, pairs: Map<Int, Pair<Path, Path>>) {
                 if (color == otherColor) continue
                 println("color $color with $otherColor start " + paths.size)
                 var index = 0
-                val colorsArray = pathsMap[otherColor - 1]
                 paths.retainAll { path ->
                     if (++index % 100000 == 0) println("$index")
 
-                    path.forEach { node ->
-                        if (colorsArray[x(node)][y(node)].size == otherPaths.size) {
-                            changed = true
-                            return@retainAll false
-                        }
+                    if (pathsMap.intersectsAll(path, color)) {
+                        changed = true
+                        return@retainAll false
                     }
 
                     return@retainAll true
@@ -168,24 +163,6 @@ private fun solve(grid: Grid, pairs: Map<Int, Pair<Path, Path>>) {
         println("color $color")
         paths.forEach { println(it) }
     }
-}
-
-private fun fillColors(color: Int, paths: MutableList<Path>, pathsMap: Array<Array<Array<ArrayList<Path>>>>) {
-    println("color $color")
-    val colors = pathsMap[color - 1]
-    paths.forEach { path ->
-        fillNodes(colors, path)
-    }
-}
-
-private fun fillNodes(colors: Array<Array<ArrayList<Path>>>, path: Path) {
-    path.forEach { node -> 
-        addPath(colors, node, path)
-    }
-}
-
-private fun addPath(colors: Array<Array<ArrayList<Path>>>, node: Byte, path: Path) {
-    colors[x(node)][y(node)].add(path)
 }
 
 private fun readGrid(): Grid {

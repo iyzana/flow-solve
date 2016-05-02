@@ -1,5 +1,7 @@
 package de.adesso.flowsolver
 
+import java.util.*
+
 /**
  * FlowSolve
  * adesso AG
@@ -31,6 +33,11 @@ class Path(size: Int) {
         for (node in this) apply(node)
     }
 
+    inline fun any(predicate: (node: Byte) -> Boolean): Boolean {
+        for (node in this) if(predicate(node)) return true
+        return false
+    }
+
     operator fun iterator(): Iterator<Byte> {
         return object : Iterator<Byte> {
             var iteration = 0
@@ -43,4 +50,17 @@ class Path(size: Int) {
 
     override fun toString() = "Path(path = [" +
             (0..pos - 1).joinToString(separator = ", ") { "(${x(this[it])}, ${y(this[it])})" } + "]"
+
+    override fun equals(other: Any?): Boolean{
+        if (this === other) return true
+        if (other !is Path) return false
+
+        if (!Arrays.equals(nodes, other.nodes)) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int{
+        return Arrays.hashCode(nodes)
+    }
 }
