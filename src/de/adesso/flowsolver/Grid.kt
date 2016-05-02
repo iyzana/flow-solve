@@ -25,7 +25,7 @@ data class Grid(val w: Int, val h: Int) {
         for (y in 0..h - 1) {
             for (x in 0..w - 1) {
                 if (this[x, y].color == 0) print(" .")
-                else print(" " + this[x, y].color)
+                else print(" " + Integer.toString(this[x, y].color, 36))
             }
             println()
         }

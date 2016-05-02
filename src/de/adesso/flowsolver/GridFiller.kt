@@ -30,16 +30,16 @@ class FillGrid(grid: Grid, nodes: List<Node>) {
 
         w = grid.w
         h = grid.h
-        
+
         fillGrid = Array(grid.w) { x ->
             Array(grid.h) { y ->
                 grid[x, y].forFilling(end = grid[x, y] in nodes)
             }
         }
     }
-    
+
     operator fun get(x: Int, y: Int) = if (valid(x, y, this)) fillGrid[x][y] else FillNode(x, y, -1)
-    
+
     operator fun unaryPlus(): FillGrid {
         for (y in 0..h - 1) {
             for (x in 0..w - 1) {
@@ -49,12 +49,12 @@ class FillGrid(grid: Grid, nodes: List<Node>) {
             println()
         }
         println()
-        
+
         return this
     }
 }
 
-fun fillGrid(grid: Grid, nodes: List<Node>): List<Node> {
+fun fillGrid(grid: Grid, nodes: List<Node>): Map<Int, List<Path>> {
     val fillGrid = FillGrid(grid, nodes)
 
     val newStartPointMapping = hashMapOf<FillNode, FillNode>()
@@ -64,12 +64,18 @@ fun fillGrid(grid: Grid, nodes: List<Node>): List<Node> {
         newStartPointMapping.putAll(fillNode(fillNode, fillGrid))
     }
 
-    val newStartPoints = nodes.map { fillGrid[it.x, it.y] }.map { node ->
-        var current = node
-        while (current in newStartPointMapping)
-            current = newStartPointMapping[current]!!
-        current
-    }.map { it.toNode() }
+    val pathsToNewPoints = nodes.map { fillGrid[it.x, it.y] }.groupBy { it.color }.mapValues { entry ->
+        entry.value.map { node ->
+            val path = Path(newStartPointMapping.size)
+            var current = node
+            path.add(current.toNode().compressed())
+            while (current in newStartPointMapping) {
+                current = newStartPointMapping[current]!!
+                path.add(current.toNode().compressed())
+            }
+            path
+        }
+    }
 
     for (x in 0..fillGrid.w - 1) {
         for (y in 0..fillGrid.h - 1) {
@@ -77,7 +83,7 @@ fun fillGrid(grid: Grid, nodes: List<Node>): List<Node> {
         }
     }
 
-    return newStartPoints
+    return pathsToNewPoints
 }
 
 fun fillNode(node: FillNode, grid: FillGrid): Map<FillNode, FillNode> {
@@ -109,7 +115,7 @@ fun fillNeighbors(node: FillNode, color: Int, grid: FillGrid): Map<FillNode, Fil
     val mapping = hashMapOf<FillNode, FillNode>()
 
     node.color = color
-    +grid
+    //    +grid
     
     for (dx in -1..1) {
         for (dy in -1..1) {

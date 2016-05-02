@@ -1,33 +1,7 @@
 package de.adesso.flowsolver
 
-import java.util.HashMap
-import java.util.LinkedList
+import java.util.*
 
-
-/**
- * FlowSolve
- * adesso AG
- * @author kaiser
- * Created on 28.04.2016
- */
-class Path(size: Int, node: Byte) {
-    val nodes = ByteArray(size)
-    var pos = 0
-    
-    val size: Int
-        get() = pos
-    
-    init {
-        add(node)
-    }
-    
-    fun add(node: Byte) {
-        nodes[pos++] = node
-    }
-    
-    override fun toString() = "Path(path = [" +
-            nodes.joinToString(separator = ", ") { "(${x(it)}, ${y(it)})" } + "]"
-}
 
 fun distance(node1: Node, node2: Node) = Math.abs(node1.x - node2.x) + Math.abs(node1.y - node2.y)
 

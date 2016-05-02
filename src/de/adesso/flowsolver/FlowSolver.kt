@@ -27,15 +27,13 @@ private val O = 15;
 
 fun main(args: Array<String>) {
     val grid = create9Grid()
-    
+
     val points = extractPairs(grid).values.flatMap { listOf(it.first, it.second) }
     val newPoints = fillGrid(+grid, points)
     +grid
-    newPoints.forEach { println(it) }
-    println()
-    
-    val pairs = newPoints.groupBy { it.color }.values.map { it[0] to it[1] }
-    
+
+    val pairs = newPoints.mapValues { e -> e.value[0] to e.value[1] }
+
     solve(grid, pairs)
 }
 
@@ -43,7 +41,7 @@ private fun extractPairs(grid: Grid): Map<Int, Pair<Node, Node>> {
     val pairs = HashMap<Int, Pair<Node, Node>>()
     colors@ for (color in A..O) {
         var first: Node? = null
-        
+
         for (x in 0..grid.w - 1) {
             for (y in 0..grid.h - 1) {
                 val node = grid[x, y]
@@ -57,52 +55,115 @@ private fun extractPairs(grid: Grid): Map<Int, Pair<Node, Node>> {
             }
         }
     }
-    
+
     return pairs
 }
 
-private fun solve(grid: Grid, pairs: List<Pair<Node, Node>>) {
+private fun solve(grid: Grid, pairs: Map<Int, Pair<Path, Path>>) {
     val w = grid.w
     val h = grid.h
-    
-    val shortestPaths = pairs.map { shortestPath(grid, it.first, it.second).size }
-//    val shortestDistances = pairs.map{ distance(it.first, it.second) }
-    
-    val pathSum = w * h - shortestPaths.sum()
-//    val distancesSum = w * h - shortestDistances.sum()
-    
-    val timePaths = measureTimeMillis {
-        for ((index, pair) in pairs.withIndex()) {
-            print("color ${index+1} ")
-            
-            val maxPathLengthPaths = pathSum + shortestPaths[index]
-            print("maxLength $maxPathLengthPaths ")
-            //            val maxPathLengthDistances = distancesSum + shortestDistances[color]!!
-            //            println("maxPathLengthDistances = $maxPathLengthDistances")
-    
-            val paths = allPaths(grid, pair.first, pair.second, maxPathLengthPaths)
-            //                    .forEach { println(it) }
+
+    val shortestPaths = pairs.mapValues { entry ->
+        val color = entry.key
+        val pair = entry.value
+        val start = pair.first.lastNode(color)
+        val end = pair.second.lastNode(color)
+
+        shortestPath(grid, start, end).size
+    }
+    val pathSum = w * h - shortestPaths.values.sum()
+
+    val coloredPaths = HashMap<Int, MutableList<Path>>()
+
+    println("timePaths = " + measureTimeMillis {
+        for ((color, pair) in pairs.entries) {
+            print("color $color")
+
+            val maxPathLengthPaths = pathSum + shortestPaths[color]!!
+            print(" maxLength $maxPathLengthPaths ")
+
+            val start = pair.first.lastNode(color)
+            val end = pair.second.lastNode(color)
+
+            val paths = allPaths(grid, start, end, maxPathLengthPaths).toMutableList()
             println("${paths.size} paths")
+            coloredPaths.put(color, paths)
+        }
+    } + " ms")
+
+    println()
+    println("filtering paths...")
+
+    fun Path.intersects(other: Path) = (0..pos - 1).any { i -> (0..other.pos - 1).any { j -> this[i] == other[j] } }
+    fun Path.intersectsAll(other: List<Path>): Boolean {
+        return other.all { this.intersects(it) }
+    }
+
+    do {
+        var changed = false
+        
+        val sizeSorted = coloredPaths.toList().sortedBy { it.second.size }
+        for ((color, paths) in sizeSorted) {
+            val sizeSorted2 = sizeSorted.toList().sortedBy { it.second.size }
+            for ((otherColor, otherPaths) in sizeSorted2) {
+                if (color == otherColor) continue
+                print("color $color with $otherColor start " + paths.size)
+                paths.retainAll { path ->
+                    if (path.intersectsAll(otherPaths)) {
+                        changed = true
+                        return@retainAll false
+                    }
+                    return@retainAll true
+                }
+                println(" end " + paths.size)
+            }
+        }
+    } while (changed)
+
+    println("filling grid")
+
+    coloredPaths.forEach { color, paths ->
+        paths.single().nodes().forEach { node ->
+            grid[x(node), y(node)].color = color
         }
     }
-    println("timePaths = $timePaths ms")
-    
-    //    val paths = allPaths(grid, grid[0, 0], grid[w - 1, h - 1])
-    //    
-    //    paths.mapIndexed { i, path ->
-    //        val grid = Grid(w, h)
-    //        
-    //        path.forEachIndexed { i, node -> grid[node.x, node.y].color = i + 1 }
-    //        
-    //        println("path $i")
-    //        for (y in 0..w - 1) {
-    //            for (x in 0..h - 1) {
-    //                print(" " + grid[x, y].color)
-    //            }
-    //            println()
-    //        }
-    //        println()
-    //    }
+
+    +grid
+
+    println("appending pre and postfix...")
+
+    val completePaths = coloredPaths.mapValues { e ->
+        val color = e.key
+        val paths = e.value
+
+        paths.map { path ->
+            val pre = pairs[color]!!.first
+            val post = pairs[color]!!.second
+            val size = path.size + pre.size + post.size - 2
+
+            val complete = Path(size)
+            post.nodes().dropLast(1).forEach { complete.add(it) }
+            path.nodes().forEach { complete.add(it) }
+            pre.nodes().dropLast(1).reversed().forEach { complete.add(it) }
+            complete
+        }
+    }
+
+    println()
+    println("filtered paths")
+    completePaths.forEach { entry ->
+        val color = entry.key
+        val paths = entry.value
+
+        println("color $color")
+        paths.forEach { println(it) }
+    }
+}
+
+private fun readGrid(): Grid {
+    val input = Scanner(System.`in`.reader()).nextLine()
+
+    return Grid.fromString(input)
 }
 
 private fun create5Grid(): Grid {
@@ -138,7 +199,7 @@ private fun create7Grid(): Grid {
 }
 
 private fun create9Grid(): Grid {
-    return Grid(9, 9).apply {
+    return Grid(10, 9).apply {
         this[0, 5].color = D
         this[1, 1].color = A
         this[1, 4].color = B
@@ -161,38 +222,36 @@ private fun create9Grid(): Grid {
 }
 
 private fun create14Grid(): Grid {
-    val grid = Grid(14, 14)
-
-    grid[0, 7].color = D
-    grid[1, 1].color = N
-    grid[1, 4].color = I
-    grid[2, 6].color = F
-    grid[2, 10].color = G
-    grid[3, 5].color = A
-    grid[3, 10].color = E
-    grid[4, 5].color = O
-    grid[4, 6].color = F
-    grid[4, 8].color = J
-    grid[4, 9].color = B
-    grid[4, 11].color = G
-    grid[5, 1].color = N
-    grid[6, 5].color = L
-    grid[7, 6].color = A
-    grid[7, 7].color = L
-    grid[7, 8].color = E
-    grid[7, 9].color = B
-    grid[7, 13].color = K
-    grid[8, 3].color = M
-    grid[9, 8].color = C
-    grid[9, 9].color = K
-    grid[9, 13].color = M
-    grid[10, 4].color = D
-    grid[10, 11].color = C
-    grid[10, 13].color = H
-    grid[11, 2].color = O
-    grid[11, 7].color = J
-    grid[12, 12].color = I
-    grid[13, 10].color = H
-    
-    return grid
+    return Grid(14, 14).apply {
+        this[0, 7].color = D
+        this[1, 1].color = N
+        this[1, 4].color = I
+        this[2, 6].color = F
+        this[2, 10].color = G
+        this[3, 5].color = A
+        this[3, 10].color = E
+        this[4, 5].color = O
+        this[4, 6].color = F
+        this[4, 8].color = J
+        this[4, 9].color = B
+        this[4, 11].color = G
+        this[5, 1].color = N
+        this[6, 5].color = L
+        this[7, 6].color = A
+        this[7, 7].color = L
+        this[7, 8].color = E
+        this[7, 9].color = B
+        this[7, 13].color = K
+        this[8, 3].color = M
+        this[9, 8].color = C
+        this[9, 9].color = K
+        this[9, 13].color = M
+        this[10, 4].color = D
+        this[10, 11].color = C
+        this[10, 13].color = H
+        this[11, 2].color = O
+        this[11, 7].color = J
+        this[12, 12].color = I
+        this[13, 10].color = H
+    }
 }
