@@ -11,7 +11,11 @@ data class Grid(val w: Int, val h: Int) {
     val grid: Array<Array<Node>>
     
     init {
-        grid = Array<Array<Node>>(w.toInt()) { x -> Array<Node>(h.toInt()) { y -> Node(x, y) } }
+        grid = Array(w.toInt()) { x ->
+            Array(h.toInt()) { y ->
+                Node(x, y)
+            }
+        }
     }
     
     operator fun get(x: Int, y: Int) = grid[x][y]

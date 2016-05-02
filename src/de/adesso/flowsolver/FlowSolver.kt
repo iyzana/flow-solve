@@ -1,6 +1,6 @@
 package de.adesso.flowsolver
 
-import java.util.HashMap
+import java.util.*
 import kotlin.system.measureTimeMillis
 
 /**
@@ -26,13 +26,13 @@ private val N = 14;
 private val O = 15;
 
 fun main(args: Array<String>) {
-    val grid = create5Grid()
+    val grid = create9Grid()
     
     val points = extractPairs(grid).values.flatMap { listOf(it.first, it.second) }
-    points.forEach { println(it) }
     val newPoints = fillGrid(+grid, points)
-    newPoints.forEach { println(it) }
     +grid
+    newPoints.forEach { println(it) }
+    println()
     
     val pairs = newPoints.groupBy { it.color }.values.map { it[0] to it[1] }
     
