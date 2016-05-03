@@ -57,59 +57,71 @@ fun shortestPath(grid: Grid, start: Node, end: Node): Path {
 
 var foundPaths = 0;
 
-fun allPaths(grid: Grid, start: Node, end: Node, pathsMap: PathsData, maxLength: Int = 0, depth: Int = 0): List<Path> {
+fun allPaths(grid: Grid, start: Node, end: Node, pathsMap: PathsData, maxLength: Int, depth: Int = 0, path: Path = Path(maxLength)): List<Path> {
     val solutions = ArrayList<Path>()
 
     if (depth + distance(start, end) >= maxLength) return solutions
 
     if (start == end) {
         if (++foundPaths % 100000 == 0) println("foundPaths = $foundPaths")
-        solutions.add(Path(maxLength, end.compressed()))
+        solutions.add(path.copy())
         return solutions
     }
 
-    processNeighbors(grid, start, end, pathsMap, maxLength, depth, solutions)
+    processNeighbors(path, grid, start, end, pathsMap, maxLength, depth, solutions)
 
     return solutions
 }
 
-private fun processNeighbors(grid: Grid, start: Node, end: Node, pathsMap: PathsData, maxLength: Int, depth: Int, solutions: MutableList<Path>) {
+private fun processNeighbors(path: Path, grid: Grid, start: Node, end: Node, pathsMap: PathsData, maxLength: Int, depth: Int, solutions: MutableList<Path>) {
     val x = start.x
     val y = start.y
-    processNeighbor(x.toInt(), y - 1, grid, start, end, pathsMap, maxLength, depth, solutions)
-    processNeighbor(x + 1, y.toInt(), grid, start, end, pathsMap, maxLength, depth, solutions)
-    processNeighbor(x.toInt(), y + 1, grid, start, end, pathsMap, maxLength, depth, solutions)
-    processNeighbor(x - 1, y.toInt(), grid, start, end, pathsMap, maxLength, depth, solutions)
+    processNeighbor(x.toInt(), y - 1, path, grid, start, end, pathsMap, maxLength, depth, solutions)
+    processNeighbor(x + 1, y.toInt(), path, grid, start, end, pathsMap, maxLength, depth, solutions)
+    processNeighbor(x.toInt(), y + 1, path, grid, start, end, pathsMap, maxLength, depth, solutions)
+    processNeighbor(x - 1, y.toInt(), path, grid, start, end, pathsMap, maxLength, depth, solutions)
 }
 
-private fun processNeighbor(x: Int, y: Int, grid: Grid, start: Node, end: Node, pathsMap: PathsData, maxLength: Int, depth: Int, solutions: MutableList<Path>) {
+private fun processNeighbor(x: Int, y: Int, path: Path, grid: Grid, start: Node, end: Node, pathsMap: PathsData, maxLength: Int, depth: Int, solutions: MutableList<Path>) {
     if (x < 0 || y < 0 || x >= grid.w || y >= grid.h) return
 
     val node = grid[x, y]
     if (node.color != 0 && node != end) return
 
-    setCallReset(node, grid, start, end, pathsMap, depth, maxLength, solutions)
+    setCallReset(node, path, grid, start, end, pathsMap, depth, maxLength, solutions)
 }
 
-private fun setCallReset(node: Node, grid: Grid, start: Node, end: Node, pathsMap: PathsData, depth: Int, maxLength: Int, solutions: MutableList<Path>) {
+private fun setCallReset(node: Node, path: Path, grid: Grid, start: Node, end: Node, pathsMap: PathsData, depth: Int, maxLength: Int, solutions: MutableList<Path>) {
     val previousColor = node.color
+    path.add(node.compressed())
+
+//    if (depth < 5) {
+//        // TODO: filter by filling/splitting
+//        // TODO: Apply B paths to A after allPaths
+//        // TODO: Sort by size before filtering
+//        // TODO: Use previously built data (cache?)
+//        for (color in 1..start.color - 1)
+//            if (pathsMap.intersectsAll(path, color)) {
+//                print("a")
+//                path.remove()
+//                return
+//            }
+//    }
+
     node.color = start.color
-    recursiveCall(node, grid, start, end, pathsMap, depth, maxLength, solutions)
+    recursiveCall(node, path, grid, start, end, pathsMap, depth, maxLength, solutions)
+    path.remove()
     node.color = previousColor
 }
 
-private fun recursiveCall(node: Node, grid: Grid, start: Node, end: Node, pathsMap: PathsData, depth: Int, maxLength: Int, solutions: MutableList<Path>) {
-    val paths = callRecursion(grid, node, end, pathsMap, depth, maxLength)
-    addCurrentFirst(paths, start)
+private fun recursiveCall(node: Node, path: Path, grid: Grid, start: Node, end: Node, pathsMap: PathsData, depth: Int, maxLength: Int, solutions: MutableList<Path>) {
+    val paths = callRecursion(grid, node, path, end, pathsMap, depth, maxLength)
     addToSolutions(paths, solutions)
 }
 
-private fun callRecursion(grid: Grid, node: Node, end: Node, pathsMap: PathsData, depth: Int, maxLength: Int) =
-        allPaths(grid, node, end, pathsMap, maxLength, depth + 1)
+private fun callRecursion(grid: Grid, node: Node, path: Path, end: Node, pathsMap: PathsData, depth: Int, maxLength: Int) =
+        allPaths(grid, node, end, pathsMap, maxLength, depth + 1, path)
 
-private fun addCurrentFirst(paths: List<Path>, start: Node) {
-    for (path in paths) path.add(start.compressed())
-}
 
 private fun addToSolutions(paths: List<Path>, solutions: MutableList<Path>) {
     solutions.addAll(paths)

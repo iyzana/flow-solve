@@ -9,23 +9,40 @@ import java.util.*
  *
  * @author Jannis
  */
-class PathsData(colors: Collection<Int>, w: Int, h: Int) {
+class PathsData(colors: Collection<Int>, grid: Grid) {
     val pathsMap = HashMap<Int, Array<Array<MutableList<Path>>>>()
     val colorPaths = HashMap<Int, Int>()
 
     init {
         for (color in colors) {
-            pathsMap.put(color, Array(w) { Array(h) { ArrayList<Path>(100000) as MutableList<Path> } })
+            pathsMap.put(color, Array(grid.w) { x ->
+                Array(grid.h) { y ->
+                    val size = if (grid[x, y].color == 0) 1000 else 0
+                    ArrayList<Path>(size) as MutableList<Path>
+                }
+            })
+
             colorPaths.put(color, 0)
         }
     }
 
+    fun intersectsAll(node: Node, color: Int): Boolean {
+        return get(color, node.x, node.y).size == colorPaths[color]
+    }
+
     fun intersectsAll(path: Path, color: Int): Boolean {
+        val targetSize = colorPaths[color]
+
+        return calcValue(color, path, targetSize)
+    }
+
+    private fun calcValue(color: Int, path: Path, targetSize: Int?): Boolean {
         val intersecting = HashSet<Path>()
         path.forEach { node ->
             intersecting.addAll(get(color, x(node), y(node)))
-            if (intersecting.size == colorPaths[color]) return true
+            if (intersecting.size == targetSize) return true
         }
+
         return false
     }
 
@@ -36,6 +53,14 @@ class PathsData(colors: Collection<Int>, w: Int, h: Int) {
             path.forEach { node ->
                 colors[x(node)][y(node)].add(path)
             }
+        }
+    }
+
+    fun remove(color: Int, path: Path) {
+        val colors = pathsMap[color] ?: throw IllegalArgumentException("No data for color $color")
+        colorPaths[color] = colorPaths[color]!! - 1
+        path.forEach { node ->
+            colors[x(node)][y(node)].remove(path)
         }
     }
 

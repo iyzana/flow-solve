@@ -26,7 +26,7 @@ private val N = 14;
 private val O = 15;
 
 fun main(args: Array<String>) {
-    val grid = createHard9Grid()
+    val grid = create9Grid()
 
     val points = extractPairs(grid).values.flatMap { listOf(it.first, it.second) }
     val newPoints = fillGrid(+grid, points)
@@ -76,7 +76,7 @@ private fun solve(grid: Grid, pairs: Map<Int, Pair<Path, Path>>) {
     val coloredPaths = HashMap<Int, MutableList<Path>>()
 
     // color -> x -> y -> List<Path>
-    val pathsMap = PathsData(pairs.keys, w, h)
+    val pathsData = PathsData(pairs.keys, grid)
 
     println("timePaths = " + measureTimeMillis {
         for ((color, pair) in pairs.entries) {
@@ -88,12 +88,25 @@ private fun solve(grid: Grid, pairs: Map<Int, Pair<Path, Path>>) {
             val start = pair.first.lastNode(color)
             val end = pair.second.lastNode(color)
 
-            val paths = allPaths(grid, start, end, pathsMap, maxLength).toMutableList()
+            val paths = allPaths(grid, start, end, pathsData, maxLength).toMutableList()
             println("${paths.size} paths")
             coloredPaths.put(color, paths)
 
             println("building sorted paths...")
-            pathsMap.add(color, paths)
+            pathsData.add(color, paths)
+
+//            for (color2 in 1..color - 1) {
+//                print("filtering $color2 before ${coloredPaths[color2]!!.size} ")
+//                coloredPaths[color2]!!.retainAll { path ->
+//                    if (pathsData.intersectsAll(path, color)) {
+//                        pathsData.remove(color, path)
+//                        return@retainAll false
+//                    }
+//
+//                    return@retainAll true
+//                }
+//                println("after ${coloredPaths[color2]!!.size}")
+//            }
         }
     } + " ms")
 
@@ -105,23 +118,23 @@ private fun solve(grid: Grid, pairs: Map<Int, Pair<Path, Path>>) {
 
         val sizeSorted = coloredPaths.toList().sortedBy { it.second.size }
         for ((color, paths) in sizeSorted) {
+            print("color $color start " + paths.size)
             val sizeSorted2 = sizeSorted.toList().sortedBy { it.second.size }
             for ((otherColor, otherPaths) in sizeSorted2) {
                 if (color == otherColor) continue
-                println("color $color with $otherColor start " + paths.size)
-                var index = 0
+                // print("color $color with $otherColor start " + paths.size)
                 paths.retainAll { path ->
-                    if (++index % 100000 == 0) println("$index")
-
-                    if (pathsMap.intersectsAll(path, color)) {
+                    if (pathsData.intersectsAll(path, otherColor)) {
+                        pathsData.remove(color, path)
                         changed = true
                         return@retainAll false
                     }
 
                     return@retainAll true
                 }
-                println(" end " + paths.size)
+                //                println(" end " + paths.size)
             }
+            println(" end " + paths.size)
         }
     } while (changed)
 
@@ -206,7 +219,7 @@ private fun create7Grid(): Grid {
 }
 
 private fun create9Grid(): Grid {
-    return Grid(10, 10).apply {
+    return Grid(10, 9).apply {
         this[0, 5].color = D
         this[1, 1].color = A
         this[1, 4].color = B
