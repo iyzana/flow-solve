@@ -1,4 +1,8 @@
-package de.adesso.flowsolver
+package de.adesso.flowsolver.solver
+
+import de.adesso.flowsolver.solver.model.Grid
+import de.adesso.flowsolver.solver.model.Node
+import de.adesso.flowsolver.solver.model.Path
 
 /**
  * FlowSolve

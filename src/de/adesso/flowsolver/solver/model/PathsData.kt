@@ -1,6 +1,8 @@
-package de.adesso.flowsolver
+package de.adesso.flowsolver.solver.model
 
-import java.util.*
+import java.util.ArrayList
+import java.util.HashMap
+import java.util.HashSet
 
 /**
  * Project: FlowSolve
@@ -39,7 +41,7 @@ class PathsData(colors: Collection<Int>, grid: Grid) {
     private fun calcValue(color: Int, path: Path, targetSize: Int?): Boolean {
         val intersecting = HashSet<Path>()
         path.forEach { node ->
-            intersecting.addAll(get(color, x(node), y(node)))
+            intersecting.addAll(get(color, Node.x(node), Node.y(node)))
             if (intersecting.size == targetSize) return true
         }
 
@@ -51,7 +53,7 @@ class PathsData(colors: Collection<Int>, grid: Grid) {
         colorPaths[color] = colorPaths[color]!! + paths.size
         paths.forEach { path ->
             path.forEach { node ->
-                colors[x(node)][y(node)].add(path)
+                colors[Node.x(node)][Node.y(node)].add(path)
             }
         }
     }
@@ -60,7 +62,7 @@ class PathsData(colors: Collection<Int>, grid: Grid) {
         val colors = pathsMap[color] ?: throw IllegalArgumentException("No data for color $color")
         colorPaths[color] = colorPaths[color]!! - 1
         path.forEach { node ->
-            colors[x(node)][y(node)].remove(path)
+            colors[Node.x(node)][Node.y(node)].remove(path)
         }
     }
 

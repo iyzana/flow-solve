@@ -1,4 +1,4 @@
-package de.adesso.flowsolver
+package de.adesso.flowsolver.solver.model
 
 /**
  * FlowSolve
@@ -7,7 +7,6 @@ package de.adesso.flowsolver
  * Created on 28.04.2016
  */
 data class Grid(val w: Int, val h: Int) {
-
     val grid: Array<Array<Node>>
 
     init {
@@ -21,7 +20,7 @@ data class Grid(val w: Int, val h: Int) {
 
     operator fun get(x: Int, y: Int) = grid[x][y]
     operator fun get(x: Byte, y: Byte) = get(x.toInt(), y.toInt())
-
+    
     operator fun unaryPlus(): Grid {
         for (y in 0..h - 1) {
             for (x in 0..w - 1) {

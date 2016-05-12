@@ -1,5 +1,6 @@
 package de.adesso.flowsolver
 
+import de.adesso.flowsolver.solver.model.Node
 import org.junit.Test
 
 /**
@@ -17,7 +18,6 @@ class SimpleNodeTest {
         val compressed = node.compressed()
         
         println(Integer.toBinaryString(compressed.toInt()))
-        println("node.x = ${x(compressed)}")
-        println("node.y = ${y(compressed)}")
+        println("node = ${Node(compressed).toString()}")
     }
 }

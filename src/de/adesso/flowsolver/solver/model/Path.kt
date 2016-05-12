@@ -1,6 +1,6 @@
-package de.adesso.flowsolver
+package de.adesso.flowsolver.solver.model
 
-import java.util.*
+import java.util.Arrays
 
 /**
  * FlowSolve
@@ -61,7 +61,7 @@ class Path private constructor(val nodes: ByteArray) {
     }
 
     override fun toString() = "Path(path = [" +
-            (0..pos - 1).joinToString(separator = ", ") { "(${x(this[it])}, ${y(this[it])})" } + "]"
+            (0..pos - 1).joinToString(separator = ", ") { "(${Node(nodes[it]).toString()})" } + "]"
 
     override fun equals(other: Any?): Boolean{
         if (this === other) return true
