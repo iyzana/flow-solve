@@ -9,7 +9,7 @@ import de.adesso.flowsolver.gui.functions.FlowWindow;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
-public class jfxTest extends Application{
+public class FlowSolverGUI extends Application{
 
 	FWControler window = new FWControler();
 

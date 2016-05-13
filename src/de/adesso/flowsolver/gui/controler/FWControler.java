@@ -11,18 +11,54 @@ import javafx.stage.Stage;
 public class FWControler{
 
 	FlowWindow window;
+	int heith = 500 , length = 600;
 
 	public void init(Stage primaryStage){
 		window = new FlowWindow();
-		window.init(primaryStage, this);
+		window.init(primaryStage, this, heith, length);
 		window.show();
 	}
 
 	public void decrease(){
-		window.setGridSize(Integer.toString(Integer.parseInt(window.getGridSize())-1));
+		int i = Integer.parseInt(window.getGridSize())-1;
+		window.setGridSize(Integer.toString(i >= 5 ? i : 5));
 	}
 
 	public void increase(){
-		window.setGridSize(Integer.toString(Integer.parseInt(window.getGridSize())+1));
+		int i = Integer.parseInt(window.getGridSize())+1;
+		window.setGridSize(Integer.toString(i <= 15 ? i : 15));
+	}
+
+	public void generate(){
+		window.generateNotes();
+	}
+
+	public int getAmountNotes(){
+		switch(Integer.parseInt(window.getGridSize())){
+			case 5:
+				return 4;
+			case 6:
+				return 5;
+			case 7:
+				return 6;
+			case 8:
+				return 7;
+			case 9:
+				return 8;
+			case 10:
+				return 10;
+			case 11:
+				return 12;
+			case 12:
+				return 14;
+			case 13:
+				return 17;
+			case 14:
+				return 18;
+			case 15:
+				return 20;
+			default:
+				return 0;
+		}
 	}
 }
