@@ -3,6 +3,7 @@ package de.adesso.flowsolver.solver
 import de.adesso.flowsolver.solver.model.Grid
 import de.adesso.flowsolver.solver.model.Node
 import de.adesso.flowsolver.solver.model.Path
+import java.util.LinkedList
 
 /**
  * FlowSolve
@@ -10,28 +11,18 @@ import de.adesso.flowsolver.solver.model.Path
  * @author kaiser
  * Created on 06.05.2016
  */
-fun main(args: Array<String>) {
-    val grid = Grid.fromString("baa,aaa,baa")
-    val path = Path(3)
-//    path.add(Node(0, 1).compressed())
+fun neighbor(grid: Grid, x: Int, y: Int, opened: MutableList<Node>, closed: MutableSet<Node>, result: MutableList<Node>) {
+    if (valid(grid, x, y)) {
+        val neighbor = grid[x, y]
+        if(!closed.add(neighbor)) return
     
-    println(isCutoff(grid, path, 0, listOf(1)))
+        if (neighbor.color == 0) opened.add(neighbor)
+        else if (neighbor.color > 0) result.add(neighbor)
+    }
 }
 
-fun isCutoff(grid: Grid, by: Path, color: Int, colors: List<Int>): Boolean {
+fun isCutoff(grid: Grid, by: Path, colors: Map<Int, Pair<Path, Path>>): Boolean {
     val closed = by.nodes().map { grid[Node.x(it), Node.y(it)] }.toMutableSet()
-    
-    fun valid(x: Int, y: Int) = x >= 0 && y >= 0 && x < grid.w && y < grid.h
-    
-    fun neighbor(x: Int, y: Int, opened: MutableList<Node>, closed: MutableSet<Node>, result: MutableList<Int>) {
-        if (valid(x, y)) {
-            val neighbor = grid[x, y]
-            if (!closed.add(neighbor)) return
-            neighbor.color = -1
-            if (neighbor.color == 0) opened.add(neighbor)
-            else if (neighbor.color > 0) result.add(neighbor.color)
-        }
-    }
     
     val nodePairs = mutableSetOf<Int>();
     
@@ -41,23 +32,38 @@ fun isCutoff(grid: Grid, by: Path, color: Int, colors: List<Int>): Boolean {
             if (node in closed) continue
             if (node.color != 0) continue
             
-            val opened = mutableListOf<Node>()
-            val results = mutableListOf<Int>()
+            val opened = LinkedList<Node>()
+            val results = mutableListOf<Node>()
             opened.add(node)
+            closed.add(node)
             while (!opened.isEmpty()) {
-                val current = opened[0]
-                if (!closed.add(current)) continue
+                val current = opened.pop()
                 
-                neighbor(current.x, current.y - 1, opened, closed, results)
-                neighbor(current.x + 1, current.y, opened, closed, results)
-                neighbor(current.x, current.y + 1, opened, closed, results)
-                neighbor(current.x - 1, current.y, opened, closed, results)
+                neighbor(grid, current.x, current.y - 1, opened, closed, results)
+                neighbor(grid, current.x + 1, current.y, opened, closed, results)
+                neighbor(grid, current.x, current.y + 1, opened, closed, results)
+                neighbor(grid, current.x - 1, current.y, opened, closed, results)
             }
             
-            results.removeAll(results.distinct())
-            nodePairs.addAll(results)
+            if (results.isEmpty()) return true
+            
+            closed.removeAll(results)
+            
+            val resultColors = results.map { it.color }.toMutableList()
+            resultColors.distinct().forEach { color -> resultColors.remove(color) }
+            nodePairs.addAll(resultColors)
         }
     }
     
-    return colors.size > nodePairs.size
+    val cutOffColors = colors.keys.toMutableList()
+    cutOffColors.removeAll(nodePairs)
+    
+    for (color in cutOffColors) {
+        val pair = colors[color]!!
+        
+        if (pathExists(grid, pair.first.lastNode(color), pair.second.lastNode(color))) nodePairs.add(color)
+        else return true
+    }
+    
+    return !nodePairs.containsAll(colors.keys)
 }

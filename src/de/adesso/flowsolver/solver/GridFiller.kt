@@ -70,7 +70,7 @@ fun fillGrid(grid: Grid, nodes: List<Node>): Map<Int, List<Path>> {
 
     val pathsToNewPoints = nodes.map { fillGrid[it.x, it.y] }.groupBy { it.color }.mapValues { entry ->
         entry.value.map { node ->
-            val path = Path(newStartPointMapping.size)
+            val path = Path(newStartPointMapping.size + 1)
             var current = node
             path.add(current.toNode().compressed())
             while (current in newStartPointMapping) {

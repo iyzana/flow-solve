@@ -26,15 +26,15 @@ object TestGrids {
     private val N = 14;
     private val O = 15;
     
-    public fun readGrid(): Grid {
+    fun readGrid(): Grid {
         val input = Scanner(System.`in`.reader()).nextLine()
         
         return Grid.fromString(input)
     }
     
-    public fun createHard9Grid() = Grid.fromString("aaaaaaaaa,aaaaaaaea,aadaaaada,aahafaaaa,aaiahcaaa,aaaabgafa,aaaaiaaaa,aeaaaagca,aaabaaaaa")
+    fun createHard9Grid() = Grid.fromString("aaaaaaaaa,aaaaaaaea,aadaaaada,aahafaaaa,aaiahcaaa,aaaabgafa,aaaaiaaaa,aeaaaagca,aaabaaaaa")
     
-    public fun create5Grid(): Grid {
+    fun create5Grid(): Grid {
         return Grid(5, 5).apply {
             this[0, 0].color = A
             this[1, 3].color = B
@@ -49,7 +49,7 @@ object TestGrids {
         }
     }
     
-    public fun create7Grid(): Grid {
+    fun create7Grid(): Grid {
         return Grid(7, 7).apply {
             this[1, 2].color = E
             this[2, 4].color = B
@@ -66,8 +66,11 @@ object TestGrids {
         }
     }
     
-    public fun create9Grid(): Grid {
-        return Grid(10, 9).apply {
+    fun createHard8Grid() = Grid.fromString("aaaaaaaa,fcaaeaad,baaaaaaa,aaaabada,aaafaaaa,aaaaacaa,eaaaaaaa,aaaaaaaa")
+    fun createHard8Grid2() = Grid.fromString("efaaaaaa,aaaaaaaa,aaadacaa,aaaaaaaa,aaadfaaa,aaabaeab,acaaaaaa,aaaaaaaa")
+    
+    fun create9Grid(): Grid {
+        return Grid(9, 9).apply {
             this[0, 5].color = D
             this[1, 1].color = A
             this[1, 4].color = B
@@ -89,7 +92,11 @@ object TestGrids {
         }
     }
     
-    public fun create14Grid(): Grid {
+    fun create10Grid() = Grid.fromString("aaaaaaaaaa,afaaacdhja,aaaeaaaaaa,aaaaaiaaaa,gaaaabahaa,aaaaaaaaaa,aaaaabeaaa,acfadaaiaa,aaaaaajaaa,gaaaaaaaaa")
+    
+    fun create11Grid() = Grid.fromString("aaaaaaaaaaa,aaaaaaeakah,aaaaaalafaa,alegaaaaaaa,aamaaaaagaa,amaaaaaaaaa,afaaaaaaaba,adaahaakaaa,aaaaadajaaa,baaaaaacaaj,iaaaaaaaiac")
+    
+    fun create14Grid(): Grid {
         return Grid(14, 14).apply {
             this[0, 7].color = D
             this[1, 1].color = N

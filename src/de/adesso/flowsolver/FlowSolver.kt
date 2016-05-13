@@ -1,9 +1,8 @@
 package de.adesso.flowsolver
 
 import de.adesso.flowsolver.gui.jfxTest
-import javafx.application.Application;
-import de.adesso.flowsolver.solver.fillGrid
 import de.adesso.flowsolver.solver.solve
+import javafx.application.Application
 
 /**
  * FlowSolve
@@ -13,5 +12,5 @@ import de.adesso.flowsolver.solver.solve
  */
 fun main(args: Array<String>) {
     Application.launch(jfxTest::class.java, *args)
-    solve(TestGrids.create9Grid())
+    solve(TestGrids.create11Grid())
 }
