@@ -3,7 +3,7 @@ package de.adesso.flowsolver.solver
 import de.adesso.flowsolver.solver.model.Grid
 import de.adesso.flowsolver.solver.model.Node
 import de.adesso.flowsolver.solver.model.Path
-import java.util.LinkedList
+import java.util.*
 
 /**
  * FlowSolve
@@ -26,6 +26,7 @@ fun isCutoff(grid: Grid, by: Path, colors: Map<Int, Pair<Path, Path>>): Boolean 
     
     val nodePairs = mutableSetOf<Int>();
     
+    outer@
     for (x in 0..grid.w - 1) {
         for (y in 0..grid.h - 1) {
             val node = grid[x, y]
@@ -46,6 +47,9 @@ fun isCutoff(grid: Grid, by: Path, colors: Map<Int, Pair<Path, Path>>): Boolean 
             }
             
             if (results.isEmpty()) return true
+            
+            if(closed.size == grid.w*grid.h)
+                break@outer
             
             closed.removeAll(results)
             
