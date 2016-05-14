@@ -1,0 +1,112 @@
+"C:\Program Files\Java\jdk1.8.0_60\bin\java" -Dvisualvm.id=822807723494921 -Xmx6G -Xms4G -Dvisualvm.id=822795487926322 -Didea.launcher.port=7542 "-Didea.launcher.bin.path=C:\Program Files\JetBrains\IntelliJ IDEA 2016.1\bin" -Dfile.encoding=UTF-8 -classpath "C:\Program Files\Java\jdk1.8.0_60\jre\lib\charsets.jar;C:\Program Files\Java\jdk1.8.0_60\jre\lib\deploy.jar;C:\Program Files\Java\jdk1.8.0_60\jre\lib\ext\access-bridge-64.jar;C:\Program Files\Java\jdk1.8.0_60\jre\lib\ext\cldrdata.jar;C:\Program Files\Java\jdk1.8.0_60\jre\lib\ext\dnsns.jar;C:\Program Files\Java\jdk1.8.0_60\jre\lib\ext\jaccess.jar;C:\Program Files\Java\jdk1.8.0_60\jre\lib\ext\jfxrt.jar;C:\Program Files\Java\jdk1.8.0_60\jre\lib\ext\localedata.jar;C:\Program Files\Java\jdk1.8.0_60\jre\lib\ext\nashorn.jar;C:\Program Files\Java\jdk1.8.0_60\jre\lib\ext\sunec.jar;C:\Program Files\Java\jdk1.8.0_60\jre\lib\ext\sunjce_provider.jar;C:\Program Files\Java\jdk1.8.0_60\jre\lib\ext\sunmscapi.jar;C:\Program Files\Java\jdk1.8.0_60\jre\lib\ext\sunpkcs11.jar;C:\Program Files\Java\jdk1.8.0_60\jre\lib\ext\zipfs.jar;C:\Program Files\Java\jdk1.8.0_60\jre\lib\javaws.jar;C:\Program Files\Java\jdk1.8.0_60\jre\lib\jce.jar;C:\Program Files\Java\jdk1.8.0_60\jre\lib\jfr.jar;C:\Program Files\Java\jdk1.8.0_60\jre\lib\jfxswt.jar;C:\Program Files\Java\jdk1.8.0_60\jre\lib\jsse.jar;C:\Program Files\Java\jdk1.8.0_60\jre\lib\management-agent.jar;C:\Program Files\Java\jdk1.8.0_60\jre\lib\plugin.jar;C:\Program Files\Java\jdk1.8.0_60\jre\lib\resources.jar;C:\Program Files\Java\jdk1.8.0_60\jre\lib\rt.jar;E:\Dropbox\Java Projekte\FlowSolve\out\production\FlowSolve;C:\Users\Jannis\.IntelliJIdea2016.1\config\plugins\Kotlin\kotlinc\lib\kotlin-runtime.jar;C:\Users\Jannis\.IntelliJIdea2016.1\config\plugins\Kotlin\kotlinc\lib\kotlin-reflect.jar;C:\Program Files\JetBrains\IntelliJ IDEA 2016.1\lib\junit-4.12.jar;C:\Program Files\JetBrains\IntelliJ IDEA 2016.1\lib\hamcrest-core-1.3.jar;C:\Program Files\JetBrains\IntelliJ IDEA 2016.1\lib\idea_rt.jar" com.intellij.rt.execution.application.AppMain de.adesso.flowsolver.FlowSolverKt
+ c . . . . . . . 8 3 . 4
+ . . 2 . 2 5 a . . . . b
+ . . . . . . . . . . . .
+ . . . . . . . 6 . . . .
+ 6 . . . . . . . . . . .
+ . c . 5 . . 3 . . . . .
+ . . . . . . . . . . . .
+ . . . . 4 7 9 . 9 8 . .
+ . . . . . . . . . . . .
+ . . 1 . . . . 1 7 . a .
+ . . . . . . . . . . . .
+ . . . . . . . . . . . b
+
+ c . . . . . . . 8 3 4 4
+ . . 2 . 2 5 a . . 3 4 b
+ . . . . . . . . . . 4 b
+ . . . . . . . 6 . . . b
+ 6 . . . . . . . . . . .
+ . c . 5 . . 3 . . . . .
+ . . . . . . . . . . . .
+ . . . . 4 7 9 . 9 8 . .
+ . . . . . . . . . . . .
+ . . 1 . . . . 1 7 . a .
+ . . . . . . . . . . . .
+ . . . . . . . . . . . b
+
+color 1: 41815 paths
+color 2: 42273 paths
+color 3: 918 paths
+color 4: 2764 paths
+color 5: foundPaths = 100000
+50454 paths
+color 6: 13831 paths
+color 7: foundPaths = 200000
+57866 paths
+color 8: 4852 paths
+color 9: 34318 paths
+color 10: foundPaths = 300000
+109112 paths
+color 11: 41 paths
+color 12: 40 paths
+timePaths = 2322433 ms
+prefiltering paths...
+color 12: 40 -> 28
+color 3: 918 -> 346
+color 4: 2764 -> 1045
+color 8: 4852 -> 197
+color 6: 13831 -> 82
+color 9: 34318 -> 5
+color 1: 41815 -> 979
+color 2: 42273 -> 13
+color 5: 50454 -> 29
+color 7: 57866 -> 137
+color 10: 109112 -> 1816
+
+color 12: 28 -> 22
+color 5: 29 -> 10
+color 11: 41 -> 16
+color 6: 82 -> 2
+color 7: 137 -> 7
+color 8: 197 -> 1
+color 3: 346 -> 1
+color 1: 979 -> 55
+color 4: 1045 -> 1
+color 10: 1816 -> 4
+
+color 6: 2 -> 1
+color 9: 5 -> 3
+color 7: 7 -> 1
+color 5: 10 -> 1
+color 2: 13 -> 1
+color 11: 16 -> 1
+color 12: 22 -> 1
+color 1: 55 -> 1
+
+color 9: 3 -> 1
+color 10: 4 -> 1
+
+
+filtering paths...
+writing to grid
+ c 6 6 6 6 6 6 6 8 3 4 4
+ c 6 2 2 2 5 a 6 8 3 4 b
+ c 6 6 5 5 5 a 6 8 3 4 b
+ c c 6 5 a a a 6 8 3 4 b
+ 6 c 6 5 a 8 8 8 8 3 4 b
+ 6 c 6 5 a 8 3 3 3 3 4 b
+ 6 6 6 a a 8 8 8 8 8 4 b
+ a a a a 4 7 9 9 9 8 4 b
+ a 4 4 4 4 7 7 7 7 4 4 b
+ a 4 1 1 1 1 1 1 7 4 a b
+ a 4 4 4 4 4 4 4 4 4 a b
+ a a a a a a a a a a a b
+
+appending pre and postfix...
+filtered paths:
+solution 0
+color 1 Path(path = [Node(2, 9), Node(3, 9), Node(4, 9), Node(5, 9), Node(6, 9), Node(7, 9)]
+color 2 Path(path = [Node(2, 1), Node(3, 1), Node(4, 1)]
+color 3 Path(path = [Node(6, 5), Node(7, 5), Node(8, 5), Node(9, 5), Node(9, 4), Node(9, 3), Node(9, 2), Node(9, 1), Node(9, 0)]
+color 4 Path(path = [Node(4, 7), Node(4, 8), Node(3, 8), Node(2, 8), Node(1, 8), Node(1, 9), Node(1, 10), Node(2, 10), Node(3, 10), Node(4, 10), Node(5, 10), Node(6, 10), Node(7, 10), Node(8, 10), Node(9, 10), Node(9, 9), Node(9, 8), Node(10, 8), Node(10, 7), Node(10, 6), Node(10, 5), Node(10, 4), Node(10, 3), Node(10, 2), Node(10, 1), Node(10, 0), Node(11, 0)]
+color 5 Path(path = [Node(3, 5), Node(3, 4), Node(3, 3), Node(3, 2), Node(4, 2), Node(5, 2), Node(5, 1)]
+color 6 Path(path = [Node(0, 4), Node(0, 5), Node(0, 6), Node(1, 6), Node(2, 6), Node(2, 5), Node(2, 4), Node(2, 3), Node(2, 2), Node(1, 2), Node(1, 1), Node(1, 0), Node(2, 0), Node(3, 0), Node(4, 0), Node(5, 0), Node(6, 0), Node(7, 0), Node(7, 1), Node(7, 2), Node(7, 3)]
+color 7 Path(path = [Node(5, 7), Node(5, 8), Node(6, 8), Node(7, 8), Node(8, 8), Node(8, 9)]
+color 8 Path(path = [Node(8, 0), Node(8, 1), Node(8, 2), Node(8, 3), Node(8, 4), Node(7, 4), Node(6, 4), Node(5, 4), Node(5, 5), Node(5, 6), Node(6, 6), Node(7, 6), Node(8, 6), Node(9, 6), Node(9, 7)]
+color 9 Path(path = [Node(6, 7), Node(7, 7), Node(8, 7)]
+color 10 Path(path = [Node(6, 1), Node(6, 2), Node(6, 3), Node(5, 3), Node(4, 3), Node(4, 4), Node(4, 5), Node(4, 6), Node(3, 6), Node(3, 7), Node(2, 7), Node(1, 7), Node(0, 7), Node(0, 8), Node(0, 9), Node(0, 10), Node(0, 11), Node(1, 11), Node(2, 11), Node(3, 11), Node(4, 11), Node(5, 11), Node(6, 11), Node(7, 11), Node(8, 11), Node(9, 11), Node(10, 11), Node(10, 10), Node(10, 9)]
+color 11 Path(path = [Node(11, 1), Node(11, 2), Node(11, 3), Node(11, 4), Node(11, 5), Node(11, 6), Node(11, 7), Node(11, 8), Node(11, 9), Node(11, 10), Node(11, 11)]
+color 12 Path(path = [Node(0, 0), Node(0, 1), Node(0, 2), Node(0, 3), Node(1, 3), Node(1, 4), Node(1, 5)]
+
+Process finished with exit code 0

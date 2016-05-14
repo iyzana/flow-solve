@@ -74,6 +74,9 @@ fun isCutoff(grid: Grid, by: Path, colors: Map<Int, Pair<Path, Path>>): Boolean 
     return !nodePairs.containsAll(colors.keys)
 }
 
+/**
+ * Check if any blocked field is nearby the last path segment
+ */
 private fun preCheckByNeighbors(by: Path, grid: Grid): Boolean {
     val nodes = by.nodes()
 
