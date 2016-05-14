@@ -64,10 +64,9 @@ fun solve(grid: Grid) {
     
     println("timePaths = " + measureTimeMillis {
         for ((color, pair) in pairs.entries) {
-            print("color $color")
+            print("color $color: ")
             
             val maxLength = pathSum + shortestPaths[color]!!
-            print(" maxLength $maxLength ")
             
             val start = pair.first.lastNode(color)
             val end = pair.second.lastNode(color)
@@ -90,99 +89,49 @@ fun solve(grid: Grid) {
             coloredPaths.put(color, paths)
             
             pathsData.add(color, paths)
-            
-            //            for (color2 in 1..color - 1) {
-            //                print("filtering $color2 before ${coloredPaths[color2]!!.size} ")
-            //                coloredPaths[color2]!!.retainAll { path ->
-            //                    if (pathsData.intersectsAll(path, color)) {
-            //                        pathsData.remove(color, path)
-            //                        return@retainAll false
-            //                    }
-            //
-            //                    return@retainAll true
-            //                }
-            //                println("after ${coloredPaths[color2]!!.size}")
-            //            }
         }
     } + " ms")
     
     //    pathsData.createStatisticalData()
     
-    println()
+    preFilter(coloredPaths, pathsData)
+    
     println("filtering paths...")
+    val solutions = fullFilter(grid, coloredPaths)
     
-    do {
-        var changed = false
-        
-        val sizeSorted = coloredPaths.toList().sortedBy { it.second.size }
-        for ((color, paths) in sizeSorted) {
-            //            print("color $color start " + paths.size)
-            val sizeSorted2 = sizeSorted.toList().sortedBy { it.second.size }
-            for ((otherColor, otherPaths) in sizeSorted2) {
-                if (color == otherColor) continue
-                if (paths.isEmpty()) {
-                    print('#')
-                    continue
-                }
-                print("color $color with $otherColor start " + paths.size)
-                paths.retainAll { path ->
-                    if (pathsData.intersectsAll(path, otherColor)) {
-                        pathsData.remove(color, path)
-                        changed = true
-                        return@retainAll false
-                    }
-                    
-                    return@retainAll true
-                }
-                println(" end " + paths.size)
-            }
-            //            println(" end " + paths.size) 
-        } // Path(path = [(Node(x=1, y=2, color=0)), (Node(x=1, y=3, color=0)), (Node(x=2, y=3, color=0)), (Node(x=3, y=3, color=0)), (Node(x=4, y=3, color=0)), (Node(x=4, y=4, color=0))]
-        println()
-        println()
-        println()
-    } while (changed)
-    
-    
-    
-    println("filling grid")
-    
-    coloredPaths.forEach { color, paths ->
-        paths.single().forEach { node ->
-            grid[Node.x(node), Node.y(node)].color = color
+    println("writing to grid")
+    solutions[0].forEachIndexed { index, path ->
+        path.forEach { node ->
+            grid[Node.x(node), Node.y(node)].color = index + 1
         }
     }
-    
     +grid
     
-    println("appending pre and postfix...")
+    val completeSolutions = joinPaths(solutions, pairs)
     
-    val completePaths = coloredPaths.mapValues { e ->
-        val color = e.key
-        val paths = e.value
-        
-        paths.map { path ->
-            val pre = pairs[color]!!.first
-            val post = pairs[color]!!.second
-            val size = path.size + pre.size + post.size - 2
-            
-            val complete = Path(size)
-            post.nodes().dropLast(1).forEach { complete.add(it) }
-            path.nodes().forEach { complete.add(it) }
-            pre.nodes().dropLast(1).reversed().forEach { complete.add(it) }
-            complete
+    println("filtered paths:")
+    completeSolutions.take(100).forEachIndexed { index, completeSolution ->
+        println("solution $index")
+        completeSolution.forEachIndexed { index2, path -> 
+            println("color ${index2 + 1} $path")
         }
-    }
-    
-    println()
-    println("filtered paths")
-    completePaths.forEach { entry ->
-        val color = entry.key
-        val paths = entry.value
-        
-        println("color $color")
-        paths.forEach { println(it) }
     }
 }
 
-
+private fun joinPaths(solutions: List<List<Path>>, pairs: Map<Int, Pair<Path, Path>>): List<List<Path>> {
+    println("appending pre and postfix...")
+    
+    return solutions.map { solution ->
+        solution.mapIndexed { index, path ->
+            val pre = pairs[index + 1]!!.first
+            val post = pairs[index + 1]!!.second
+            val size = pre.size + path.size + post.size - 1
+            
+            val complete = Path(size)
+            pre.nodes().forEach { complete.add(it) }
+            path.nodes().forEach { complete.add(it) }
+            post.nodes().dropLast(1).reversed().forEach { complete.add(it) }
+            return@mapIndexed complete
+        }
+    }
+}

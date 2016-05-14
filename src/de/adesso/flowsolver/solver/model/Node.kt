@@ -25,6 +25,8 @@ data class Node(val x: Int, val y: Int, var color: Int = 0) {
     
     override fun hashCode() = compressedInt()
     
+    override fun toString() = "Node($x, $y)"
+    
     companion object {
         fun x(compressed: Byte) = (compressed.toInt() - 1) shr 4 and 0xF
         fun y(compressed: Byte) = (compressed.toInt() - 1) and 0xF

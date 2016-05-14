@@ -69,7 +69,7 @@ class Path private constructor(val nodes: ByteArray) {
     }
     
     override fun toString() = "Path(path = [" +
-            (0..pos - 1).joinToString(separator = ", ") { "(${Node(nodes[it]).toString()})" } + "]"
+            (0..pos - 1).joinToString(separator = ", ") { "${Node(nodes[it]).toString()}" } + "]"
     
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

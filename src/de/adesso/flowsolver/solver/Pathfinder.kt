@@ -128,17 +128,16 @@ private fun processNeighbors(path: Path,
                              solutions: MutableList<Path>) {
     val x = start.x
     val y = start.y
-    processNeighbor(x.toInt(), y - 1, path, grid, start, end, pathsMap, maxLength, pairs, depth, solutions)
-    processNeighbor(x + 1, y.toInt(), path, grid, start, end, pathsMap, maxLength, pairs, depth, solutions)
-    processNeighbor(x.toInt(), y + 1, path, grid, start, end, pathsMap, maxLength, pairs, depth, solutions)
-    processNeighbor(x - 1, y.toInt(), path, grid, start, end, pathsMap, maxLength, pairs, depth, solutions)
+    processNeighbor(x.toInt(), y - 1, path, grid, end, pathsMap, maxLength, pairs, depth, solutions)
+    processNeighbor(x + 1, y.toInt(), path, grid, end, pathsMap, maxLength, pairs, depth, solutions)
+    processNeighbor(x.toInt(), y + 1, path, grid, end, pathsMap, maxLength, pairs, depth, solutions)
+    processNeighbor(x - 1, y.toInt(), path, grid, end, pathsMap, maxLength, pairs, depth, solutions)
 }
 
 private fun processNeighbor(x: Int,
                             y: Int,
                             path: Path,
                             grid: Grid,
-                            start: Node,
                             end: Node,
                             pathsMap: PathsData,
                             maxLength: Int,
@@ -148,6 +147,7 @@ private fun processNeighbor(x: Int,
     if (!valid(grid, x, y)) return
     
     var count = 0
+    
     
     val startPath = pairs[end.color]!!.first
     val endPath = pairs[end.color]!!.second
@@ -162,7 +162,7 @@ private fun processNeighbor(x: Int,
     val node = grid[x, y]
     if (node.color != 0 && node != end) return
     
-    setCallReset(node, path, grid, start, end, pathsMap, depth, maxLength, pairs, solutions)
+    setCallReset(node, path, grid, end, pathsMap, depth, maxLength, pairs, solutions)
 }
 
 fun valid(grid: Grid, x: Int, y: Int) = x >= 0 && y >= 0 && x < grid.w && y < grid.h
@@ -170,7 +170,6 @@ fun valid(grid: Grid, x: Int, y: Int) = x >= 0 && y >= 0 && x < grid.w && y < gr
 private fun setCallReset(node: Node,
                          path: Path,
                          grid: Grid,
-                         start: Node,
                          end: Node,
                          pathsMap: PathsData,
                          depth: Int,
@@ -178,22 +177,10 @@ private fun setCallReset(node: Node,
                          pairs: Map<Int, Pair<Path, Path>>,
                          solutions: MutableList<Path>) {
     
+    
     val previousColor = node.color
     path.add(node.compressed())
-    node.color = start.color
-    
-    /**
-    0 1 2 3 4 5 6 7 8
-    . . . . . . . . . 0
-    . . . . . . . 4 . 1
-    . . 3 . . . . 3 . 2
-    . . 7 7 5 . . . . 3
-    . . 8 7 7 2 . . . 4
-    . . . 1 1 6 . 5 . 5
-    . . . . 8 . . . . 6
-    . 4 . . . . 6 2 . 7
-    . . . 1 . . . . . 8
-     */
+    node.color = end.color
     
     if (isCutoff(grid, path, pairs.filterNot { it.key == end.color })) {
         path.remove()

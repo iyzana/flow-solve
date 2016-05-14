@@ -3,7 +3,7 @@ package de.adesso.flowsolver.solver
 import de.adesso.flowsolver.solver.model.Grid
 import de.adesso.flowsolver.solver.model.Node
 import de.adesso.flowsolver.solver.model.Path
-import java.util.*
+import java.util.LinkedList
 
 /**
  * FlowSolve
@@ -48,14 +48,14 @@ fun isCutoff(grid: Grid, by: Path, colors: Map<Int, Pair<Path, Path>>): Boolean 
             
             if (results.isEmpty()) return true
             
-            if(closed.size == grid.w*grid.h)
-                break@outer
-            
             closed.removeAll(results)
             
             val resultColors = results.map { it.color }.toMutableList()
             resultColors.distinct().forEach { color -> resultColors.remove(color) }
             nodePairs.addAll(resultColors)
+    
+            if(closed.size == grid.w*grid.h)
+                break@outer
         }
     }
     

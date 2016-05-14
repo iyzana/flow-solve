@@ -10,7 +10,7 @@ import de.adesso.flowsolver.solver.model.Path
  * @author kaiser
  * Created on 29.04.2016
  */
-data class FillNode(val x: Int, val y: Int, var color: Int, val end: Boolean = false) {
+private data class FillNode(val x: Int, val y: Int, var color: Int, val end: Boolean = false) {
     fun u(grid: FillGrid) = grid[x, y - 1]
     fun d(grid: FillGrid) = grid[x, y + 1]
     fun l(grid: FillGrid) = grid[x + 1, y]
@@ -23,7 +23,7 @@ data class FillNode(val x: Int, val y: Int, var color: Int, val end: Boolean = f
     fun toNode() = Node(x, y, color)
 }
 
-class FillGrid(grid: Grid, nodes: List<Node>) {
+private class FillGrid(grid: Grid, nodes: List<Node>) {
     val fillGrid: Array<Array<FillNode>>
 
     val w: Int
@@ -90,7 +90,7 @@ fun fillGrid(grid: Grid, nodes: List<Node>): Map<Int, List<Path>> {
     return pathsToNewPoints
 }
 
-fun fillNode(node: FillNode, grid: FillGrid): Map<FillNode, FillNode> {
+private fun fillNode(node: FillNode, grid: FillGrid): Map<FillNode, FillNode> {
     val color = node.color
 
     val end = node.end
@@ -115,7 +115,7 @@ fun fillNode(node: FillNode, grid: FillGrid): Map<FillNode, FillNode> {
     }
 }
 
-fun fillNeighbors(node: FillNode, color: Int, grid: FillGrid): Map<FillNode, FillNode> {
+private fun fillNeighbors(node: FillNode, color: Int, grid: FillGrid): Map<FillNode, FillNode> {
     val mapping = hashMapOf<FillNode, FillNode>()
 
     node.color = color

@@ -68,6 +68,7 @@ object TestGrids {
     
     fun createHard8Grid() = Grid.fromString("aaaaaaaa,fcaaeaad,baaaaaaa,aaaabada,aaafaaaa,aaaaacaa,eaaaaaaa,aaaaaaaa")
     fun createHard8Grid2() = Grid.fromString("efaaaaaa,aaaaaaaa,aaadacaa,aaaaaaaa,aaadfaaa,aaabaeab,acaaaaaa,aaaaaaaa")
+    fun createFill8Grid() = Grid.fromString("afhcaaaa,aeaaaada,aaaaaaaa,faaaaaac,aaaaaaaa,ebaaaaaa,baaagdga,haaaaaaa")
     
     fun create9Grid(): Grid {
         return Grid(9, 9).apply {
@@ -95,6 +96,8 @@ object TestGrids {
     fun create10Grid() = Grid.fromString("aaaaaaaaaa,afaaacdhja,aaaeaaaaaa,aaaaaiaaaa,gaaaabahaa,aaaaaaaaaa,aaaaabeaaa,acfadaaiaa,aaaaaajaaa,gaaaaaaaaa")
     
     fun create11Grid() = Grid.fromString("aaaaaaaaaaa,aaaaaaeakah,aaaaaalafaa,alegaaaaaaa,aamaaaaagaa,amaaaaaaaaa,afaaaaaaaba,adaahaakaaa,aaaaadajaaa,baaaaaacaaj,iaaaaaaaiac")
+    
+    fun create12Grid() = Grid.fromString("maaaaaaaidae,aacacfkaaaal,aaaaaaaaaaaa,aaaaaaagaaaa,gaaaaaaaaaaa,amafaadaaaaa,aaaaaaaaaaaa,aaaaehjajiaa,aaaaaaaaaaaa,aabaaaabhaka,aaaaaaaaaaaa,aaaaaaaaaaal")
     
     fun create14Grid(): Grid {
         return Grid(14, 14).apply {

@@ -1,8 +1,6 @@
 package de.adesso.flowsolver
 
-import de.adesso.flowsolver.gui.FlowSolverGUI
 import de.adesso.flowsolver.solver.solve
-import javafx.application.Application
 
 /**
  * FlowSolve
@@ -11,6 +9,6 @@ import javafx.application.Application
  * Created on 12.05.2016
  */
 fun main(args: Array<String>) {
-    Application.launch(FlowSolverGUI::class.java, *args)
-    solve(TestGrids.create9Grid())
+//    Application.launch(jfxTest::class.java, *args)
+    solve(TestGrids.create12Grid())
 }
