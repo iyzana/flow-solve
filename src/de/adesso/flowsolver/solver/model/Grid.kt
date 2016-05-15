@@ -36,7 +36,7 @@ data class Grid(val w: Int, val h: Int) {
         return copy
     }
     
-    operator fun unaryPlus(): Grid {
+    fun print() {
         for (y in 0..h - 1) {
             for (x in 0..w - 1) {
                 if (this[x, y].color == 0) print(" .")
@@ -45,8 +45,6 @@ data class Grid(val w: Int, val h: Int) {
             println()
         }
         println()
-        
-        return this
     }
     
     //    operator fun set(x: Int, y: Int, v: Node) {

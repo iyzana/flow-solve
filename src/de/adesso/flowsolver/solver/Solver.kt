@@ -7,41 +7,16 @@ import de.adesso.flowsolver.solver.model.PathsData
 import java.util.*
 import kotlin.system.measureTimeMillis
 
-/**
- * FlowSolve
- * adesso AG
- * @author kaiser
- * Created on 28.04.2016
- */
-private fun extractPairs(grid: Grid): Map<Int, Pair<Node, Node>> {
-    val pairs = HashMap<Int, Pair<Node, Node>>()
-    colors@ for (color in 1..20) {
-        var first: Node? = null
-
-        for (x in 0..grid.w - 1) {
-            for (y in 0..grid.h - 1) {
-                val node = grid[x, y]
-                if (node.color == color) {
-                    if (first == null) first = node
-                    else {
-                        pairs.put(color, first to node)
-                        continue@colors
-                    }
-                }
-            }
-        }
-    }
-
-    return pairs
-}
-
 fun solve(grid: Grid) {
     val w = grid.w
     val h = grid.h
 
+    println("solving $w x $h grid\n")
+
     val points = extractPairs(grid).values.flatMap { listOf(it.first, it.second) }
-    val newPoints = fillGrid(+grid, points)
-    +grid
+    grid.print()
+    val newPoints = fillGrid(grid, points)
+    grid.print()
 
     val pairs = newPoints.mapValues { e -> e.value[0] to e.value[1] }
     //    +grid
@@ -105,7 +80,7 @@ fun solve(grid: Grid) {
             grid[Node.x(node), Node.y(node)].color = index + 1
         }
     }
-    +grid
+    grid.print()
 
     val completeSolutions = joinPaths(solutions, pairs)
     println()
@@ -117,6 +92,28 @@ fun solve(grid: Grid) {
         }
         println()
     }
+}
+
+private fun extractPairs(grid: Grid): Map<Int, Pair<Node, Node>> {
+    val pairs = HashMap<Int, Pair<Node, Node>>()
+    colors@ for (color in 1..20) {
+        var first: Node? = null
+
+        for (x in 0..grid.w - 1) {
+            for (y in 0..grid.h - 1) {
+                val node = grid[x, y]
+                if (node.color == color) {
+                    if (first == null) first = node
+                    else {
+                        pairs.put(color, first to node)
+                        continue@colors
+                    }
+                }
+            }
+        }
+    }
+
+    return pairs
 }
 
 private fun joinPaths(solutions: List<List<Path>>, pairs: Map<Int, Pair<Path, Path>>): List<List<Path>> {

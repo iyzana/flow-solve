@@ -10,5 +10,5 @@ import de.adesso.flowsolver.solver.solve
  */
 fun main(args: Array<String>) {
 //    Application.launch(jfxTest::class.java, *args)
-    solve(TestGrids.create11Grid())
+    solve(TestGrids.create12Grid2())
 }

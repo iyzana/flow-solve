@@ -1,7 +1,7 @@
 package de.adesso.flowsolver
 
 import de.adesso.flowsolver.solver.model.Grid
-import java.util.Scanner
+import java.util.*
 
 /**
  * FlowSolve
@@ -98,6 +98,8 @@ object TestGrids {
     fun create11Grid() = Grid.fromString("aaaaaaaaaaa,aaaaaaeakah,aaaaaalafaa,alegaaaaaaa,aamaaaaagaa,amaaaaaaaaa,afaaaaaaaba,adaahaakaaa,aaaaadajaaa,baaaaaacaaj,iaaaaaaaiac")
     
     fun create12Grid() = Grid.fromString("maaaaaaaidae,aacacfkaaaal,aaaaaaaaaaaa,aaaaaaagaaaa,gaaaaaaaaaaa,amafaadaaaaa,aaaaaaaaaaaa,aaaaehjajiaa,aaaaaaaaaaaa,aabaaaabhaka,aaaaaaaaaaaa,aaaaaaaaaaal")
+    fun create12Grid2() = Grid.fromString("aaaaaaaaaaaa,aaaaaaaaaaaa,aaaaaaaaaaaa,aaaaaaaaakaa,aaaadaalahaa,aakaaaaaaiaa,ahbaaaalaajm,aaaabcdcaaaa,aagaaaaaaaaa,aaaaafaiaeaa,aaaaagaeaaaa,aajaaaafmaaa")
+    fun create12Grid3() = Grid.fromString("aaaaaaaaaaaa,aaaaaaiakaka,aaaabaaaaaaa,aaacagaiagaa,aaaaaaaaaaaa,aafbaaaaaaaa,aaaaaaaaaaae,aadfaahaaaaa,aaaaaaaajaaa,aaaaaaaaaaaa,aaaaaeaacaaa,daaaaaaaaajh")
     
     fun create14Grid(): Grid {
         return Grid(14, 14).apply {
