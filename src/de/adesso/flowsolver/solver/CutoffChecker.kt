@@ -24,7 +24,7 @@ fun neighbor(grid: Grid, x: Int, y: Int, opened: MutableList<Node>, closed: Muta
     return -1
 }
 
-fun isCutoff(grid: Grid, by: Path, colors: Map<Int, Pair<Path, Path>>): Boolean {
+fun isCutoff(grid: Grid, by: Path, colors: Map<Int, Pair<Path, Path>>, pathColor: Int): Boolean {
     if (preCheckByNeighbors(by, grid)) return false
 
     val closed = HashSet<Node>(grid.w * grid.h)
@@ -57,12 +57,21 @@ fun isCutoff(grid: Grid, by: Path, colors: Map<Int, Pair<Path, Path>>): Boolean 
                  */
                 val color = if (color1 > 0) color1 else if (color2 > 0) color2 else continue
                 var count = 0
-                if (color1 == color) count++
-                if (color2 == color) count++
-                if (color3 == color) count++
-                if (color4 == color) count++
+                var wallCount = 0
+                val start = colors[color]?.first
+                val end = colors[color]?.second
+                if (color1 == color && grid[current.x, current.y - 1] !in start!! && grid[current.x, current.y - 1] !in end!!) count++
+                if (color2 == color && grid[current.x + 1, current.y] !in start!! && grid[current.x + 1, current.y] !in end!!) count++
+                if (color3 == color && grid[current.x, current.y + 1] !in start!! && grid[current.x, current.y + 1] !in end!!) count++
+                if (color4 == color && grid[current.x - 1, current.y] !in start!! && grid[current.x - 1, current.y] !in end!!) count++
+                listOf(color1, color2, color3, color4).count { it == -1 }
+                if (color1 == -1) wallCount++
+                if (color2 == -1) wallCount++
+                if (color3 == -1) wallCount++
+                if (color4 == -1) wallCount++
 
-                if (count >= 3) return true
+                if (count == 3) return true
+                if (count == 2 && wallCount == 1) return true
             }
 
             closed.removeAll(results)
@@ -80,6 +89,7 @@ fun isCutoff(grid: Grid, by: Path, colors: Map<Int, Pair<Path, Path>>): Boolean 
     }
 
     val cutOffColors = colors.keys.toMutableList()
+    cutOffColors.remove(pathColor)
     cutOffColors.removeAll(nodePairs)
 
     for (color in cutOffColors) {
@@ -89,7 +99,7 @@ fun isCutoff(grid: Grid, by: Path, colors: Map<Int, Pair<Path, Path>>): Boolean 
         else return true
     }
 
-    return !nodePairs.containsAll(colors.keys)
+    return !nodePairs.containsAll(colors.keys - pathColor)
 }
 
 /**

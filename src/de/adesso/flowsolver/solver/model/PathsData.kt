@@ -2,9 +2,7 @@ package de.adesso.flowsolver.solver.model
 
 import java.awt.image.BufferedImage
 import java.io.File
-import java.util.ArrayList
-import java.util.HashMap
-import java.util.HashSet
+import java.util.*
 import javax.imageio.ImageIO
 
 /**
@@ -61,7 +59,8 @@ class PathsData(colors: Collection<Int>, grid: Grid) {
         
         val intersecting = HashSet<Path>()
         path.forEach { node ->
-            intersecting.addAll(get(color, Node.x(node), Node.y(node)))
+            val containedPaths = get(color, Node.x(node), Node.y(node))
+            synchronized(containedPaths) { intersecting.addAll(containedPaths) }
             if (intersecting.size == targetSize) return true
         }
         
@@ -73,7 +72,8 @@ class PathsData(colors: Collection<Int>, grid: Grid) {
         colorPaths[color] = colorPaths[color]!! + paths.size
         paths.forEach { path ->
             path.forEach { node ->
-                colors[Node.x(node)][Node.y(node)].add(path)
+                val containedPaths = colors[Node.x(node)][Node.y(node)]
+                synchronized(containedPaths) { containedPaths.add(path) }
             }
         }
     }
@@ -82,7 +82,8 @@ class PathsData(colors: Collection<Int>, grid: Grid) {
         val colors = pathsMap[color] ?: throw IllegalArgumentException("No data for color $color")
         colorPaths[color] = colorPaths[color]!! - 1
         path.forEach { node ->
-            colors[Node.x(node)][Node.y(node)].remove(path)
+            val containedPaths = colors[Node.x(node)][Node.y(node)]
+            synchronized(containedPaths) { containedPaths.remove(path) }
         }
     }
     

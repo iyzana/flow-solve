@@ -4,10 +4,7 @@ import de.adesso.flowsolver.solver.model.Grid
 import de.adesso.flowsolver.solver.model.Node
 import de.adesso.flowsolver.solver.model.Path
 import de.adesso.flowsolver.solver.model.PathsData
-import java.util.ArrayList
-import java.util.HashMap
-import java.util.HashSet
-import java.util.LinkedList
+import java.util.*
 
 
 fun distance(node1: Node, node2: Node) = Math.abs(node1.x - node2.x) + Math.abs(node1.y - node2.y)
@@ -182,7 +179,7 @@ private fun setCallReset(node: Node,
     path.add(node.compressed())
     node.color = end.color
     
-    if (isCutoff(grid, path, pairs.filterNot { it.key == end.color })) {
+    if (isCutoff(grid, path, pairs, end.color)) {
         path.remove()
         node.color = previousColor
         return

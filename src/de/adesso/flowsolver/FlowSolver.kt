@@ -12,5 +12,5 @@ import javafx.application.Application
  */
 fun main(args: Array<String>) {
 //    Application.launch(FlowSolverGUI::class.java, *args)
-    solve(TestGrids.create12Grid2())
+    solve(TestGrids.create12Grid3())
 }
