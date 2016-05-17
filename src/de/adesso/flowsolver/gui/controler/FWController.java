@@ -14,8 +14,8 @@ public class FWController{
 	int heith = 600 , length = 600;
 
 	public void init(Stage primaryStage){
-		window = new FlowWindow();
-		window.init(primaryStage, this, heith, length);
+		window = new FlowWindow(primaryStage, this, heith, length);
+		window.init();
 		window.show();
 	}
 
@@ -63,11 +63,13 @@ public class FWController{
 		}
 	}
 
-	public void reset(){}
+	public void reset(){ generate(); }
 
 	public void solve(){}
 
-	public int getGridSize(){
-		return Integer.parseInt(window.getGridSize());
+	public int getGridSize(){ return Integer.parseInt(window.getGridSize()); }
+
+	public void resize(){
+
 	}
 }

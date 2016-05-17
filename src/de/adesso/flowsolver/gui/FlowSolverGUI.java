@@ -12,10 +12,6 @@ public class FlowSolverGUI extends Application{
 
 	FWController window = new FWController();
 
-	public static void main(String[] args){
-		launch(args);
-	}
-
 	@Override
 	public void start(Stage primaryStage){
 		window.init(primaryStage);

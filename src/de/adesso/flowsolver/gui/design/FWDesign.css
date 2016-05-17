@@ -1,0 +1,28 @@
+#btnGenerate{
+    margin-outside: 10px;
+}
+
+.hb{
+    -fx-padding: 10px;
+    -fx-alignment: center-right;
+}
+
+.UpDown{
+    -fx-size: 5px;
+}
+
+#hbTop{
+    -fx-background-color: blue;
+}
+
+#hbBottom{
+    -fx-background-color: green;
+}
+
+Button{
+    -fx-font-family: "Bauhaus 93";
+}
+
+TextArea{
+    -fx-size: 20px;
+}

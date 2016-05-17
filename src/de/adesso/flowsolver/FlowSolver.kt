@@ -11,6 +11,6 @@ import javafx.application.Application
  * Created on 12.05.2016
  */
 fun main(args: Array<String>) {
-//    Application.launch(FlowSolverGUI::class.java, *args)
+    Application.launch(FlowSolverGUI::class.java, *args)
     solve(TestGrids.create12Grid3())
 }
