@@ -174,7 +174,6 @@ private fun setCallReset(node: Node,
                          pairs: Map<Int, Pair<Path, Path>>,
                          solutions: MutableList<Path>) {
     
-    
     val previousColor = node.color
     path.add(node.compressed())
     node.color = end.color
