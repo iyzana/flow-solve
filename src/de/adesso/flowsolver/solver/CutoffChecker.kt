@@ -24,6 +24,7 @@ fun neighbor(grid: Grid, x: Int, y: Int, opened: MutableList<Node>, closed: Muta
     return -1
 }
 
+// TODO: Check by filling bottleneck temporarily
 fun isCutoff(grid: Grid, by: Path, colors: Map<Int, Pair<Path, Path>>, pathColor: Int): Boolean {
     if (preCheckByNeighbors(by, grid)) return false
 
@@ -38,7 +39,7 @@ fun isCutoff(grid: Grid, by: Path, colors: Map<Int, Pair<Path, Path>>, pathColor
             val node = grid[x, y]
             if (node in closed) continue
             if (node.color != 0) continue
-
+            
             val opened = LinkedList<Node>()
             val results = mutableListOf<Node>()
             opened.add(node)
@@ -60,11 +61,10 @@ fun isCutoff(grid: Grid, by: Path, colors: Map<Int, Pair<Path, Path>>, pathColor
                 var wallCount = 0
                 val start = colors[color]?.first
                 val end = colors[color]?.second
-                if (color1 == color && grid[current.x, current.y - 1] !in start!! && grid[current.x, current.y - 1] !in end!!) count++
-                if (color2 == color && grid[current.x + 1, current.y] !in start!! && grid[current.x + 1, current.y] !in end!!) count++
-                if (color3 == color && grid[current.x, current.y + 1] !in start!! && grid[current.x, current.y + 1] !in end!!) count++
-                if (color4 == color && grid[current.x - 1, current.y] !in start!! && grid[current.x - 1, current.y] !in end!!) count++
-                listOf(color1, color2, color3, color4).count { it == -1 }
+                if (color1 == color && grid[current.x, current.y - 1] !in end!!) count++
+                if (color2 == color && grid[current.x + 1, current.y] !in end!!) count++
+                if (color3 == color && grid[current.x, current.y + 1] !in end!!) count++
+                if (color4 == color && grid[current.x - 1, current.y] !in end!!) count++
                 if (color1 == -1) wallCount++
                 if (color2 == -1) wallCount++
                 if (color3 == -1) wallCount++

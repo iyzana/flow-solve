@@ -101,6 +101,8 @@ object TestGrids {
     fun create12Grid2() = Grid.fromString("aaaaaaaaaaaa,aaaaaaaaaaaa,aaaaaaaaaaaa,aaaaaaaaakaa,aaaadaalahaa,aakaaaaaaiaa,ahbaaaalaajm,aaaabcdcaaaa,aagaaaaaaaaa,aaaaafaiaeaa,aaaaagaeaaaa,aajaaaafmaaa")
     fun create12Grid3() = Grid.fromString("aaaaaaaaaaaa,aaaaaaiakaka,aaaabaaaaaaa,aaacagaiagaa,aaaaaaaaaaaa,aafbaaaaaaaa,aaaaaaaaaaae,aadfaahaaaaa,aaaaaaaajaaa,aaaaaaaaaaaa,aaaaaeaacaaa,daaaaaaaaajh")
     
+    fun create13Grid() = Grid.fromString("jaaaaaaaaaaaa,baagaaakoaaoa,ajabaaacaaaka,aeaaaacaalaaa,aaaaaaaaaaaaa,aaaaaaalfmaaa,aaaaaaiahaaaa,aaaaaaaaaafaa,aaaaanaaaadaa,gaaaaaaahaaaa,aaaaaiaamaaaa,adanaaaaaaaaa,aaaaaaaaaaaae")
+    
     fun create14Grid(): Grid {
         return Grid(14, 14).apply {
             this[0, 7].color = D

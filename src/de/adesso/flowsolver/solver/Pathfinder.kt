@@ -149,10 +149,10 @@ private fun processNeighbor(x: Int,
     val startPath = pairs[end.color]!!.first
     val endPath = pairs[end.color]!!.second
     
-    if (valid(grid, x, y - 1) && grid[x, y - 1].color == end.color && grid[x, y - 1] !in startPath && grid[x, y - 1] !in endPath) count++
-    if (valid(grid, x + 1, y) && grid[x + 1, y].color == end.color && grid[x + 1, y] !in startPath && grid[x + 1, y] !in endPath) count++
-    if (valid(grid, x, y + 1) && grid[x, y + 1].color == end.color && grid[x, y + 1] !in startPath && grid[x, y + 1] !in endPath) count++
-    if (valid(grid, x - 1, y) && grid[x - 1, y].color == end.color && grid[x - 1, y] !in startPath && grid[x - 1, y] !in endPath) count++
+    if (valid(grid, x, y - 1) && grid[x, y - 1].color == end.color && grid[x, y - 1] !in endPath) count++
+    if (valid(grid, x + 1, y) && grid[x + 1, y].color == end.color && grid[x + 1, y] !in endPath) count++
+    if (valid(grid, x, y + 1) && grid[x, y + 1].color == end.color && grid[x, y + 1] !in endPath) count++
+    if (valid(grid, x - 1, y) && grid[x - 1, y].color == end.color && grid[x - 1, y] !in endPath) count++
     
     if (count >= 2) return
     
