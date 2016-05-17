@@ -1,15 +1,19 @@
 package de.adesso.flowsolver.gui.functions;
 
 
-import de.adesso.flowsolver.gui.controler.FWControler;
+import de.adesso.flowsolver.gui.controler.FWController;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -21,53 +25,103 @@ import java.util.List;
  */
 public class FlowWindow{
 
-	private Button btnUp, btnDown;
+	private Button btnUp, btnDown, btnGenerate, btnReset, btnSolve;
 	private TextField tfGridSize;
-	private TableView<Integer> grid;
+	private TableView<String> grid;
 
 	private Stage primaryStage;
-	private FWControler events;
-	private Button btnGenerate;
-	private HBox hb;
-	private VBox vb;
+	private FWController events;
+	private HBox hbTop, hbBottom;
+	private VBox vbLeft;
 	private FlowPane fp;
 	private List<Button> possibleFlowNodes;
+	private StackPane center;
 
-	public void init(Stage stage, FWControler eventhandler, int heigth, int width){
+	public FlowWindow(){
+	}
+
+	public void init(Stage stage, FWController eventhandler, int heigth, int wight){
 		primaryStage = stage;
 		events = eventhandler;
 
 		primaryStage.setTitle("Flow Solver");
 		BorderPane mainLayout = new BorderPane();
 
-
 		topBox();
 
-
 		leftBox();
+
+		centerBox();
+
+		bottomBox();
 
 		btnUp.setOnAction(e -> events.increase());
 		btnDown.setOnAction(e -> events.decrease());
 		btnGenerate.setOnAction(e -> events.generate());
 
-		mainLayout.setTop(hb);
-		mainLayout.setLeft(vb);
-		Scene scene = new Scene(mainLayout, heigth, width);
+		btnReset.setOnAction(e -> events.reset());
+		btnSolve.setOnAction(e -> events.solve());
+
+		mainLayout.setTop(hbTop);
+		mainLayout.setLeft(vbLeft);
+		mainLayout.setCenter(center);
+		mainLayout.setBottom(hbBottom);
+		Scene scene = new Scene(mainLayout, heigth, wight);
 		//TODO css file richtig einbinden
 		scene.getStylesheets().add("../design/FWDesign.css");
 		primaryStage.setScene(scene);
 	}
 
+	private void centerBox(){/*
+		flow	1 2 3 4 5 ..  n
+		1
+		2
+		3
+		4
+		5
+		..
+		n
+		 */
+		center = new StackPane();
+
+		grid = new TableView<String>();
+		//TODO im internet nach row einfügen gucken und dann mit zwei for schleifen ne Tabelle machen
+		generateTable();
+
+		center.getChildren().add(grid);
+	}
+
+	public void generateTable(){
+		grid.getColumns().clear();
+		int size = events.getGridSize();
+		grid.getColumns().add(new TableColumn("Flow"));
+		for(int i = 0; i < size; i++) grid.getColumns().add(new TableColumn("" + (i+1)));
+//			for(int i = 0; i < size; i++)
+	}
+
+	private void bottomBox(){
+		btnReset = new Button("Reset");
+		btnSolve = new Button("Solve");
+
+		hbBottom = new HBox();
+		hbBottom.setStyle("-fx-background-color: green;");
+		hbBottom.setAlignment(Pos.CENTER_RIGHT);
+		hbBottom.setPrefHeight(50);
+
+		hbBottom.getChildren().add(btnReset);
+		hbBottom.getChildren().add(btnSolve);
+	}
+
 	private void leftBox(){
 		possibleFlowNodes = new LinkedList<Button>();
 
-		vb = new VBox();
+		vbLeft = new VBox();
 		fp = new FlowPane();
-		vb.setStyle("-fx-background-color: red;");
-		vb.setPrefWidth(100);
+		vbLeft.setStyle("-fx-background-color: red;");
+		vbLeft.setPrefWidth(100);
 
 		generateNotes();
-		vb.getChildren().add(fp);
+		vbLeft.getChildren().add(fp);
 	}
 
 	public void generateNotes(){
@@ -81,9 +135,9 @@ public class FlowWindow{
 			possibleFlowNodes.add(b2);
 
 			fp.getChildren().add(b1);
-//			fp.getChildren().add();
+			fp.getChildren().add(new Button());
 			fp.getChildren().add(b2);
-//			fp.getChildren().add();
+			fp.getChildren().add(new Button());
 		}
 	}
 
@@ -93,15 +147,15 @@ public class FlowWindow{
 		btnDown = new Button("v");
 		btnGenerate = new Button("Generate Grid");
 
-		hb = new HBox();
-		hb.setStyle("-fx-background-color: blue;");
-		hb.setAlignment(Pos.CENTER_RIGHT);
-		hb.setPrefHeight(50);
+		hbTop = new HBox();
+		hbTop.setStyle("-fx-background-color: blue;");
+		hbTop.setAlignment(Pos.CENTER_RIGHT);
+		hbTop.setPrefHeight(50);
 
-		hb.getChildren().add(tfGridSize);
-		hb.getChildren().add(btnUp);
-		hb.getChildren().add(btnDown);
-		hb.getChildren().add(btnGenerate);
+		hbTop.getChildren().add(tfGridSize);
+		hbTop.getChildren().add(btnUp);
+		hbTop.getChildren().add(btnDown);
+		hbTop.getChildren().add(btnGenerate);
 	}
 
 	public void show(){

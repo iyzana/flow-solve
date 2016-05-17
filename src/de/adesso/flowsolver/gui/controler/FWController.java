@@ -8,10 +8,10 @@ import javafx.stage.Stage;
 /**
  * Created by slinde on 12.05.2016.
  */
-public class FWControler{
+public class FWController{
 
 	FlowWindow window;
-	int heith = 500 , length = 600;
+	int heith = 600 , length = 600;
 
 	public void init(Stage primaryStage){
 		window = new FlowWindow();
@@ -31,6 +31,7 @@ public class FWControler{
 
 	public void generate(){
 		window.generateNotes();
+		window.generateTable();
 	}
 
 	public int getAmountNotes(){
@@ -60,5 +61,13 @@ public class FWControler{
 			default:
 				return 0;
 		}
+	}
+
+	public void reset(){}
+
+	public void solve(){}
+
+	public int getGridSize(){
+		return Integer.parseInt(window.getGridSize());
 	}
 }
