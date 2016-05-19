@@ -7,6 +7,8 @@ import de.adesso.flowsolver.solver.model.PathsData
 import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 import kotlin.system.measureTimeMillis
 
 fun solve(grid: Grid) {
@@ -17,7 +19,7 @@ fun solve(grid: Grid) {
 
     val points = extractPairs(grid).values.flatMap { listOf(it.first, it.second) }
     println("found ${points.size / 2} flows\n")
-    
+
     println("input grid")
     grid.print()
     val newPoints = fillGrid(grid, points)
@@ -47,6 +49,8 @@ fun solve(grid: Grid) {
 
     val executor = Executors.newFixedThreadPool(pairs.size)
 
+    val locks = Array(pairs.size) { ReentrantLock() }
+
     println("building all paths")
     println("time = " + measureTimeMillis {
         for ((color, pair) in pairs.entries) {
@@ -57,13 +61,10 @@ fun solve(grid: Grid) {
 
                 val paths = allPaths(grid.copy(), start, end, maxLength, pairs).toMutableList()
                 println("color $color: ${paths.size} paths")
-                
-                if(paths.toSet().size != paths.size)
-                    throw IllegalStateException("lol holz")
 
                 // TODO: If one path write to grid
 
-                synchronized(color) { pathsData.add(color, paths) }
+                locks[color - 1].withLock { pathsData.add(color, paths) }
                 synchronized(coloredPaths) { coloredPaths.put(color, paths) }
 
 //                paths.maxBy { it.size }?.let {
@@ -76,9 +77,9 @@ fun solve(grid: Grid) {
                 val otherColors = synchronized(coloredPaths) { LinkedList(coloredPaths.keys) }
 
                 for (otherColor in otherColors) {
-                    synchronized(color) { preFilter(coloredPaths, pathsData, color, otherColor) }
+                    locks[color - 1].withLock { preFilter(coloredPaths, pathsData, color, otherColor) }
 //                    println("filtered $color: ${paths.size} paths")
-                    synchronized(otherColor) { preFilter(coloredPaths, pathsData, otherColor, color) }
+                    locks[otherColor - 1].withLock { preFilter(coloredPaths, pathsData, otherColor, color) }
 //                    println("filtered $otherColor: ${coloredPaths[otherColor]!!.size} paths")
                 }
             }
@@ -87,18 +88,18 @@ fun solve(grid: Grid) {
         executor.shutdown()
         executor.awaitTermination(365, TimeUnit.DAYS)
     } + " ms\n")
-    
+
     println("preprefiltered paths")
-    for((color, paths) in coloredPaths)
+    for ((color, paths) in coloredPaths)
         println("color $color: ${paths.size} paths")
     println()
     //    pathsData.createStatisticalData()
-    
+
     preFilter(coloredPaths, pathsData)
 
     val solutions = fullFilter(grid, coloredPaths)
 
-    if(solutions.isEmpty()) {
+    if (solutions.isEmpty()) {
         println("grid not solved")
         return
     }

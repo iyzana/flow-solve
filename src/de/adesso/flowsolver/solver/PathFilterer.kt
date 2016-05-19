@@ -36,7 +36,7 @@ fun preFilter(coloredPaths: HashMap<Int, MutableList<Path>>, pathsData: PathsDat
                         println("color $color: " + startSize + " -> " + paths.size)
 //                }
             }
-
+            
             executor.shutdown()
             executor.awaitTermination(365, TimeUnit.DAYS)
         } while (changed)
