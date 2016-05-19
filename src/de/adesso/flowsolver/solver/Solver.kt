@@ -65,7 +65,6 @@ fun solve(grid: Grid) {
                 // TODO: If one path write to grid
 
                 locks[color - 1].withLock { pathsData.add(color, paths) }
-                synchronized(coloredPaths) { coloredPaths.put(color, paths) }
 
 //                paths.maxBy { it.size }?.let {
 //                    val gridCopy = grid.copy()
@@ -74,13 +73,18 @@ fun solve(grid: Grid) {
 //                }
 
                 // TODO: Sort by probability
-                val otherColors = synchronized(coloredPaths) { LinkedList(coloredPaths.keys) }
+                val otherColors = synchronized(coloredPaths) {
+                    coloredPaths.put(color, paths)
+                    LinkedList(coloredPaths.keys)
+                }
+
+                println("" + Thread.currentThread().id + " otherColors " + otherColors)
 
                 for (otherColor in otherColors) {
                     locks[color - 1].withLock { preFilter(coloredPaths, pathsData, color, otherColor) }
-//                    println("filtered $color: ${paths.size} paths")
+                    println("" + Thread.currentThread().id + " filtered $color with $otherColor: ${paths.size} paths")
                     locks[otherColor - 1].withLock { preFilter(coloredPaths, pathsData, otherColor, color) }
-//                    println("filtered $otherColor: ${coloredPaths[otherColor]!!.size} paths")
+                    println("" + Thread.currentThread().id + " filtered $otherColor with $color: ${coloredPaths[otherColor]!!.size} paths")
                 }
             }
         }

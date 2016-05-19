@@ -26,17 +26,20 @@ fun preFilter(coloredPaths: HashMap<Int, MutableList<Path>>, pathsData: PathsDat
 
             for ((color, paths) in coloredPaths) {
 //                executor.execute {
-                    val startSize = paths.size
 
-                    for (otherColor in coloredPaths.keys)
-                        if (preFilter(coloredPaths, pathsData, color, otherColor))
-                            changed = true
+                for (otherColor in coloredPaths.keys) {
+                    val startSize = paths.size
+                        
+                    if (preFilter(coloredPaths, pathsData, color, otherColor))
+                        changed = true
 
                     if (startSize != paths.size)
                         println("color $color: " + startSize + " -> " + paths.size)
+                }
+
 //                }
             }
-            
+
             executor.shutdown()
             executor.awaitTermination(365, TimeUnit.DAYS)
         } while (changed)
