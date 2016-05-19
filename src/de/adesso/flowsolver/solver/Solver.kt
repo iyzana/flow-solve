@@ -63,8 +63,8 @@ fun solve(grid: Grid) {
 
                 // TODO: If one path write to grid
 
+                synchronized(color) { pathsData.add(color, paths) }
                 synchronized(coloredPaths) { coloredPaths.put(color, paths) }
-                pathsData.add(color, paths)
 
 //                paths.maxBy { it.size }?.let {
 //                    val gridCopy = grid.copy()
@@ -93,7 +93,7 @@ fun solve(grid: Grid) {
         println("color $color: ${paths.size} paths")
     println()
     //    pathsData.createStatisticalData()
-
+    
     preFilter(coloredPaths, pathsData)
 
     val solutions = fullFilter(grid, coloredPaths)

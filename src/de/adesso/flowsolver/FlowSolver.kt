@@ -19,11 +19,11 @@ fun main(args: Array<String>) {
         val grids = Grid.fromFile(TestGrids.javaClass.getResource("/10x10 Jumbo.dat").readText())
 
         println("complete time = " + measureTimeMillis {
-//            for ((index, grid) in grids.withIndex()) {
-//                level = index
-//                println("level $index")
-            solve(grids[10])
-//            }
+            for ((index, grid) in grids.withIndex()) {
+                level = index
+                println("level $index")
+            solve(grid)
+            }
         } + " ms")
     }
 }
