@@ -8,21 +8,44 @@
 }
 
 .UpDown{
-    -fx-size: 5px;
+    -fx-font-size: 10px;
+}
+#btnUp{
+    -fx-rotate: 180;
+
 }
 
 #hbTop{
-    -fx-background-color: blue;
+    /*-fx-background-color: blue;*/
+}
+
+#vbLeft{
+    /*-fx-background-color: red;*/
+}
+
+#center{
+    /*-fx-background-color: yellow;*/
+    -fx-grid-lines-visible: true;
 }
 
 #hbBottom{
-    -fx-background-color: green;
+    /*-fx-background-color: green;*/
 }
 
 Button{
-    -fx-font-family: "Bauhaus 93";
+    -fx-font-family: Monospaced;
+    -fx-background-color: rgba(218, 198, 220, 0.67);
 }
 
-TextArea{
-    -fx-size: 20px;
+TextField{
+    -fx-font-size: 18px
+}
+
+#fassung{
+    -fx-min-height: 30;
+    -fx-min-width: 30;
+}
+
+#flowNode{
+    -fx-font-style: italic;
 }
