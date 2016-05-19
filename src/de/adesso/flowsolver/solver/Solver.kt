@@ -13,9 +13,11 @@ fun solve(grid: Grid) {
     val w = grid.w
     val h = grid.h
 
-    println("solving $w x $h grid\n")
+    println("solving $w x $h grid")
 
     val points = extractPairs(grid).values.flatMap { listOf(it.first, it.second) }
+    println("found ${points.size / 2} flows\n")
+    
     println("input grid")
     grid.print()
     val newPoints = fillGrid(grid, points)
@@ -23,7 +25,7 @@ fun solve(grid: Grid) {
     grid.print()
 
     val pairs = newPoints.mapValues { e -> e.value[0] to e.value[1] }
-    require(1 in pairs.keys) { "The level does not contain any flow" }
+    require(1 in pairs.keys) { "The level does not contain first flow" }
     require((pairs.keys - 1).all { it - 1 in pairs }) { "The level is missing flows or has incomplete flows" }
     //    +grid
     //    val pairs = extractPairs(grid).mapValues { Path(1, it.value.first.compressed()) to Path(1, it.value.second.compressed()) }
@@ -53,8 +55,11 @@ fun solve(grid: Grid) {
                 val start = pair.first.lastNode(color)
                 val end = pair.second.lastNode(color)
 
-                val paths = allPaths(grid.copy(), start, end, pathsData, maxLength, pairs).toMutableList()
-                println("color    $color: ${paths.size} paths")
+                val paths = allPaths(grid.copy(), start, end, maxLength, pairs).toMutableList()
+                println("color $color: ${paths.size} paths")
+                
+                if(paths.toSet().size != paths.size)
+                    throw IllegalStateException("lol holz")
 
                 // TODO: If one path write to grid
 
@@ -82,13 +87,21 @@ fun solve(grid: Grid) {
         executor.shutdown()
         executor.awaitTermination(365, TimeUnit.DAYS)
     } + " ms\n")
-
+    
+    println("preprefiltered paths")
+    for((color, paths) in coloredPaths)
+        println("color $color: ${paths.size} paths")
+    println()
     //    pathsData.createStatisticalData()
 
     preFilter(coloredPaths, pathsData)
 
     val solutions = fullFilter(grid, coloredPaths)
 
+    if(solutions.isEmpty()) {
+        println("grid not solved")
+        return
+    }
     println("solved grid")
     solutions[0].forEachIndexed { index, path ->
         path.forEach { node ->

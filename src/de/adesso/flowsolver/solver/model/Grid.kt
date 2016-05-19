@@ -41,7 +41,7 @@ data class Grid(val w: Int, val h: Int) {
         for (y in 0..h - 1) {
             for (x in 0..w - 1) {
                 if (this[x, y].color == 0) print(" .")
-                else print(" " + Integer.toString(this[x, y].color, 36))
+                else print(" " + ('a' + this[x, y].color - 1))
             }
             println()
         }
@@ -69,7 +69,8 @@ data class Grid(val w: Int, val h: Int) {
             val formatInput = input.replace("\r\n", "\n").replace("\r", "\n")
             val levels = formatInput.split("\n\n")
             
-            return levels.map { level ->
+            return levels.mapIndexed { index, level ->
+//                println("loading level $index")
                 val lines = level.split('\n').map { it.trim() }
                 
                 if (lines.size == 0) Grid(0, 0)

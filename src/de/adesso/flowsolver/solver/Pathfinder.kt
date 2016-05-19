@@ -3,7 +3,6 @@ package de.adesso.flowsolver.solver
 import de.adesso.flowsolver.solver.model.Grid
 import de.adesso.flowsolver.solver.model.Node
 import de.adesso.flowsolver.solver.model.Path
-import de.adesso.flowsolver.solver.model.PathsData
 import java.util.*
 
 
@@ -92,7 +91,6 @@ var foundPaths = 0;
 fun allPaths(grid: Grid,
              start: Node,
              end: Node,
-             pathsMap: PathsData,
              maxLength: Int,
              pairs: Map<Int, Pair<Path, Path>>,
              depth: Int = 0,
@@ -109,7 +107,7 @@ fun allPaths(grid: Grid,
         return solutions
     }
     
-    processNeighbors(path, grid, start, end, pathsMap, maxLength, pairs, depth, solutions)
+    processNeighbors(path, grid, start, end, maxLength, pairs, depth, solutions)
     
     return solutions
 }
@@ -118,17 +116,16 @@ private fun processNeighbors(path: Path,
                              grid: Grid,
                              start: Node,
                              end: Node,
-                             pathsMap: PathsData,
                              maxLength: Int,
                              pairs: Map<Int, Pair<Path, Path>>,
                              depth: Int,
                              solutions: MutableList<Path>) {
     val x = start.x
     val y = start.y
-    processNeighbor(x.toInt(), y - 1, path, grid, end, pathsMap, maxLength, pairs, depth, solutions)
-    processNeighbor(x + 1, y.toInt(), path, grid, end, pathsMap, maxLength, pairs, depth, solutions)
-    processNeighbor(x.toInt(), y + 1, path, grid, end, pathsMap, maxLength, pairs, depth, solutions)
-    processNeighbor(x - 1, y.toInt(), path, grid, end, pathsMap, maxLength, pairs, depth, solutions)
+    processNeighbor(x.toInt(), y - 1, path, grid, end, maxLength, pairs, depth, solutions)
+    processNeighbor(x + 1, y.toInt(), path, grid, end, maxLength, pairs, depth, solutions)
+    processNeighbor(x.toInt(), y + 1, path, grid, end, maxLength, pairs, depth, solutions)
+    processNeighbor(x - 1, y.toInt(), path, grid, end, maxLength, pairs, depth, solutions)
 }
 
 private fun processNeighbor(x: Int,
@@ -136,7 +133,6 @@ private fun processNeighbor(x: Int,
                             path: Path,
                             grid: Grid,
                             end: Node,
-                            pathsMap: PathsData,
                             maxLength: Int,
                             pairs: Map<Int, Pair<Path, Path>>,
                             depth: Int,
@@ -159,7 +155,7 @@ private fun processNeighbor(x: Int,
     val node = grid[x, y]
     if (node.color != 0 && node != end) return
     
-    setCallReset(node, path, grid, end, pathsMap, depth, maxLength, pairs, solutions)
+    setCallReset(node, path, grid, end, depth, maxLength, pairs, solutions)
 }
 
 fun valid(grid: Grid, x: Int, y: Int) = x >= 0 && y >= 0 && x < grid.w && y < grid.h
@@ -168,7 +164,6 @@ private fun setCallReset(node: Node,
                          path: Path,
                          grid: Grid,
                          end: Node,
-                         pathsMap: PathsData,
                          depth: Int,
                          maxLength: Int,
                          pairs: Map<Int, Pair<Path, Path>>,
@@ -199,7 +194,7 @@ private fun setCallReset(node: Node,
     //        }
     //    }
     
-    allPaths(grid, node, end, pathsMap, maxLength, pairs, depth + 1, path, solutions)
+    allPaths(grid, node, end, maxLength, pairs, depth + 1, path, solutions)
     path.remove()
     node.color = previousColor
 }

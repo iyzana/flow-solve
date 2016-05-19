@@ -3,6 +3,7 @@ package de.adesso.flowsolver.solver.model
 import java.awt.image.BufferedImage
 import java.io.File
 import java.util.*
+import java.util.concurrent.ConcurrentLinkedQueue
 import javax.imageio.ImageIO
 
 /**
@@ -15,28 +16,28 @@ import javax.imageio.ImageIO
 class PathsData(colors: Collection<Int>, grid: Grid) {
     val w = grid.w
     val h = grid.h
-    val pathsMap = HashMap<Int, Array<Array<MutableList<Path>>>>()
+    val pathsMap = HashMap<Int, Array<Array<ConcurrentLinkedQueue<Path>>>>()
     val colorPaths = HashMap<Int, Int>()
-    
+
     init {
         for (color in colors) {
             pathsMap.put(color, Array(w) { x ->
                 Array(h) { y ->
-                    val size = if (grid[x, y].color == 0) 1000 else 0
-                    ArrayList<Path>(size) as MutableList<Path>
+//                    val size = if (grid[x, y].color == 0) 1000 else 0
+                    ConcurrentLinkedQueue<Path>()
                 }
             })
-            
+
             colorPaths.put(color, 0)
         }
     }
-    
+
     fun createStatisticalData() {
         for (color in colorPaths.keys) {
             val imageView = BufferedImage(w, h, BufferedImage.TYPE_INT_RGB)
             val imageData = BufferedImage(w, h, BufferedImage.TYPE_INT_RGB)
-            
-            val pathCount = colorPaths[color]!!
+
+            val pathCount = sizeFor(color)
             val data = pathsMap[color]!!
             for (x in 0..w - 1) {
                 for (y in 0..h - 1) {
@@ -44,50 +45,51 @@ class PathsData(colors: Collection<Int>, grid: Grid) {
                     imageData.setRGB(x, y, 16777215 * data[x][y].size / pathCount)
                 }
             }
-            
+
             ImageIO.write(imageView, "BMP", File("${color}_view.bmp"))
             ImageIO.write(imageData, "BMP", File("${color}_data.bmp"))
         }
     }
-    
+
     fun intersectsAll(node: Node, color: Int): Boolean {
-        return get(color, node.x, node.y).size == colorPaths[color]
+        return get(color, node.x, node.y).size == sizeFor(color)
     }
-    
+
     fun intersectsAll(path: Path, color: Int): Boolean {
         val targetSize = colorPaths[color]!!
-        
+
         val intersecting = HashSet<Path>()
         path.forEach { node ->
             val containedPaths = get(color, Node.x(node), Node.y(node))
-            synchronized(containedPaths) { intersecting.addAll(containedPaths) }
+            intersecting.addAll(containedPaths)
             if (intersecting.size == targetSize) return true
         }
-        
+
         return false
     }
-    
+
     fun add(color: Int, paths: List<Path>) {
         val colors = pathsMap[color] ?: throw IllegalArgumentException("No data for color $color")
-        colorPaths[color] = colorPaths[color]!! + paths.size
-        paths.forEach { path ->
-            path.forEach { node ->
-                val containedPaths = colors[Node.x(node)][Node.y(node)]
-                synchronized(containedPaths) { containedPaths.add(path) }
+        colorPaths[color] = sizeFor(color) + paths.size
+        synchronized(paths) {
+            paths.forEach { path ->
+                path.forEach { node ->
+                    val containedPaths = colors[Node.x(node)][Node.y(node)]
+                    containedPaths.add(path)
+                }
             }
         }
     }
-    
+
     fun remove(color: Int, path: Path) {
-        val colors = pathsMap[color] ?: throw IllegalArgumentException("No data for color $color")
         colorPaths[color] = colorPaths[color]!! - 1
         path.forEach { node ->
-            val containedPaths = colors[Node.x(node)][Node.y(node)]
-            synchronized(containedPaths) { containedPaths.remove(path) }
+            val containedPaths = get(color, Node.x(node), Node.y(node))
+            containedPaths.remove(path)
         }
     }
-    
-    operator fun get(color: Int, x: Int, y: Int): MutableList<Path> = pathsMap[color]?.get(x)?.get(y) ?: throw IllegalArgumentException("No data for color $color")
-    
+
+    operator fun get(color: Int, x: Int, y: Int): ConcurrentLinkedQueue<Path> = pathsMap[color]?.get(x)?.get(y) ?: throw IllegalArgumentException("No data for color $color")
+
     fun sizeFor(color: Int) = colorPaths[color] ?: throw IllegalArgumentException("No data for color $color")
 }

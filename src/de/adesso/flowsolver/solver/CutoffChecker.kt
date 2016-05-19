@@ -26,7 +26,15 @@ fun neighbor(grid: Grid, x: Int, y: Int, opened: MutableList<Node>, closed: Muta
 
 // TODO: Check by filling bottleneck temporarily
 fun isCutoff(grid: Grid, by: Path, colors: Map<Int, Pair<Path, Path>>, pathColor: Int): Boolean {
-    if (preCheckByNeighbors(by, grid)) return false
+//    if (preCheckByNeighbors(by, grid)) return false
+    val nodes = by.nodes()
+
+    if (nodes.size >= 2) {
+        val previous = Node(nodes[nodes.lastIndex - 1])
+
+        val end = colors[pathColor]!!.second.lastNode(pathColor)
+        if (distance(previous, end) == 1) return false
+    }
 
     val closed = HashSet<Node>(grid.w * grid.h)
     closed.addAll(by.nodes().dropLast(1).map { grid[Node.x(it), Node.y(it)] })
@@ -39,12 +47,12 @@ fun isCutoff(grid: Grid, by: Path, colors: Map<Int, Pair<Path, Path>>, pathColor
             val node = grid[x, y]
             if (node in closed) continue
             if (node.color != 0) continue
-            
+
             val opened = LinkedList<Node>()
             val results = mutableListOf<Node>()
             opened.add(node)
             closed.add(node)
-            while (!opened.isEmpty()) {
+            stack@ while (!opened.isEmpty()) {
                 val current = opened.pop()
 
                 val color1 = neighbor(grid, current.x, current.y - 1, opened, closed, results)
@@ -71,7 +79,33 @@ fun isCutoff(grid: Grid, by: Path, colors: Map<Int, Pair<Path, Path>>, pathColor
                 if (color4 == -1) wallCount++
 
                 if (count == 3) return true
-                if (count == 2 && wallCount == 1) return true
+                if (count == 2) {
+                    if (wallCount >= 1) return true
+                    val (dx, dy) = when {
+                        color1 == color2 && color1 == color -> 1 to 1
+                        color2 == color3 && color2 == color -> 1 to -1
+                        color3 == color4 && color3 == color -> -1 to -1
+                        color4 == color1 && color4 == color -> -1 to 1
+                        else -> continue@stack
+                    }
+                    val color5 = grid[current.x + dx, current.y + dy].color
+                    val color6 =
+                            if (valid(grid, current.x, current.y + 2 * dy))
+                                grid[current.x, current.y + 2 * dy].color
+                            else color
+                    val color7 = grid[current.x, current.y + dy].color
+                    if (color5 == color && color6 == color && color7 == 0)
+                        return true
+
+                    val color8 = grid[current.x - dx, current.y - dy].color
+                    val color9 =
+                            if (valid(grid, current.x - 2 * dx, current.y))
+                                grid[current.x - 2 * dx, current.y].color
+                            else color
+                    val color10 = grid[current.x - dx, current.y].color
+                    if (color8 == color && color9 == color && color10 == 0)
+                        return true
+                }
             }
 
             closed.removeAll(results)

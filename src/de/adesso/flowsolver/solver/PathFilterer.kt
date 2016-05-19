@@ -16,6 +16,7 @@ import kotlin.system.measureTimeMillis
  * Created on 13.05.2016
  */
 fun preFilter(coloredPaths: HashMap<Int, MutableList<Path>>, pathsData: PathsData) {
+    // TODO: Don't prefilter with unchanged colors
     println("pre filtering paths")
     println("time = " + measureTimeMillis {
         do {
@@ -24,16 +25,16 @@ fun preFilter(coloredPaths: HashMap<Int, MutableList<Path>>, pathsData: PathsDat
             val executor = Executors.newFixedThreadPool(coloredPaths.size)
 
             for ((color, paths) in coloredPaths) {
-                executor.execute {
+//                executor.execute {
                     val startSize = paths.size
 
                     for (otherColor in coloredPaths.keys)
                         if (preFilter(coloredPaths, pathsData, color, otherColor))
-                            synchronized(changed) { changed = true }
+                            changed = true
 
                     if (startSize != paths.size)
                         println("color $color: " + startSize + " -> " + paths.size)
-                }
+//                }
             }
 
             executor.shutdown()
