@@ -16,11 +16,15 @@ fun solve(grid: Grid) {
     println("solving $w x $h grid\n")
 
     val points = extractPairs(grid).values.flatMap { listOf(it.first, it.second) }
+    println("input grid")
     grid.print()
     val newPoints = fillGrid(grid, points)
+    println("filled grid")
     grid.print()
 
     val pairs = newPoints.mapValues { e -> e.value[0] to e.value[1] }
+    require(1 in pairs.keys) { "The level does not contain any flow" }
+    require((pairs.keys - 1).all { it - 1 in pairs }) { "The level is missing flows or has incomplete flows" }
     //    +grid
     //    val pairs = extractPairs(grid).mapValues { Path(1, it.value.first.compressed()) to Path(1, it.value.second.compressed()) }
 
@@ -51,24 +55,26 @@ fun solve(grid: Grid) {
 
                 val paths = allPaths(grid.copy(), start, end, pathsData, maxLength, pairs).toMutableList()
                 println("color    $color: ${paths.size} paths")
-                
+
                 // TODO: If one path write to grid
 
-                coloredPaths.put(color, paths)
+                synchronized(coloredPaths) { coloredPaths.put(color, paths) }
                 pathsData.add(color, paths)
 
-                paths.maxBy { it.size }?.let {
-                    val gridCopy = grid.copy()
-                    tryAddPath(gridCopy, it, color)
-                    gridCopy.print()
-                }
-                
+//                paths.maxBy { it.size }?.let {
+//                    val gridCopy = grid.copy()
+//                    tryAddPath(gridCopy, it, color)
+//                    gridCopy.print()
+//                }
+
                 // TODO: Sort by probability
-                for (otherColor in coloredPaths.keys.toList()) {
+                val otherColors = synchronized(coloredPaths) { LinkedList(coloredPaths.keys) }
+
+                for (otherColor in otherColors) {
                     synchronized(color) { preFilter(coloredPaths, pathsData, color, otherColor) }
-                    println("filtered $color: ${paths.size} paths")
+//                    println("filtered $color: ${paths.size} paths")
                     synchronized(otherColor) { preFilter(coloredPaths, pathsData, otherColor, color) }
-                    println("filtered $otherColor: ${coloredPaths[otherColor]!!.size} paths")
+//                    println("filtered $otherColor: ${coloredPaths[otherColor]!!.size} paths")
                 }
             }
         }
@@ -101,6 +107,9 @@ fun solve(grid: Grid) {
         }
         println()
     }
+    println()
+    println("====================")
+    println()
 }
 
 private fun extractPairs(grid: Grid): Map<Int, Pair<Node, Node>> {

@@ -19,6 +19,7 @@ data class Grid(val w: Int, val h: Int) {
     }
     
     operator fun get(x: Int, y: Int) = grid[x][y]
+    
     operator fun set(x: Int, y: Int, v: Node) {
         grid[x][y] = v
     }
@@ -62,6 +63,28 @@ data class Grid(val w: Int, val h: Int) {
                 }
             }
             return grid
+        }
+        
+        fun fromFile(input: String): List<Grid> {
+            val formatInput = input.replace("\r\n", "\n").replace("\r", "\n")
+            val levels = formatInput.split("\n\n")
+            
+            return levels.map { level ->
+                val lines = level.split('\n').map { it.trim() }
+                
+                if (lines.size == 0) Grid(0, 0)
+                else {
+                    val grid = Grid(lines[0].length, lines.size)
+                    
+                    for ((y, line) in lines.withIndex()) {
+                        for ((x, char) in line.withIndex()) {
+                            grid[x, y].color = if(char == '0') 0 else char - 'a' + 1
+                        }
+                    }
+                    
+                    grid
+                }
+            }
         }
     }
 }

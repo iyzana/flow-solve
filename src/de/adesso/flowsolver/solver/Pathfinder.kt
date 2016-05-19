@@ -104,7 +104,7 @@ fun allPaths(grid: Grid,
     if (depth + distance(start, end) >= maxLength) return solutions
     
     if (start == end) {
-        if (++foundPaths % 100000 == 0) println("foundPaths = ${foundPaths}")
+        if (++foundPaths % 100000 == 0) println("foundPaths = $foundPaths")
         solutions.add(path.copy())
         return solutions
     }
