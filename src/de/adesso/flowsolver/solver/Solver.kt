@@ -4,8 +4,6 @@ import de.adesso.flowsolver.solver.model.Grid
 import de.adesso.flowsolver.solver.model.Node
 import de.adesso.flowsolver.solver.model.Path
 import de.adesso.flowsolver.solver.model.PathsData
-import de.adesso.flowsolver.solver.model.x
-import de.adesso.flowsolver.solver.model.y
 import java.util.HashMap
 import java.util.LinkedList
 import java.util.concurrent.Executors
@@ -15,7 +13,6 @@ import kotlin.system.measureTimeMillis
 fun solve(grid: Grid) {
     val w = grid.w
     val h = grid.h
-    
     println("solving $w x $h grid")
     
     val points = extractPairs(grid).values.flatMap { listOf(it.first, it.second) }
@@ -28,48 +25,56 @@ fun solve(grid: Grid) {
     grid.print()
     
     val pairs = newPoints.mapValues { e -> e.value[0] to e.value[1] }
-    require(1 in pairs.keys) { "The level does not contain first flow" }
-    require((pairs.keys - 1).all { it - 1 in pairs }) { "The level is missing flows or has incomplete flows" }
-    //    +grid
-    //    val pairs = extractPairs(grid).mapValues { Path(1, it.value.first.compressed()) to Path(1, it.value.second.compressed()) }
+    require((1..(pairs.keys.max() ?: 1)).toSet() == pairs.keys) { "The level is missing flows or has incomplete flows" }
     
-    val shortestPaths = pairs.mapValues { entry ->
-        val color = entry.key
-        val pair = entry.value
-        val start = pair.first.lastNode(color)
-        val end = pair.second.lastNode(color)
-        
-        shortestPath(grid, start, end).size
-    }
+    val shortestPaths = shortestPaths(grid, pairs)
     val pathSum = w * h - shortestPaths.values.sumBy { it - 2 } - pairs.values.sumBy { it.first.size + it.second.size }
     
     val coloredPaths = HashMap<Int, MutableList<Path>>()
-    
-    // color -> x -> y -> List<Path>
     val pathsData = PathsData(pairs.keys, grid)
+    val maxLengths = pairs.mapValues { pathSum + shortestPaths[it.key]!! }
     
+    buildAllPaths(coloredPaths, grid, pairs, pathsData, maxLengths)
+    preFilter(coloredPaths, pathsData)
+    val solutions = fullFilter(grid, coloredPaths)
+    
+    if (solutions.isEmpty())
+        throw IllegalArgumentException("grid is not solvable")
+    
+    println("solved grid")
+    solutions[0].forEachIndexed { index, path -> grid.writePath(path, index + 1) }
+    grid.print()
+    
+    val completeSolutions = joinPaths(solutions, pairs)
+    println()
+    
+    completeSolutions.forEachIndexed { index, completeSolution ->
+        println("solution $index")
+        completeSolution.forEachIndexed { index2, path ->
+            println("color ${index2 + 1} $path")
+        }
+        println()
+    }
+    println()
+    println("====================")
+    println()
+}
+
+private fun buildAllPaths(coloredPaths: HashMap<Int, MutableList<Path>>, grid: Grid, pairs: Map<Int, Pair<Path, Path>>, pathsData: PathsData, maxLengths: Map<Int, Int>) {
     val executor = Executors.newFixedThreadPool(pairs.size)
     
     println("building all paths")
     println("time = " + measureTimeMillis {
         for ((color, pair) in pairs.entries) {
             executor.execute {
-                val maxLength = pathSum + shortestPaths[color]!!
+                val maxLength = maxLengths[color]!!
                 val start = pair.first.lastNode(color)
                 val end = pair.second.lastNode(color)
                 
                 val paths = allPaths(grid.copy(), start, end, maxLength, pairs).toMutableList()
                 println("color $color: ${paths.size} paths")
                 
-                // TODO: If one path write to grid
-                
                 pathsData.add(color, paths)
-
-//                paths.maxBy { it.size }?.let {
-//                    val gridCopy = grid.copy()
-//                    tryAddPath(gridCopy, it, color)
-//                    gridCopy.print()
-//                }
                 
                 // TODO: Sort by probability
                 val otherColors = synchronized(coloredPaths) {
@@ -93,36 +98,17 @@ fun solve(grid: Grid) {
     for ((color, paths) in coloredPaths)
         println("color $color: ${paths.size} paths")
     println()
-    //    pathsData.createStatisticalData()
-    
-    preFilter(coloredPaths, pathsData)
-    
-    val solutions = fullFilter(grid, coloredPaths)
-    
-    if (solutions.isEmpty())
-        throw IllegalArgumentException("grid is not solvable")
-    
-    println("solved grid")
-    solutions[0].forEachIndexed { index, path ->
-        path.forEach { node ->
-            grid[node.x, node.y].color = index + 1
-        }
+}
+
+private fun shortestPaths(grid: Grid, pairs: Map<Int, Pair<Path, Path>>): Map<Int, Int> {
+    return pairs.mapValues { entry ->
+        val color = entry.key
+        val pair = entry.value
+        val start = pair.first.lastNode(color)
+        val end = pair.second.lastNode(color)
+        
+        shortestPath(grid, start, end).size
     }
-    grid.print()
-    
-    val completeSolutions = joinPaths(solutions, pairs)
-    println()
-    
-    completeSolutions.forEachIndexed { index, completeSolution ->
-        println("solution $index")
-        completeSolution.forEachIndexed { index2, path ->
-            println("color ${index2 + 1} $path")
-        }
-        println()
-    }
-    println()
-    println("====================")
-    println()
 }
 
 private fun extractPairs(grid: Grid): Map<Int, Pair<Node, Node>> {

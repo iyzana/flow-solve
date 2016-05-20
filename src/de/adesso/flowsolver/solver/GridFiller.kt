@@ -69,6 +69,8 @@ fun fillGrid(grid: Grid, nodes: List<Node>): Map<Int, List<Path>> {
     }
     
     val pathsToNewPoints = nodes.map { fillGrid[it.x, it.y] }.groupBy { it.color }.mapValues { entry ->
+        require(entry.value.size == 2) { "The level is missing flows or has incomplete flows" }
+        
         entry.value.map { node ->
             val path = Path(newStartPointMapping.size + 1)
             var current = node

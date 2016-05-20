@@ -18,14 +18,14 @@ fun main(args: Array<String>) {
     Application.launch(FlowSolverGUI::class.java, *args)
 
 //    for (i in 0..999) {
-//        val grids = Grid.fromFile(TestGrids.javaClass.getResource("/10x10 Jumbo.dat").readText())
-//
-//        println("complete time = " + measureTimeMillis {
-//            for ((index, grid) in grids.withIndex()) {
-//                level = index
-//                println("level $index")
-//                solve(grid)
-//            }
-//        } + " ms")
+        val grids = Grid.fromFile(TestGrids.javaClass.getResource("/5x5 Regular.dat").readText())
+
+        println("complete time = " + measureTimeMillis {
+            for ((index, grid) in grids.withIndex()) {
+                level = index
+                println("level $index")
+                solve(grid)
+            }
+        } + " ms")
 //    }
 }

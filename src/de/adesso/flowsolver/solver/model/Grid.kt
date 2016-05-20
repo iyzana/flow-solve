@@ -9,6 +9,9 @@ package de.adesso.flowsolver.solver.model
 data class Grid(val w: Int, val h: Int) {
     val grid: Array<Array<Node>>
     
+    val nodes: List<Node>
+        get() = (0..w - 1).flatMap { x -> (0..h - 1).map { y -> grid[x][y] } }
+    
     init {
         require(w <= 15 && h <= 15) { "maximum width and height is 15" }
         grid = Array(w.toInt()) { x ->
@@ -18,16 +21,17 @@ data class Grid(val w: Int, val h: Int) {
         }
     }
     
+    fun writePath(path: Path, color: Int) {
+        path.forEach { node ->
+            this[node.x, node.y].color = color
+        }
+    }
+    
     operator fun get(x: Int, y: Int) = grid[x][y]
     
     operator fun set(x: Int, y: Int, v: Node) {
         grid[x][y] = v
     }
-    
-    operator fun get(x: Byte, y: Byte) = get(x.toInt(), y.toInt())
-    
-    val nodes: List<Node>
-        get() = (0..w - 1).flatMap { x -> (0..h - 1).map { y -> grid[x][y] } }
     
     fun copy(): Grid {
         val copy = Grid(w, h)
