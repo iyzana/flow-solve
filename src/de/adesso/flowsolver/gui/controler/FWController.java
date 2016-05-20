@@ -3,9 +3,12 @@ package de.adesso.flowsolver.gui.controler;
 import de.adesso.flowsolver.gui.functions.FlowWindow;
 import de.adesso.flowsolver.solver.SolverKt;
 import de.adesso.flowsolver.solver.model.Grid;
-import de.adesso.flowsolver.solver.model.Node;
+import de.adesso.flowsolver.solver.model.Path;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Labeled;
 import javafx.scene.input.ClipboardContent;
@@ -83,21 +86,56 @@ public class FWController {
 	}
 
 	public void solve(GridPane guiPane) {
+		Grid g = parseGridIntoModel(guiPane);
+		Map<Integer, Path> solution = new HashMap<>();
+		try {
+			solution = SolverKt.solve(g);
+		} catch(IllegalArgumentException e) {
+			System.out.println("Du bist doof");
+		}
+		if(solution.isEmpty()) System.out.println("Du bist doof2");
+		else renderSolution(guiPane, solution);
+	}
+	
+	private void renderSolution(GridPane guiPane, Map<Integer, Path> solution) {
+		solution.forEach((color, path) -> {
+			guiPane.getChildrenUnmodifiable().forEach(node -> {
+				int x = GridPane.getColumnIndex(node);
+				int y = GridPane.getRowIndex(node);
+				de.adesso.flowsolver.solver.model.Node gridNode = new de.adesso.flowsolver.solver.model.Node(x,y, color);
+				
+				int gridNodeIndex;
+				if((gridNodeIndex = path.indexOf(gridNode)) > -1) {
+					de.adesso.flowsolver.solver.model.Node previousNode = new de.adesso.flowsolver.solver.model.Node(path.get(gridNodeIndex - 1), color);
+					de.adesso.flowsolver.solver.model.Node nextNode = new de.adesso.flowsolver.solver.model.Node(path.get(gridNodeIndex + 1), color);
+					if(((previousNode.getX() == gridNode.getX()) && (nextNode.getX() == gridNode.getX())) ||
+					   ((previousNode.getY() == gridNode.getY()) && (nextNode.getY() == gridNode.getY()))) {
+						
+						
+					} else {
+						
+					}
+				}
+			});
+		});
+	}
+	
+	private Grid parseGridIntoModel(GridPane guiPane) {
 		Grid g = new Grid(getGridSize(), getGridSize());
-		for (javafx.scene.Node flow : guiPane.getChildrenUnmodifiable()) {
+		guiPane.getChildrenUnmodifiable().forEach(flow -> {
 			int x = GridPane.getColumnIndex(flow);
-			int	y = GridPane.getRowIndex(flow);
+			int y = GridPane.getRowIndex(flow);
 
-			Pane intermediatePane = (Pane) flow;
-			if (!intermediatePane.getChildren().isEmpty()) {
-				Labeled button = (Labeled) intermediatePane.getChildrenUnmodifiable().get(0);
-				Node node = new Node(x, y, button.getText().charAt(0) - 'A' + 1);
+			List<Node> boxedFlows = ((Pane)flow).getChildrenUnmodifiable();
+			if (!boxedFlows.isEmpty()) {
+				int color = ((Labeled)boxedFlows.get(0)).getText().toCharArray()[0] - 'A' + 1;
+				de.adesso.flowsolver.solver.model.Node node = new de.adesso.flowsolver.solver.model.Node(x, y, color);
 				g.set(x, y, node);
 			}
-		}
-		SolverKt.solve(g);
+		});
+		return g;
 	}
-
+	
 	public int getGridSize() {
 		return Integer.parseInt(window.getGridSize());
 	}

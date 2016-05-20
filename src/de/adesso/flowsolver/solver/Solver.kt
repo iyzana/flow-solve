@@ -10,7 +10,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.system.measureTimeMillis
 
-fun solve(grid: Grid) {
+fun solve(grid: Grid) : Map<Int, Path> {
     val w = grid.w
     val h = grid.h
     println("solving $w x $h grid")
@@ -109,6 +109,7 @@ private fun shortestPaths(grid: Grid, pairs: Map<Int, Pair<Path, Path>>): Map<In
         
         shortestPath(grid, start, end).size
     }
+    return completeSolutions.withIndex().groupBy({ it.index + 1 }, {it.value[0]}).mapValues { it.value[0] }
 }
 
 private fun extractPairs(grid: Grid): Map<Int, Pair<Node, Node>> {

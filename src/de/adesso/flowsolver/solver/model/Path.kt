@@ -49,6 +49,13 @@ class Path private constructor(val nodes: ByteArray) {
         return false
     }
     
+    fun indexOf(node: Node): Int {
+        for((index, value) in nodes.withIndex()) 
+            if(value.equals(node.compressed())) 
+                return index
+        return -1
+    }
+    
     inline fun forEach(apply: (node: Byte) -> Unit) {
         for (node in nodes) apply(node)
     }
