@@ -3,8 +3,10 @@ package de.adesso.flowsolver.solver.model
 import java.awt.image.BufferedImage
 import java.io.File
 import java.util.*
-import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.locks.ReentrantReadWriteLock
 import javax.imageio.ImageIO
+import kotlin.concurrent.read
+import kotlin.concurrent.write
 
 /**
  * Project: FlowSolve
@@ -16,7 +18,7 @@ import javax.imageio.ImageIO
 class PathsData(colors: Collection<Int>, grid: Grid) {
     val w = grid.w
     val h = grid.h
-    val pathsMap = HashMap<Int, Array<Array<ConcurrentLinkedQueue<Path>>>>()
+    val pathsMap = HashMap<Int, Array<Array<MutableList<Path>>>>()
     val colorPaths = HashMap<Int, Int>()
 
     init {
@@ -24,7 +26,7 @@ class PathsData(colors: Collection<Int>, grid: Grid) {
             pathsMap.put(color, Array(w) { x ->
                 Array(h) { y ->
 //                    val size = if (grid[x, y].color == 0) 1000 else 0
-                    ConcurrentLinkedQueue<Path>()
+                    ArrayList<Path>() as MutableList<Path>
                 }
             })
 
@@ -55,14 +57,18 @@ class PathsData(colors: Collection<Int>, grid: Grid) {
         return get(color, node.x, node.y).size == sizeFor(color)
     }
 
-    fun intersectsAll(path: Path, color: Int): Boolean {
-        val targetSize = colorPaths[color]!!
+    val lock = ReentrantReadWriteLock()
 
+    fun intersectsAll(path: Path, color: Int): Boolean {
         val intersecting = HashSet<Path>()
-        path.forEach { node ->
-            val containedPaths = get(color, Node.x(node), Node.y(node))
-            intersecting.addAll(containedPaths)
-            if (intersecting.size == targetSize) return true
+
+        lock.read {
+            val targetSize = colorPaths[color]!!
+            path.forEach { node ->
+                val containedPaths = get(color, Node.x(node), Node.y(node))
+                intersecting.addAll(containedPaths)
+                if (intersecting.size == targetSize) return true
+            }
         }
 
         return false
@@ -70,8 +76,9 @@ class PathsData(colors: Collection<Int>, grid: Grid) {
 
     fun add(color: Int, paths: List<Path>) {
         val colors = pathsMap[color] ?: throw IllegalArgumentException("No data for color $color")
-        colorPaths[color] = sizeFor(color) + paths.size
-        synchronized(paths) {
+        
+        lock.write {
+            colorPaths[color] = sizeFor(color) + paths.size
             paths.forEach { path ->
                 path.forEach { node ->
                     val containedPaths = colors[Node.x(node)][Node.y(node)]
@@ -82,14 +89,16 @@ class PathsData(colors: Collection<Int>, grid: Grid) {
     }
 
     fun remove(color: Int, path: Path) {
-        colorPaths[color] = colorPaths[color]!! - 1
-        path.forEach { node ->
-            val containedPaths = get(color, Node.x(node), Node.y(node))
-            containedPaths.remove(path)
+        lock.write {
+            colorPaths[color] = colorPaths[color]!! - 1
+            path.forEach { node ->
+                val containedPaths = get(color, Node.x(node), Node.y(node))
+                containedPaths.remove(path)
+            }
         }
     }
 
-    operator fun get(color: Int, x: Int, y: Int): ConcurrentLinkedQueue<Path> = pathsMap[color]?.get(x)?.get(y) ?: throw IllegalArgumentException("No data for color $color")
+    operator fun get(color: Int, x: Int, y: Int): MutableList<Path> = pathsMap[color]?.get(x)?.get(y) ?: throw IllegalArgumentException("No data for color $color")
 
     fun sizeFor(color: Int) = colorPaths[color] ?: throw IllegalArgumentException("No data for color $color")
 }
