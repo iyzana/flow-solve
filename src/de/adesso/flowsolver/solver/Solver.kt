@@ -1,7 +1,6 @@
 package de.adesso.flowsolver.solver
 
 import de.adesso.flowsolver.solver.model.Grid
-import de.adesso.flowsolver.solver.model.Node
 import de.adesso.flowsolver.solver.model.Path
 import de.adesso.flowsolver.solver.model.PathsData
 import java.util.HashMap
@@ -10,21 +9,44 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.system.measureTimeMillis
 
-fun solve(grid: Grid) : Map<Int, Path> {
+fun solve(grid: Grid): Map<Int, Path> {
+    val points = grid.nodes.filter { it.color != 0 }
+    val pairs = fillGrid(grid, points)
+    
+    require((1..(pairs.keys.max() ?: 1)).toSet() == pairs.keys) { "The level is missing flows or has incomplete flows" }
+    
+    val shortestPaths = shortestPaths(grid, pairs)
+    val pathSum = grid.w * grid.h - shortestPaths.values.sumBy { it - 2 } - pairs.values.sumBy { it.first.size + it.second.size }
+    val maxLengths = pairs.mapValues { pathSum + shortestPaths[it.key]!! }
+    
+    val coloredPaths = HashMap<Int, MutableList<Path>>()
+    val pathsData = PathsData(pairs.keys, grid)
+    
+    buildAllPaths(coloredPaths, grid, pairs, pathsData, maxLengths)
+    preFilter(coloredPaths, pathsData)
+    val solutions = fullFilter(grid, coloredPaths)
+    
+    if (solutions.isEmpty())
+        throw IllegalArgumentException("grid is not solvable")
+    
+    val completeSolutions = joinPaths(solutions, pairs)
+    return completeSolutions[0]
+}
+
+fun verboseSolve(grid: Grid): Map<Int, Path> {
     val w = grid.w
     val h = grid.h
     println("solving $w x $h grid")
     
-    val points = extractPairs(grid).values.flatMap { listOf(it.first, it.second) }
+    val points = grid.nodes.filter { it.color != 0 }
     println("found ${points.size / 2} flows\n")
     
     println("input grid")
     grid.print()
-    val newPoints = fillGrid(grid, points)
+    val pairs = fillGrid(grid, points)
     println("filled grid")
     grid.print()
     
-    val pairs = newPoints.mapValues { e -> e.value[0] to e.value[1] }
     require((1..(pairs.keys.max() ?: 1)).toSet() == pairs.keys) { "The level is missing flows or has incomplete flows" }
     
     val shortestPaths = shortestPaths(grid, pairs)
@@ -42,7 +64,7 @@ fun solve(grid: Grid) : Map<Int, Path> {
         throw IllegalArgumentException("grid is not solvable")
     
     println("solved grid")
-    solutions[0].forEachIndexed { index, path -> grid.writePath(path, index + 1) }
+    solutions[0].forEach { entry -> grid.writePath(entry.value, entry.key) }
     grid.print()
     
     val completeSolutions = joinPaths(solutions, pairs)
@@ -50,14 +72,16 @@ fun solve(grid: Grid) : Map<Int, Path> {
     
     completeSolutions.forEachIndexed { index, completeSolution ->
         println("solution $index")
-        completeSolution.forEachIndexed { index2, path ->
-            println("color ${index2 + 1} $path")
+        completeSolution.forEach { entry ->
+            println("color ${entry.key} ${entry.value}")
         }
         println()
     }
     println()
     println("====================")
     println()
+    
+    return completeSolutions[0]
 }
 
 private fun buildAllPaths(coloredPaths: HashMap<Int, MutableList<Path>>, grid: Grid, pairs: Map<Int, Pair<Path, Path>>, pathsData: PathsData, maxLengths: Map<Int, Int>) {
@@ -109,55 +133,25 @@ private fun shortestPaths(grid: Grid, pairs: Map<Int, Pair<Path, Path>>): Map<In
         
         shortestPath(grid, start, end).size
     }
-    return completeSolutions.withIndex().groupBy({ it.index + 1 }, {it.value[0]}).mapValues { it.value[0] }
 }
 
-private fun extractPairs(grid: Grid): Map<Int, Pair<Node, Node>> {
-    val nodes = grid.nodes.filter { it.color != 0 }
-    val grouped = nodes.groupBy { it.color }
-    
-    require(grouped.all { it.value.size == 2 }) { "Invalid grid" }
-    
-    return grouped.mapValues { it.value[0] to it.value[1] }
-}
-
-private fun oldExtractPairs(grid: Grid): Map<Int, Pair<Node, Node>> {
-    val pairs = HashMap<Int, Pair<Node, Node>>()
-    
-    (1..20).forEach { color ->
-        var first: Node? = null
-        
-        (0..grid.w - 1).forEach w@ { x ->
-            (0..grid.h - 1).forEach { y ->
-                val node = grid[x, y]
-                if (node.color == color) {
-                    if (first == null) first = node
-                    else {
-                        pairs.put(color, first!! to node)
-                        return@w
-                    }
-                }
-            }
-        }
-    }
-    
-    return pairs
-}
-
-private fun joinPaths(solutions: List<List<Path>>, pairs: Map<Int, Pair<Path, Path>>): List<List<Path>> {
+private fun joinPaths(solutions: List<Map<Int, Path>>, pairs: Map<Int, Pair<Path, Path>>): List<Map<Int, Path>> {
     println("appending pre and postfix")
     
     return solutions.map { solution ->
-        solution.mapIndexed { index, path ->
-            val pre = pairs[index + 1]!!.first
-            val post = pairs[index + 1]!!.second
+        solution.mapValues { entry ->
+            val color = entry.key
+            val path = entry.value
+            
+            val pre = pairs[color]!!.first
+            val post = pairs[color]!!.second
             val size = pre.size + path.size + post.size - 1
             
-            val complete = Path(size)
-            pre.nodes().forEach { complete.add(it) }
-            path.nodes().forEach { complete.add(it) }
-            post.nodes().dropLast(1).reversed().forEach { complete.add(it) }
-            return@mapIndexed complete
+            val completePath = Path(size)
+            pre.nodes().forEach { completePath.add(it) }
+            path.nodes().forEach { completePath.add(it) }
+            post.nodes().dropLast(1).reversed().forEach { completePath.add(it) }
+            completePath
         }
     }
 }

@@ -58,7 +58,7 @@ private class FillGrid(grid: Grid, nodes: List<Node>) {
     }
 }
 
-fun fillGrid(grid: Grid, nodes: List<Node>): Map<Int, List<Path>> {
+fun fillGrid(grid: Grid, nodes: List<Node>): Map<Int, Pair<Path, Path>> {
     val fillGrid = FillGrid(grid, nodes)
     
     val newStartPointMapping = hashMapOf<FillNode, FillNode>()
@@ -81,7 +81,7 @@ fun fillGrid(grid: Grid, nodes: List<Node>): Map<Int, List<Path>> {
             }
             path
         }
-    }
+    }.mapValues { it.value[0] to it.value[1] }
     
     for (x in 0..fillGrid.w - 1) {
         for (y in 0..fillGrid.h - 1) {

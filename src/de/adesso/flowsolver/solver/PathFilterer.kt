@@ -69,8 +69,8 @@ fun preFilter(coloredPaths: HashMap<Int, MutableList<Path>>, pathsData: PathsDat
     return changed
 }
 
-fun fullFilter(grid: Grid, coloredPaths: HashMap<Int, MutableList<Path>>): MutableList<MutableList<Path>> {
-    var fullFilter: MutableList<MutableList<Path>> = mutableListOf()
+fun fullFilter(grid: Grid, coloredPaths: HashMap<Int, MutableList<Path>>): List<Map<Int, Path>> {
+    var fullFilter: List<Map<Int, Path>> = mutableListOf()
     println("full filtering paths")
     println("time = " + measureTimeMillis {
         fullFilter = fullFilter(grid, coloredPaths, 1)
@@ -78,20 +78,20 @@ fun fullFilter(grid: Grid, coloredPaths: HashMap<Int, MutableList<Path>>): Mutab
     return fullFilter
 }
 
-private fun fullFilter(grid: Grid, coloredPaths: HashMap<Int, MutableList<Path>>, color: Int): MutableList<MutableList<Path>> {
+private fun fullFilter(grid: Grid, coloredPaths: HashMap<Int, MutableList<Path>>, color: Int): MutableList<MutableMap<Int, Path>> {
     if (color > coloredPaths.size) {
         if (grid.nodes.any { it.color == 0 }) return mutableListOf()
-        return mutableListOf(LinkedList())
+        return mutableListOf(HashMap())
     }
     
     val paths = coloredPaths[color]!!
     
-    val solutions = LinkedList<MutableList<Path>>()
+    val solutions = LinkedList<MutableMap<Int, Path>>()
     
     for (path in paths) {
         if (!tryAddPath(grid, path, color)) continue
         val subSolutions = fullFilter(grid, coloredPaths, color + 1)
-        subSolutions.forEach { it.add(0, path) }
+        subSolutions.forEach { it.put(color, path) }
         solutions.addAll(subSolutions)
         removePath(grid, path, color)
     }
