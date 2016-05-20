@@ -1,9 +1,6 @@
 package de.adesso.flowsolver.solver
 
-import de.adesso.flowsolver.solver.model.Grid
-import de.adesso.flowsolver.solver.model.Node
-import de.adesso.flowsolver.solver.model.Path
-import de.adesso.flowsolver.solver.model.PathsData
+import de.adesso.flowsolver.solver.model.*
 import java.util.HashMap
 import java.util.LinkedList
 import java.util.concurrent.Executors
@@ -77,7 +74,7 @@ fun solve(grid: Grid) {
                 val otherColors = synchronized(coloredPaths) {
                     coloredPaths.put(color, paths)
                     LinkedList(coloredPaths.keys)
-                }
+                } - color
                 
                 println("" + Thread.currentThread().id + " otherColors " + otherColors)
                 
@@ -111,7 +108,7 @@ fun solve(grid: Grid) {
     println("solved grid")
     solutions[0].forEachIndexed { index, path ->
         path.forEach { node ->
-            grid[Node.x(node), Node.y(node)].color = index + 1
+            grid[node.x, node.y].color = index + 1
         }
     }
     grid.print()

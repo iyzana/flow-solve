@@ -67,7 +67,7 @@ class PathsData(colors: Collection<Int>, grid: Grid) {
         lock.read {
             val targetSize = colorPaths[color]!!
             path.forEach { node ->
-                val containedPaths = get(color, Node.x(node), Node.y(node))
+                val containedPaths = get(color, node.x, node.y)
                 intersecting.addAll(containedPaths)
                 if (intersecting.size == targetSize) return true
             }
@@ -83,7 +83,7 @@ class PathsData(colors: Collection<Int>, grid: Grid) {
             colorPaths[color] = sizeFor(color) + paths.size
             paths.forEach { path ->
                 path.forEach { node ->
-                    val containedPaths = colors[Node.x(node)][Node.y(node)]
+                    val containedPaths = colors[node.x][node.y]
                     containedPaths.add(path)
                 }
             }
@@ -94,7 +94,7 @@ class PathsData(colors: Collection<Int>, grid: Grid) {
         lock.write {
             colorPaths[color] = colorPaths[color]!! - 1
             path.forEach { node ->
-                val containedPaths = get(color, Node.x(node), Node.y(node))
+                val containedPaths = get(color, node.x, node.y)
                 containedPaths.remove(path)
             }
         }

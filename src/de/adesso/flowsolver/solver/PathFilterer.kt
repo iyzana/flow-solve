@@ -1,9 +1,6 @@
 package de.adesso.flowsolver.solver
 
-import de.adesso.flowsolver.solver.model.Grid
-import de.adesso.flowsolver.solver.model.Node
-import de.adesso.flowsolver.solver.model.Path
-import de.adesso.flowsolver.solver.model.PathsData
+import de.adesso.flowsolver.solver.model.*
 import java.util.HashMap
 import java.util.LinkedList
 import java.util.concurrent.Executors
@@ -104,7 +101,7 @@ private fun fullFilter(grid: Grid, coloredPaths: HashMap<Int, MutableList<Path>>
 
 fun tryAddPath(grid: Grid, path: Path, color: Int): Boolean {
     for (node in path) {
-        val current = grid[Node.x(node), Node.y(node)]
+        val current = grid[node.x, node.y]
         if (current.color == 0) current.color = color
         else if (current.color == color) continue
         else {
@@ -118,7 +115,7 @@ fun tryAddPath(grid: Grid, path: Path, color: Int): Boolean {
 
 fun removePath(grid: Grid, path: Path, color: Int) {
     for (node in path) {
-        val current = grid[Node.x(node), Node.y(node)]
+        val current = grid[node.x, node.y]
         if (current.color == color)
             current.color = 0
     }

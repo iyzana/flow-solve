@@ -1,8 +1,6 @@
 package de.adesso.flowsolver.solver
 
-import de.adesso.flowsolver.solver.model.Grid
-import de.adesso.flowsolver.solver.model.Node
-import de.adesso.flowsolver.solver.model.Path
+import de.adesso.flowsolver.solver.model.*
 import java.util.HashSet
 import java.util.LinkedList
 
@@ -38,7 +36,7 @@ fun isCutoff(grid: Grid, by: Path, colors: Map<Int, Pair<Path, Path>>, pathColor
     }
     
     val closed = HashSet<Node>(grid.w * grid.h)
-    closed.addAll(by.nodes().dropLast(1).map { grid[Node.x(it), Node.y(it)] })
+    closed.addAll(by.nodes().dropLast(1).map { grid[it.x, it.y] })
     
     val nodePairs = mutableSetOf<Int>()
     
@@ -146,11 +144,11 @@ private fun preCheckByNeighbors(by: Path, grid: Grid): Boolean {
     if (nodes.size >= 2) {
         val lastNode = nodes.last()
         val previous = nodes[nodes.lastIndex - 1]
-        val fromX = Node.x(lastNode) - Node.x(previous)
-        val fromY = Node.y(lastNode) - Node.y(previous)
+        val fromX = lastNode.x - previous.x
+        val fromY = lastNode.y - previous.y
         
-        val x = Node.x(lastNode)
-        val y = Node.y(lastNode)
+        val x = lastNode.x
+        val y = lastNode.y
         loop@ for (dx in Math.max(-1, -1 + fromX)..Math.min(1, 1 + fromX)) {
             for (dy in Math.max(-1, -1 + fromY)..Math.min(1, 1 + fromY)) {
                 if (dx == 0 && dy == 0) continue
