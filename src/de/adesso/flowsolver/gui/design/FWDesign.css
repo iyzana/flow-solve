@@ -1,52 +1,78 @@
-#btnGenerate {
-	margin-outside: 10px;
+.root{
+    -fx-background-color: #666666;
 }
 
-.hb {
-	-fx-padding: 10px;
-	-fx-alignment: center-right;
+#btnGenerate{
+    margin-outside: 10px;
 }
 
-.UpDown {
-	-fx-font-size: 10px;
+.hb{
+    -fx-padding: 10px;
+    -fx-alignment: center;
+    -fx-spacing: 20px;
 }
 
-#btnUp {
-	-fx-rotate: 180;
-
+#possibleNode{
+    -fx-padding: 2px
 }
 
-#hbTop {
-	/*-fx-background-color: blue;*/
+.UpDown{
+    -fx-font-size: 10px;
+}
+#btnUp{
+    -fx-rotate: 180;
+    -fx-background-color: linear-gradient(greenyellow, yellowgreen);
+}
+#btnUp:hover{
+    -fx-background-color: linear-gradient(yellowgreen, greenyellow);
 }
 
-#vbLeft {
-	/*-fx-background-color: red;*/
+#hbTop{
+    /*-fx-background-color: blue;*/
 }
 
-#center {
-	/*-fx-background-color: yellow;*/
-	-fx-grid-lines-visible: true;
+#vbLeft{
+    /*-fx-background-color: red;*/
 }
 
-#hbBottom {
-	/*-fx-background-color: green;*/
+#center{
+    /*-fx-background-color: yellow;*/
 }
 
-Button {
-	-fx-font-family: Monospaced;
-	-fx-background-color: rgba(218, 198, 220, 0.67);
+#hbBottom{
+    /*-fx-background-color: green;*/
 }
 
-TextField {
-	-fx-font-size: 18px
+Button{
+    -fx-font-family: Monospaced;
+    -fx-background-color: linear-gradient(yellowgreen, greenyellow);
+}
+Button:hover{
+    -fx-background-color: linear-gradient(greenyellow, yellowgreen);
 }
 
-#fassung {
-	-fx-min-height: 30;
-	-fx-min-width: 30;
+TextField{
+    -fx-font-size: 18px;
+    -fx-pref-width: 75px;
 }
 
-#flowNode {
-	-fx-font-style: italic;
+#fassung{
+    -fx-min-height: 45;
+    -fx-min-width: 45;
+    -fx-background-color: linear-gradient(darkgoldenrod, goldenrod), bisque;
+    -fx-background-insets: 0, 4;
+}
+
+#flowNode{
+    -fx-font-style: italic;
+    -fx-min-height: 25;
+    -fx-min-width: 25;
+    -fx-background-radius: 50%;
+    -fx-background-color:  linear-gradient(yellowgreen, greenyellow);
+    -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );
+}
+#pane{
+    -fx-border-color: linear-gradient(bisque, white);
+    -fx-background-color: lightgrey;
+    -fx-alignment: center;
 }
