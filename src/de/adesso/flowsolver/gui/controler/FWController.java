@@ -110,7 +110,7 @@ public class FWController{
 			Button b = getButton(db.getString());
 			flowNodes.add(b);
 			target.getChildren().add(b);
-
+			b.setOnDragDetected(e -> draged(e, b));
 			success = true;
 		}
         /* let the source know whether the string was successfully

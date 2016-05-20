@@ -17,15 +17,15 @@ var level = -1
 fun main(args: Array<String>) {
     Application.launch(FlowSolverGUI::class.java, *args)
 
-    for (i in 0..999) {
-        val grids = Grid.fromFile(TestGrids.javaClass.getResource("/10x10 Jumbo.dat").readText())
-
-        println("complete time = " + measureTimeMillis {
-            for ((index, grid) in grids.withIndex()) {
-                level = index
-                println("level $index")
-                solve(grid)
-            }
-        } + " ms")
-    }
+//    for (i in 0..999) {
+//        val grids = Grid.fromFile(TestGrids.javaClass.getResource("/10x10 Jumbo.dat").readText())
+//
+//        println("complete time = " + measureTimeMillis {
+//            for ((index, grid) in grids.withIndex()) {
+//                level = index
+//                println("level $index")
+//                solve(grid)
+//            }
+//        } + " ms")
+//    }
 }

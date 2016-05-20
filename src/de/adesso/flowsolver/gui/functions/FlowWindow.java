@@ -59,7 +59,6 @@ public class FlowWindow{
 		btnDown.setId("btnDown");
 		btnDown.getStyleClass().add("UpDown");
 		btnGenerate.setId("btnGenerate");
-		btnGenerate.setStyle("-fx-spacing: 10px;");
 
 		leftBox();
 		vbLeft.setId("vbLeft");
@@ -112,7 +111,6 @@ public class FlowWindow{
 	public void generateTable(){
 		int size = events.getGridSize();
 
-		//TODO buttens aus dem grid entfernen bei neuem generieren
 		center.getChildren().clear();
 		center.getColumnConstraints().clear();
 		center.getRowConstraints().clear();
@@ -134,6 +132,7 @@ public class FlowWindow{
 	private void addPane(int colIndex, int rowIndex) {
 		GridPane pane = new GridPane();
 		pane.setId("pane");
+
 		pane.setOnDragDropped(e -> events.droped(e, pane));
 		pane.setOnDragOver(e -> events.dropable(e, pane));
 		center.add(pane, colIndex, rowIndex);
@@ -154,7 +153,6 @@ public class FlowWindow{
 
 		vbLeft = new VBox();
 		fpNotes = new FlowPane();
-		vbLeft.setPrefWidth(200);
 
 		generateNotes();
 
@@ -181,9 +179,17 @@ public class FlowWindow{
 			StackPane spstart = new StackPane();
 			spstart.getChildren().add(bb1);
 			spstart.getChildren().add(b1);
+
+
 			StackPane spend = new StackPane();
 			spend.getChildren().add(bb2);
 			spend.getChildren().add(b2);
+
+			// spstart.setOnDragDropped(e -> events.droped(e, spstart));
+			// spstart.setOnDragOver(e -> events.dropable(e, spstart));
+			// spend.setOnDragDropped(e -> events.droped(e, spend));
+			// spend.setOnDragOver(e -> events.dropable(e, spend));
+
 			spstart.setId("possibleNode");
 			spend.setId("possibleNode");
 			fpNotes.getChildren().addAll(spstart, spend);

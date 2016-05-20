@@ -3,7 +3,7 @@
 }
 
 #btnGenerate{
-    margin-outside: 10px;
+    -fx-spacing: 10px;
 }
 
 .hb{
@@ -33,6 +33,7 @@
 
 #vbLeft{
     /*-fx-background-color: red;*/
+    -fx-pref-width: 200px;
 }
 
 #center{
@@ -49,6 +50,9 @@ Button{
 }
 Button:hover{
     -fx-background-color: linear-gradient(greenyellow, yellowgreen);
+}
+Button:pressed{
+    -fx-background-color: linear-gradient(greenyellow, yellowgreen), rgba(255, 255, 255, 0.5);
 }
 
 TextField{
