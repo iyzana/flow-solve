@@ -1,5 +1,6 @@
 package de.adesso.flowsolver.solver
 
+import de.adesso.flowsolver.mapValues
 import de.adesso.flowsolver.solver.model.Grid
 import de.adesso.flowsolver.solver.model.Node
 import de.adesso.flowsolver.solver.model.Path
@@ -68,10 +69,10 @@ fun fillGrid(grid: Grid, nodes: List<Node>): Map<Int, Pair<Path, Path>> {
         newStartPointMapping.putAll(fillNode(fillNode, fillGrid))
     }
     
-    val pathsToNewPoints = nodes.map { fillGrid[it.x, it.y] }.groupBy { it.color }.mapValues { entry ->
-        require(entry.value.size == 2) { "The level is missing flows or has incomplete flows" }
-        
-        entry.value.map { node ->
+    val pathsToNewPoints = nodes.map { fillGrid[it.x, it.y] }.groupBy { it.color }.mapValues { color, nodes ->
+        require(nodes.size == 2) { "The level is missing flows or has incomplete flows" }
+    
+        nodes.map { node ->
             val path = Path(newStartPointMapping.size + 1)
             var current = node
             path.add(current.toNode().compressed())
@@ -81,7 +82,7 @@ fun fillGrid(grid: Grid, nodes: List<Node>): Map<Int, Pair<Path, Path>> {
             }
             path
         }
-    }.mapValues { it.value[0] to it.value[1] }
+    }.mapValues { color, paths -> paths[0] to paths[1] }
     
     for (x in 0..fillGrid.w - 1) {
         for (y in 0..fillGrid.h - 1) {

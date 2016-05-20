@@ -1,5 +1,7 @@
 package de.adesso.flowsolver.solver
 
+import de.adesso.flowsolver.forEach
+import de.adesso.flowsolver.mapValues
 import de.adesso.flowsolver.solver.model.Grid
 import de.adesso.flowsolver.solver.model.Path
 import de.adesso.flowsolver.solver.model.PathsData
@@ -17,7 +19,7 @@ fun solve(grid: Grid): Map<Int, Path> {
     
     val shortestPaths = shortestPaths(grid, pairs)
     val pathSum = grid.w * grid.h - shortestPaths.values.sumBy { it - 2 } - pairs.values.sumBy { it.first.size + it.second.size }
-    val maxLengths = pairs.mapValues { pathSum + shortestPaths[it.key]!! }
+    val maxLengths = pairs.keys.associate { it to pathSum + shortestPaths[it]!! }
     
     val coloredPaths = HashMap<Int, MutableList<Path>>()
     val pathsData = PathsData(pairs.keys, grid)
@@ -54,7 +56,7 @@ fun verboseSolve(grid: Grid): Map<Int, Path> {
     
     val coloredPaths = HashMap<Int, MutableList<Path>>()
     val pathsData = PathsData(pairs.keys, grid)
-    val maxLengths = pairs.mapValues { pathSum + shortestPaths[it.key]!! }
+    val maxLengths = pairs.keys.associate { it to pathSum + shortestPaths[it]!! }
     
     buildAllPaths(coloredPaths, grid, pairs, pathsData, maxLengths)
     preFilter(coloredPaths, pathsData)
@@ -64,7 +66,7 @@ fun verboseSolve(grid: Grid): Map<Int, Path> {
         throw IllegalArgumentException("grid is not solvable")
     
     println("solved grid")
-    solutions[0].forEach { entry -> grid.writePath(entry.value, entry.key) }
+    solutions[0].forEach { key, value -> grid.writePath(value, key) }
     grid.print()
     
     val completeSolutions = joinPaths(solutions, pairs)
@@ -72,8 +74,8 @@ fun verboseSolve(grid: Grid): Map<Int, Path> {
     
     completeSolutions.forEachIndexed { index, completeSolution ->
         println("solution $index")
-        completeSolution.forEach { entry ->
-            println("color ${entry.key} ${entry.value}")
+        completeSolution.forEach { key, value ->
+            println("color $key $value")
         }
         println()
     }
@@ -125,9 +127,7 @@ private fun buildAllPaths(coloredPaths: HashMap<Int, MutableList<Path>>, grid: G
 }
 
 private fun shortestPaths(grid: Grid, pairs: Map<Int, Pair<Path, Path>>): Map<Int, Int> {
-    return pairs.mapValues { entry ->
-        val color = entry.key
-        val pair = entry.value
+    return pairs.mapValues { color, pair ->
         val start = pair.first.lastNode(color)
         val end = pair.second.lastNode(color)
         
@@ -139,10 +139,7 @@ private fun joinPaths(solutions: List<Map<Int, Path>>, pairs: Map<Int, Pair<Path
     println("appending pre and postfix")
     
     return solutions.map { solution ->
-        solution.mapValues { entry ->
-            val color = entry.key
-            val path = entry.value
-            
+        solution.mapValues { color, path ->
             val pre = pairs[color]!!.first
             val post = pairs[color]!!.second
             val size = pre.size + path.size + post.size - 1
