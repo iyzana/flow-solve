@@ -26,6 +26,9 @@ data class Grid(val w: Int, val h: Int) {
     
     operator fun get(x: Byte, y: Byte) = get(x.toInt(), y.toInt())
     
+    val nodes: List<Node>
+        get() = (0..w - 1).flatMap { x -> (0..h - 1).map { y -> grid[x][y] } }
+    
     fun copy(): Grid {
         val copy = Grid(w, h)
         

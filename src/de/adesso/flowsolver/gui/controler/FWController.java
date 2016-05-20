@@ -85,12 +85,13 @@ public class FWController {
 	public void solve(GridPane guiPane) {
 		Grid g = new Grid(getGridSize(), getGridSize());
 		for (javafx.scene.Node flow : guiPane.getChildrenUnmodifiable()) {
-			int x = GridPane.getColumnIndex(flow),
-				y = GridPane.getRowIndex(flow);
+			int x = GridPane.getColumnIndex(flow);
+			int	y = GridPane.getRowIndex(flow);
 			
 			Pane intermediatePane = (Pane) flow;
 			if (!intermediatePane.getChildren().isEmpty()) {
-				Node node = new Node(x, y, ((Labeled)intermediatePane.getChildrenUnmodifiable().get(0)).getText().toCharArray()[0] - 'A'+1);
+				Labeled button = (Labeled) intermediatePane.getChildrenUnmodifiable().get(0);
+				Node node = new Node(x, y, button.getText().charAt(0) - 'A' + 1);
 				g.set(x, y, node);
 			}
 		}

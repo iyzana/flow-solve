@@ -1,12 +1,15 @@
 package de.adesso.flowsolver.solver
 
-import de.adesso.flowsolver.solver.model.*
+import de.adesso.flowsolver.solver.model.Grid
+import de.adesso.flowsolver.solver.model.Node
+import de.adesso.flowsolver.solver.model.Path
+import de.adesso.flowsolver.solver.model.PathsData
+import de.adesso.flowsolver.solver.model.x
+import de.adesso.flowsolver.solver.model.y
 import java.util.HashMap
 import java.util.LinkedList
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
 import kotlin.system.measureTimeMillis
 
 fun solve(grid: Grid) {
@@ -38,7 +41,7 @@ fun solve(grid: Grid) {
         
         shortestPath(grid, start, end).size
     }
-    val pathSum = w * h - shortestPaths.values.sum()
+    val pathSum = w * h - shortestPaths.values.sumBy { it - 2 } - pairs.values.sumBy { it.first.size + it.second.size }
     
     val coloredPaths = HashMap<Int, MutableList<Path>>()
     
@@ -46,8 +49,6 @@ fun solve(grid: Grid) {
     val pathsData = PathsData(pairs.keys, grid)
     
     val executor = Executors.newFixedThreadPool(pairs.size)
-    
-    val locks = Array(pairs.size) { ReentrantLock() }
     
     println("building all paths")
     println("time = " + measureTimeMillis {
@@ -62,7 +63,7 @@ fun solve(grid: Grid) {
                 
                 // TODO: If one path write to grid
                 
-                locks[color - 1].withLock { pathsData.add(color, paths) }
+                pathsData.add(color, paths)
 
 //                paths.maxBy { it.size }?.let {
 //                    val gridCopy = grid.copy()
@@ -76,14 +77,11 @@ fun solve(grid: Grid) {
                     LinkedList(coloredPaths.keys)
                 } - color
                 
-                println("" + Thread.currentThread().id + " otherColors " + otherColors)
-                
                 for (otherColor in otherColors) {
-                    locks[color - 1].withLock { preFilter(coloredPaths, pathsData, color, otherColor) }
-                    println("" + Thread.currentThread().id + " filtered $color with $otherColor: ${paths.size} paths")
-                    locks[otherColor - 1].withLock { preFilter(coloredPaths, pathsData, otherColor, color) }
-                    println("" + Thread.currentThread().id + " filtered $otherColor with $color: ${coloredPaths[otherColor]!!.size} paths")
+                    synchronized(color) { preFilter(coloredPaths, pathsData, color, otherColor) }
+                    synchronized(otherColor) { preFilter(coloredPaths, pathsData, otherColor, color) }
                 }
+                println("filtered $color: ${paths.size} paths")
             }
         }
         
@@ -101,10 +99,9 @@ fun solve(grid: Grid) {
     
     val solutions = fullFilter(grid, coloredPaths)
     
-    if (solutions.isEmpty()) {
-        println("grid not solved")
-        return
-    }
+    if (solutions.isEmpty())
+        throw IllegalArgumentException("grid is not solvable")
+    
     println("solved grid")
     solutions[0].forEachIndexed { index, path ->
         path.forEach { node ->
@@ -129,6 +126,15 @@ fun solve(grid: Grid) {
 }
 
 private fun extractPairs(grid: Grid): Map<Int, Pair<Node, Node>> {
+    val nodes = grid.nodes.filter { it.color != 0 }
+    val grouped = nodes.groupBy { it.color }
+    
+    require(grouped.all { it.value.size == 2 }) { "Invalid grid" }
+    
+    return grouped.mapValues { it.value[0] to it.value[1] }
+}
+
+private fun oldExtractPairs(grid: Grid): Map<Int, Pair<Node, Node>> {
     val pairs = HashMap<Int, Pair<Node, Node>>()
     
     (1..20).forEach { color ->

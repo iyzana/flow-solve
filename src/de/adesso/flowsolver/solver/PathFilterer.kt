@@ -1,6 +1,10 @@
 package de.adesso.flowsolver.solver
 
-import de.adesso.flowsolver.solver.model.*
+import de.adesso.flowsolver.solver.model.Grid
+import de.adesso.flowsolver.solver.model.Path
+import de.adesso.flowsolver.solver.model.PathsData
+import de.adesso.flowsolver.solver.model.x
+import de.adesso.flowsolver.solver.model.y
 import java.util.HashMap
 import java.util.LinkedList
 import java.util.concurrent.Executors
@@ -76,11 +80,7 @@ fun fullFilter(grid: Grid, coloredPaths: HashMap<Int, MutableList<Path>>): Mutab
 
 private fun fullFilter(grid: Grid, coloredPaths: HashMap<Int, MutableList<Path>>, color: Int): MutableList<MutableList<Path>> {
     if (color > coloredPaths.size) {
-        for (x in 0..grid.w - 1) {
-            for (y in 0..grid.h - 1) {
-                if (grid[x, y].color == 0) return mutableListOf()
-            }
-        }
+        if (grid.nodes.any { it.color == 0 }) return mutableListOf()
         return mutableListOf(LinkedList())
     }
     
