@@ -8,12 +8,12 @@ import de.adesso.flowsolver.gui.controler.FWController;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
-public class FlowSolverGUI extends Application{
-
+public class FlowSolverGUI extends Application {
+	
 	FWController window = new FWController();
-
+	
 	@Override
-	public void start(Stage primaryStage){
+	public void start(Stage primaryStage) {
 		window.init(primaryStage);
 	}
 }

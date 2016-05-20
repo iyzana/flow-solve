@@ -3,7 +3,8 @@ package de.adesso.flowsolver.solver
 import de.adesso.flowsolver.solver.model.Grid
 import de.adesso.flowsolver.solver.model.Node
 import de.adesso.flowsolver.solver.model.Path
-import java.util.*
+import java.util.HashSet
+import java.util.LinkedList
 
 /**
  * FlowSolve
@@ -15,12 +16,12 @@ fun neighbor(grid: Grid, x: Int, y: Int, opened: MutableList<Node>, closed: Muta
     if (valid(grid, x, y)) {
         val neighbor = grid[x, y]
         if (!closed.add(neighbor)) return neighbor.color
-
+        
         if (neighbor.color == 0) opened.add(neighbor)
         else if (neighbor.color > 0) result.add(neighbor)
         return neighbor.color
     }
-
+    
     return -1
 }
 
@@ -28,38 +29,38 @@ fun neighbor(grid: Grid, x: Int, y: Int, opened: MutableList<Node>, closed: Muta
 fun isCutoff(grid: Grid, by: Path, colors: Map<Int, Pair<Path, Path>>, pathColor: Int): Boolean {
 //    if (preCheckByNeighbors(by, grid)) return false
     val nodes = by.nodes()
-
+    
     if (nodes.size >= 2) {
         val previous = Node(nodes[nodes.lastIndex - 1])
-
+        
         val end = colors[pathColor]!!.second.lastNode(pathColor)
         if (distance(previous, end) == 1) return false
     }
-
+    
     val closed = HashSet<Node>(grid.w * grid.h)
     closed.addAll(by.nodes().dropLast(1).map { grid[Node.x(it), Node.y(it)] })
-
+    
     val nodePairs = mutableSetOf<Int>()
-
+    
     outer@
     for (x in 0..grid.w - 1) {
         for (y in 0..grid.h - 1) {
             val node = grid[x, y]
             if (node in closed) continue
             if (node.color != 0) continue
-
+            
             val opened = LinkedList<Node>()
             val results = mutableListOf<Node>()
             opened.add(node)
             closed.add(node)
             stack@ while (!opened.isEmpty()) {
                 val current = opened.pop()
-
+                
                 val color1 = neighbor(grid, current.x, current.y - 1, opened, closed, results)
                 val color2 = neighbor(grid, current.x + 1, current.y, opened, closed, results)
                 val color3 = neighbor(grid, current.x, current.y + 1, opened, closed, results)
                 val color4 = neighbor(grid, current.x - 1, current.y, opened, closed, results)
-
+                
                 /* Disallowing the following
                     x1x
                     1.1
@@ -77,7 +78,7 @@ fun isCutoff(grid: Grid, by: Path, colors: Map<Int, Pair<Path, Path>>, pathColor
                 if (color2 == -1) wallCount++
                 if (color3 == -1) wallCount++
                 if (color4 == -1) wallCount++
-
+                
                 if (count == 3) return true
                 if (count == 2) {
                     if (wallCount >= 1) return true
@@ -96,7 +97,7 @@ fun isCutoff(grid: Grid, by: Path, colors: Map<Int, Pair<Path, Path>>, pathColor
                     val color7 = grid[current.x, current.y + dy].color
                     if (color5 == color && color6 == color && color7 == 0)
                         return true
-
+                    
                     val color8 = grid[current.x - dx, current.y - dy].color
                     val color9 =
                             if (valid(grid, current.x - 2 * dx, current.y))
@@ -107,32 +108,32 @@ fun isCutoff(grid: Grid, by: Path, colors: Map<Int, Pair<Path, Path>>, pathColor
                         return true
                 }
             }
-
+            
             closed.removeAll(results)
-
+            
             val resultColors = results.map { it.color }.toMutableList()
             resultColors.distinct().forEach { color -> resultColors.remove(color) }
-
+            
             if (resultColors.isEmpty()) return true
-
+            
             nodePairs.addAll(resultColors)
-
+            
             if (closed.size == grid.w * grid.h)
                 break@outer
         }
     }
-
+    
     val cutOffColors = colors.keys.toMutableList()
     cutOffColors.remove(pathColor)
     cutOffColors.removeAll(nodePairs)
-
+    
     for (color in cutOffColors) {
         val pair = colors[color]!!
-
+        
         if (pathExists(grid, pair.first.lastNode(color), pair.second.lastNode(color))) nodePairs.add(color)
         else return true
     }
-
+    
     return !nodePairs.containsAll(colors.keys - pathColor)
 }
 
@@ -141,13 +142,13 @@ fun isCutoff(grid: Grid, by: Path, colors: Map<Int, Pair<Path, Path>>, pathColor
  */
 private fun preCheckByNeighbors(by: Path, grid: Grid): Boolean {
     val nodes = by.nodes()
-
+    
     if (nodes.size >= 2) {
         val lastNode = nodes.last()
         val previous = nodes[nodes.lastIndex - 1]
         val fromX = Node.x(lastNode) - Node.x(previous)
         val fromY = Node.y(lastNode) - Node.y(previous)
-
+        
         val x = Node.x(lastNode)
         val y = Node.y(lastNode)
         loop@ for (dx in Math.max(-1, -1 + fromX)..Math.min(1, 1 + fromX)) {
@@ -157,11 +158,11 @@ private fun preCheckByNeighbors(by: Path, grid: Grid): Boolean {
                     return false
                 if (grid[x + dx, y + dy].color != 0)
                     return false
-
+                
             }
         }
         return true
     }
-
+    
     return false
 }

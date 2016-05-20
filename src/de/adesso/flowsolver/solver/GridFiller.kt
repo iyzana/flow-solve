@@ -15,35 +15,35 @@ private data class FillNode(val x: Int, val y: Int, var color: Int, val end: Boo
     fun d(grid: FillGrid) = grid[x, y + 1]
     fun l(grid: FillGrid) = grid[x + 1, y]
     fun r(grid: FillGrid) = grid[x - 1, y]
-
+    
     fun neighbors(grid: FillGrid) = listOf(u(grid), r(grid), d(grid), l(grid))
-
+    
     fun valid(grid: FillGrid) = valid(x, y, grid)
-
+    
     fun toNode() = Node(x, y, color)
 }
 
 private class FillGrid(grid: Grid, nodes: List<Node>) {
     val fillGrid: Array<Array<FillNode>>
-
+    
     val w: Int
     val h: Int
-
+    
     init {
         fun Node.forFilling(end: Boolean = false) = FillNode(this.x, this.y, this.color, end)
-
+        
         w = grid.w
         h = grid.h
-
+        
         fillGrid = Array(grid.w) { x ->
             Array(grid.h) { y ->
                 grid[x, y].forFilling(end = grid[x, y] in nodes)
             }
         }
     }
-
+    
     operator fun get(x: Int, y: Int) = if (valid(x, y, this)) fillGrid[x][y] else FillNode(x, y, -1)
-
+    
     operator fun unaryPlus(): FillGrid {
         for (y in 0..h - 1) {
             for (x in 0..w - 1) {
@@ -53,21 +53,21 @@ private class FillGrid(grid: Grid, nodes: List<Node>) {
             println()
         }
         println()
-
+        
         return this
     }
 }
 
 fun fillGrid(grid: Grid, nodes: List<Node>): Map<Int, List<Path>> {
     val fillGrid = FillGrid(grid, nodes)
-
+    
     val newStartPointMapping = hashMapOf<FillNode, FillNode>()
     for (node in nodes) {
         val fillNode = fillGrid[node.x, node.y]
-
+        
         newStartPointMapping.putAll(fillNode(fillNode, fillGrid))
     }
-
+    
     val pathsToNewPoints = nodes.map { fillGrid[it.x, it.y] }.groupBy { it.color }.mapValues { entry ->
         entry.value.map { node ->
             val path = Path(newStartPointMapping.size + 1)
@@ -80,29 +80,29 @@ fun fillGrid(grid: Grid, nodes: List<Node>): Map<Int, List<Path>> {
             path
         }
     }
-
+    
     for (x in 0..fillGrid.w - 1) {
         for (y in 0..fillGrid.h - 1) {
             grid[x, y].color = fillGrid[x, y].color
         }
     }
-
+    
     return pathsToNewPoints
 }
 
 private fun fillNode(node: FillNode, grid: FillGrid): Map<FillNode, FillNode> {
     val color = node.color
-
+    
     val end = node.end
-
+    
     val neighbors = node.neighbors(grid)
     val sameCount = neighbors.filter { it.valid(grid) && it.color == color }.count()
-
+    
     if (sameCount == 2) return emptyMap()
     else if (end && sameCount == 1) return emptyMap()
-
+    
     val emptyNodes = neighbors.filter { it.color == 0 && it.valid(grid) }
-
+    
     when (emptyNodes.size) {
         1 -> {
             val neighbor = emptyNodes.single()
@@ -117,7 +117,7 @@ private fun fillNode(node: FillNode, grid: FillGrid): Map<FillNode, FillNode> {
 
 private fun fillNeighbors(node: FillNode, color: Int, grid: FillGrid): Map<FillNode, FillNode> {
     val mapping = hashMapOf<FillNode, FillNode>()
-
+    
     node.color = color
     //    +grid
     
@@ -131,7 +131,7 @@ private fun fillNeighbors(node: FillNode, color: Int, grid: FillGrid): Map<FillN
             mapping.putAll(fillNode(neighbor, grid))
         }
     }
-
+    
     return mapping
 }
 

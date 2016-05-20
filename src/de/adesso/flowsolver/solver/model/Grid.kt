@@ -23,6 +23,7 @@ data class Grid(val w: Int, val h: Int) {
     operator fun set(x: Int, y: Int, v: Node) {
         grid[x][y] = v
     }
+    
     operator fun get(x: Byte, y: Byte) = get(x.toInt(), y.toInt())
     
     fun copy(): Grid {
@@ -79,7 +80,7 @@ data class Grid(val w: Int, val h: Int) {
                     
                     for ((y, line) in lines.withIndex()) {
                         for ((x, char) in line.withIndex()) {
-                            grid[x, y].color = if(char == '0') 0 else char - 'a' + 1
+                            grid[x, y].color = if (char == '0') 0 else char - 'a' + 1
                         }
                     }
                     

@@ -1,7 +1,7 @@
 package de.adesso.flowsolver
 
 import de.adesso.flowsolver.solver.model.Grid
-import java.util.*
+import java.util.Scanner
 
 /**
  * FlowSolve

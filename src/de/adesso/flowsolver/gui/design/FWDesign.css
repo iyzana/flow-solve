@@ -1,51 +1,52 @@
-#btnGenerate{
-    margin-outside: 10px;
+#btnGenerate {
+	margin-outside: 10px;
 }
 
-.hb{
-    -fx-padding: 10px;
-    -fx-alignment: center-right;
+.hb {
+	-fx-padding: 10px;
+	-fx-alignment: center-right;
 }
 
-.UpDown{
-    -fx-font-size: 10px;
+.UpDown {
+	-fx-font-size: 10px;
 }
-#btnUp{
-    -fx-rotate: 180;
+
+#btnUp {
+	-fx-rotate: 180;
 
 }
 
-#hbTop{
-    /*-fx-background-color: blue;*/
+#hbTop {
+	/*-fx-background-color: blue;*/
 }
 
-#vbLeft{
-    /*-fx-background-color: red;*/
+#vbLeft {
+	/*-fx-background-color: red;*/
 }
 
-#center{
-    /*-fx-background-color: yellow;*/
-    -fx-grid-lines-visible: true;
+#center {
+	/*-fx-background-color: yellow;*/
+	-fx-grid-lines-visible: true;
 }
 
-#hbBottom{
-    /*-fx-background-color: green;*/
+#hbBottom {
+	/*-fx-background-color: green;*/
 }
 
-Button{
-    -fx-font-family: Monospaced;
-    -fx-background-color: rgba(218, 198, 220, 0.67);
+Button {
+	-fx-font-family: Monospaced;
+	-fx-background-color: rgba(218, 198, 220, 0.67);
 }
 
-TextField{
-    -fx-font-size: 18px
+TextField {
+	-fx-font-size: 18px
 }
 
-#fassung{
-    -fx-min-height: 30;
-    -fx-min-width: 30;
+#fassung {
+	-fx-min-height: 30;
+	-fx-min-width: 30;
 }
 
-#flowNode{
-    -fx-font-style: italic;
+#flowNode {
+	-fx-font-style: italic;
 }

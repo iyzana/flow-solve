@@ -83,7 +83,6 @@ class Path private constructor(val nodes: ByteArray) {
     }
     
     
-    
     override fun hashCode(): Int {
         var result = Arrays.hashCode(nodes)
         result += 31 * result + pos
