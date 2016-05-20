@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Labeled;
@@ -27,14 +28,12 @@ import javafx.stage.Stage;
  */
 public class FWController {
 	
-	FlowWindow window;
-	private Stage primaryStage;
-	int heith = 375, length = 475;
-	List<Button> flowNodes = new LinkedList<>();
+	private FlowWindow window;
+	private int length = 475, height = 375;
+	private List<Button> flowNodes = new LinkedList<>();
 	
 	public void init(Stage primaryStage) {
-		window = new FlowWindow(primaryStage, this, heith, length);
-		this.primaryStage = primaryStage;
+		window = new FlowWindow(primaryStage, this, height, length);
 		window.init();
 		window.show();
 	}
@@ -54,33 +53,27 @@ public class FWController {
 		window.generateTable();
 	}
 	
+	private Map<Integer, Integer> amountNodesMap = new HashMap<>();
+	
+	{
+		amountNodesMap.put(5, 4);
+		amountNodesMap.put(6, 5);
+		amountNodesMap.put(7, 6);
+		amountNodesMap.put(8, 7);
+		amountNodesMap.put(9, 8);
+		amountNodesMap.put(10, 10);
+		amountNodesMap.put(11, 12);
+		amountNodesMap.put(12, 14);
+		amountNodesMap.put(13, 17);
+		amountNodesMap.put(14, 18);
+		amountNodesMap.put(15, 20);
+	}
+	
 	public int getAmountNotes() {
-		switch (Integer.parseInt(window.getGridSize())) {
-			case 5:
-				return 4;
-			case 6:
-				return 5;
-			case 7:
-				return 6;
-			case 8:
-				return 7;
-			case 9:
-				return 8;
-			case 10:
-				return 10;
-			case 11:
-				return 12;
-			case 12:
-				return 14;
-			case 13:
-				return 17;
-			case 14:
-				return 18;
-			case 15:
-				return 20;
-			default:
-				return 0;
-		}
+		int size = Integer.parseInt(window.getGridSize());
+		
+		if (amountNodesMap.containsKey(size)) return amountNodesMap.get(size);
+		else return 0;
 	}
 	
 	public void reset() {
@@ -178,7 +171,7 @@ public class FWController {
 		flowNodes.clear();
 	}
 	
-	public void draged(MouseEvent event, Button source) {
+	public void dragged(MouseEvent event, Button source) {
 	    /* drag was detected, start a drag-and-drop gesture*/
 	    /* allow any transfer mode */
 		Dragboard db = source.startDragAndDrop(TransferMode.ANY);
@@ -191,46 +184,46 @@ public class FWController {
 		event.consume();
 	}
 	
-	public void droped(DragEvent event, Pane target) {
+	public void dropped(DragEvent event, Pane target) {
 		 /* data dropped */
 		/* if there is a string data on dragboard, read it and use it */
 		Dragboard db = event.getDragboard();
 		boolean success = false;
+		
 		if (db.hasString()) {
-			Button b = getButton(db.getString());
-			flowNodes.add(b);
-			target.getChildren().add(b);
-			b.setOnDragDetected(e -> draged(e, b));
-			
-			success = true;
+			Optional<Button> button = getButton(db.getString());
+			button.ifPresent(b -> {
+				flowNodes.add(b);
+				target.getChildren().add(b);
+				b.setOnDragDetected(e -> dragged(e, b));
+			});
+			success = button.isPresent();
 		}
 		/* let the source know whether the string was successfully
-         * transferred and used */
+		 * transferred and used */
 		event.setDropCompleted(success);
 		
 		event.consume();
 	}
 	
-	private Button getButton(String string) {
-		List<Button> buttons = window.getPossibleNotes();
-		for (Button b : buttons) {
-			if (b.getText() == string) {
-				buttons.remove(b);
-				return b;
-			}
-		}
-		return null;
+	private Optional<Button> getButton(String string) {
+		List<Button> possibleNodes = window.getPossibleNodes();
+		
+		return possibleNodes.stream().filter(b -> b.getText().equals(string)).findFirst().map(button -> {
+			possibleNodes.remove(button);
+			return button;
+		});
 	}
 	
 	public void dropable(DragEvent event, Pane target) {
 		if (event.getGestureSource() != target && event.getDragboard().hasString()) {
-            /* allow for both copying and moving, whatever user chooses */
+		    /* allow for both copying and moving, whatever user chooses */
 			event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
 		}
 		
 		event.consume();
 	}
 	
-	public void challange() {
+	public void challenge() {
 	}
 }
