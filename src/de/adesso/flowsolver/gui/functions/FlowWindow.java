@@ -2,6 +2,8 @@ package de.adesso.flowsolver.gui.functions;
 
 
 import de.adesso.flowsolver.gui.controler.FWController;
+import java.util.LinkedList;
+import java.util.List;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -15,9 +17,6 @@ import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * Created by slinde on 12.05.2016.
@@ -74,7 +73,7 @@ public class FlowWindow{
 		btnGenerate.setOnAction(e -> events.generate());
 
 		btnReset.setOnAction(e -> events.reset());
-		btnSolve.setOnAction(e -> events.solve());
+		btnSolve.setOnAction(e -> events.solve(center));
 
 		mainLayout.setTop(hbTop);
 		mainLayout.setLeft(vbLeft);
