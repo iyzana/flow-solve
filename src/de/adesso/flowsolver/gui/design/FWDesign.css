@@ -26,6 +26,9 @@
 #btnUp:hover{
     -fx-background-color: linear-gradient(yellowgreen, greenyellow);
 }
+#btnUp:pressed{
+    -fx-background-color: linear-gradient(greenyellow, yellowgreen), rgba(255, 255, 255, 0.5);
+}
 
 #hbTop{
     /*-fx-background-color: blue;*/
