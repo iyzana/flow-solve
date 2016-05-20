@@ -18,6 +18,9 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * Created by slinde on 12.05.2016.
  */
@@ -36,12 +39,16 @@ public class FlowWindow{
 	private List<Button> possibleFlowNodes;
 	private VBox vbUpDown;
 	private HBox hbSize;
+	private Button btnChallange;
 
 	public FlowWindow(Stage stage, FWController eventhandler, int heigth, int wight){
 		primaryStage = stage;
 		events = eventhandler;
 		this.heigth = heigth;
 		this.wight = wight;
+
+		primaryStage.setMinWidth(wight);
+		primaryStage.setMinHeight(heigth);
 
 		primaryStage.setTitle("Flow Solver");
 	}
@@ -73,12 +80,15 @@ public class FlowWindow{
 		btnGenerate.setOnAction(e -> events.generate());
 
 		btnReset.setOnAction(e -> events.reset());
+		btnChallange.setOnAction(e -> events.challange());
 		btnSolve.setOnAction(e -> events.solve(center));
 
 		mainLayout.setTop(hbTop);
 		mainLayout.setLeft(vbLeft);
-		mainLayout.setCenter(center);
-		mainLayout.setBottom(hbBottom);
+		BorderPane centerLayout = new BorderPane();
+		centerLayout.setCenter(center);
+		centerLayout.setBottom(hbBottom);
+		mainLayout.setCenter(centerLayout);
 		Scene scene = new Scene(mainLayout);
 		stageSize();
 		scene.getStylesheets().add("de/adesso/flowsolver/gui/design/FWDesign.css");
@@ -138,11 +148,13 @@ public class FlowWindow{
 
 	private void bottomBox(){
 		btnReset = new Button("Reset");
+		btnChallange = new Button("Challange");
 		btnSolve = new Button("Solve");
 
 		hbBottom = new HBox();
 
 		hbBottom.getChildren().add(btnReset);
+		hbBottom.getChildren().add(btnChallange);
 		hbBottom.getChildren().add(btnSolve);
 	}
 
@@ -183,10 +195,10 @@ public class FlowWindow{
 			spend.getChildren().add(bb2);
 			spend.getChildren().add(b2);
 
-			// spstart.setOnDragDropped(e -> events.droped(e, spstart));
-			// spstart.setOnDragOver(e -> events.dropable(e, spstart));
-			// spend.setOnDragDropped(e -> events.droped(e, spend));
-			// spend.setOnDragOver(e -> events.dropable(e, spend));
+			spstart.setOnDragDropped(e -> events.droped(e, spstart));
+			spstart.setOnDragOver(e -> events.dropable(e, spstart));
+			spend.setOnDragDropped(e -> events.droped(e, spend));
+			spend.setOnDragOver(e -> events.dropable(e, spend));
 
 			spstart.setId("possibleNode");
 			spend.setId("possibleNode");

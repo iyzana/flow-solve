@@ -21,34 +21,34 @@ import javafx.stage.Stage;
  * Created by slinde on 12.05.2016.
  */
 public class FWController {
-	
+
 	FlowWindow window;
 	private Stage primaryStage;
-	int heith = 600, length = 600;
+	int heith = 375 , length = 475;
 	List<Button> flowNodes = new LinkedList<>();
-	
+
 	public void init(Stage primaryStage) {
 		window = new FlowWindow(primaryStage, this, heith, length);
 		this.primaryStage = primaryStage;
 		window.init();
 		window.show();
 	}
-	
+
 	public void decrease() {
 		int i = Integer.parseInt(window.getGridSize()) - 1;
 		window.setGridSize(Integer.toString(i >= 5 ? i : 5));
 	}
-	
+
 	public void increase() {
 		int i = Integer.parseInt(window.getGridSize()) + 1;
 		window.setGridSize(Integer.toString(i <= 15 ? i : 15));
 	}
-	
+
 	public void generate() {
 		window.generateNotes();
 		window.generateTable();
 	}
-	
+
 	public int getAmountNotes() {
 		switch (Integer.parseInt(window.getGridSize())) {
 			case 5:
@@ -77,17 +77,17 @@ public class FWController {
 				return 0;
 		}
 	}
-	
+
 	public void reset() {
 		generate();
 	}
-	
+
 	public void solve(GridPane guiPane) {
 		Grid g = new Grid(getGridSize(), getGridSize());
 		for (javafx.scene.Node flow : guiPane.getChildrenUnmodifiable()) {
 			int x = GridPane.getColumnIndex(flow);
 			int	y = GridPane.getRowIndex(flow);
-			
+
 			Pane intermediatePane = (Pane) flow;
 			if (!intermediatePane.getChildren().isEmpty()) {
 				Labeled button = (Labeled) intermediatePane.getChildrenUnmodifiable().get(0);
@@ -97,19 +97,19 @@ public class FWController {
 		}
 		SolverKt.solve(g);
 	}
-	
+
 	public int getGridSize() {
 		return Integer.parseInt(window.getGridSize());
 	}
-	
+
 	public void resize() {
 		int gridsize = getGridSize();
-		window.setWindowheigth(150 + (gridsize * 40));
-		window.setWindowwidth(250 + (gridsize * 40));
+		window.setWindowheigth(175 + (gridsize*40));
+		window.setWindowwidth(275 + (gridsize*40));
 		window.stageSize();
 		flowNodes.clear();
 	}
-	
+
 	public void draged(MouseEvent event, Button source) {
 	    /* drag was detected, start a drag-and-drop gesture*/
         /* allow any transfer mode */
@@ -119,10 +119,10 @@ public class FWController {
 		ClipboardContent content = new ClipboardContent();
 		content.putString(source.getText());
 		db.setContent(content);
-		
+
 		event.consume();
 	}
-	
+
 	public void droped(DragEvent event, Pane target) {
 		 /* data dropped */
         /* if there is a string data on dragboard, read it and use it */
@@ -133,15 +133,16 @@ public class FWController {
 			flowNodes.add(b);
 			target.getChildren().add(b);
 			b.setOnDragDetected(e -> draged(e, b));
+
 			success = true;
 		}
         /* let the source know whether the string was successfully
          * transferred and used */
 		event.setDropCompleted(success);
-		
+
 		event.consume();
 	}
-	
+
 	private Button getButton(String string) {
 		List<Button> buttons = window.getPossibleNotes();
 		for (Button b : buttons) {
@@ -152,13 +153,16 @@ public class FWController {
 		}
 		return null;
 	}
-	
+
 	public void dropable(DragEvent event, Pane target) {
 		if (event.getGestureSource() != target && event.getDragboard().hasString()) {
             /* allow for both copying and moving, whatever user chooses */
 			event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
 		}
-		
+
 		event.consume();
+	}
+
+	public void challange() {
 	}
 }
