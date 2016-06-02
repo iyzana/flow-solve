@@ -2,8 +2,8 @@
 	-fx-background-color: #666666;
 }
 
-#btnGenerate{
-    -fx-spacing: 10px;
+#btnGenerate {
+	-fx-spacing: 10px;
 }
 
 .hb {
@@ -23,8 +23,9 @@
 #btnUp {
 	-fx-rotate: 180;
 }
-#btnUp:pressed{
-    -fx-background-color: linear-gradient(greenyellow, yellowgreen), rgba(255, 255, 255, 0.5);
+
+#btnUp:pressed {
+	-fx-background-color: linear-gradient(greenyellow, yellowgreen), rgba(255, 255, 255, 0.5);
 }
 
 #hbTop {
@@ -34,7 +35,7 @@
 #vbLeft {
 	-fx-background-color: #AAAAAA;
 	-fx-padding: 10px;
-    -fx-pref-width: 200px;
+	-fx-pref-width: 200px;
 }
 
 #center {
@@ -54,8 +55,9 @@ Button {
 Button:hover {
 	-fx-background-color: yellowgreen;
 }
-Button:pressed{
-    -fx-background-color: linear-gradient(greenyellow, yellowgreen), rgba(255, 255, 255, 0.5);
+
+Button:pressed {
+	-fx-background-color: linear-gradient(greenyellow, yellowgreen), rgba(255, 255, 255, 0.5);
 }
 
 TextField {

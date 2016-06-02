@@ -8,7 +8,6 @@ import java.util.HashMap
 import java.util.HashSet
 import java.util.LinkedList
 
-
 fun distance(node1: Node, node2: Node) = Math.abs(node1.x - node2.x) + Math.abs(node1.y - node2.y)
 
 fun shortestPath(grid: Grid, start: Node, end: Node): Path {
@@ -89,63 +88,60 @@ fun pathExists(grid: Grid, start: Node, end: Node): Boolean {
     return false
 }
 
-var foundPaths = 0;
+var foundPaths = 0
 
-fun allPaths(grid: Grid,
-             start: Node,
+fun allPaths(start: Node,
+             grid: Grid,
              end: Node,
-             maxLength: Int,
              pairs: Map<Int, Pair<Path, Path>>,
+             maxLength: Int,
              depth: Int = 0,
              path: Path = Path(maxLength),
              solutions: MutableList<Path> = ArrayList<Path>()): List<Path> {
-    if (end.color == 4 && start.x == 4 && start.y == 6)
-        Math.random();
+    val findingData = FindingData(grid, end, pairs, maxLength, depth, path, solutions)
     
-    if (depth + distance(start, end) >= maxLength) return solutions
+    return allPaths(start, findingData)
+}
+
+private data class FindingData(val grid: Grid,
+                               val end: Node,
+                               val pairs: Map<Int, Pair<Path, Path>>,
+                               val maxLength: Int,
+                               var depth: Int = 0,
+                               val path: Path = Path(maxLength),
+                               val solutions: MutableList<Path> = ArrayList<Path>())
+
+private fun allPaths(current: Node, findingData: FindingData): List<Path> {
+    val (grid, end, pairs, maxLength, depth, path, solutions) = findingData
     
-    if (start == end) {
+    if (depth + distance(current, end) >= maxLength) return solutions
+    
+    if (current == end) {
         if (++foundPaths % 100000 == 0) println("foundPaths = $foundPaths")
         solutions.add(path.copy())
         return solutions
     }
     
-    processNeighbors(path, grid, start, end, maxLength, pairs, depth, solutions)
+    processNeighbors(current, findingData)
     
     return solutions
 }
 
-private fun processNeighbors(path: Path,
-                             grid: Grid,
-                             start: Node,
-                             end: Node,
-                             maxLength: Int,
-                             pairs: Map<Int, Pair<Path, Path>>,
-                             depth: Int,
-                             solutions: MutableList<Path>) {
-    val x = start.x
-    val y = start.y
-    processNeighbor(x.toInt(), y - 1, path, grid, end, maxLength, pairs, depth, solutions)
-    processNeighbor(x + 1, y.toInt(), path, grid, end, maxLength, pairs, depth, solutions)
-    processNeighbor(x.toInt(), y + 1, path, grid, end, maxLength, pairs, depth, solutions)
-    processNeighbor(x - 1, y.toInt(), path, grid, end, maxLength, pairs, depth, solutions)
+private fun processNeighbors(current: Node, findingData: FindingData) {
+    val x = current.x
+    val y = current.y
+    processNeighbor(x.toInt(), y - 1, findingData)
+    processNeighbor(x + 1, y.toInt(), findingData)
+    processNeighbor(x.toInt(), y + 1, findingData)
+    processNeighbor(x - 1, y.toInt(), findingData)
 }
 
-private fun processNeighbor(x: Int,
-                            y: Int,
-                            path: Path,
-                            grid: Grid,
-                            end: Node,
-                            maxLength: Int,
-                            pairs: Map<Int, Pair<Path, Path>>,
-                            depth: Int,
-                            solutions: MutableList<Path>) {
+private fun processNeighbor(x: Int, y: Int, findingData: FindingData) {
+    val (grid, end, pairs) = findingData
     if (!valid(grid, x, y)) return
     
     var count = 0
     
-    
-    val startPath = pairs[end.color]!!.first
     val endPath = pairs[end.color]!!.second
     
     if (valid(grid, x, y - 1) && grid[x, y - 1].color == end.color && grid[x, y - 1] !in endPath) count++
@@ -158,19 +154,13 @@ private fun processNeighbor(x: Int,
     val node = grid[x, y]
     if (node.color != 0 && node != end) return
     
-    setCallReset(node, path, grid, end, depth, maxLength, pairs, solutions)
+    setCallReset(node, findingData)
 }
 
 fun valid(grid: Grid, x: Int, y: Int) = x >= 0 && y >= 0 && x < grid.w && y < grid.h
 
-private fun setCallReset(node: Node,
-                         path: Path,
-                         grid: Grid,
-                         end: Node,
-                         depth: Int,
-                         maxLength: Int,
-                         pairs: Map<Int, Pair<Path, Path>>,
-                         solutions: MutableList<Path>) {
+private fun setCallReset(node: Node, findingData: FindingData) {
+    val (grid, end, pairs, maxLength, depth, path) = findingData
     
     val previousColor = node.color
     path.add(node.compressed())
@@ -197,7 +187,9 @@ private fun setCallReset(node: Node,
     //        }
     //    }
     
-    allPaths(grid, node, end, maxLength, pairs, depth + 1, path, solutions)
+    findingData.depth++
+    allPaths(node, findingData)
+    findingData.depth--
     path.remove()
     node.color = previousColor
 }

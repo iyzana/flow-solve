@@ -7,6 +7,7 @@ import de.adesso.flowsolver.solver.model.x
 import de.adesso.flowsolver.solver.model.y
 import java.util.HashMap
 import java.util.LinkedList
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.system.measureTimeMillis
@@ -21,30 +22,31 @@ fun preFilter(coloredPaths: HashMap<Int, MutableList<Path>>, pathsData: PathsDat
     // TODO: Don't prefilter with unchanged colors
     println("pre filtering paths")
     println("time = " + measureTimeMillis {
+        val changedColors = ConcurrentHashMap(coloredPaths)
+        
         do {
-            var changed = false
-            
             val executor = Executors.newFixedThreadPool(coloredPaths.size)
             
-            for ((color, paths) in coloredPaths) {
-//                executor.execute {
-                
-                for (otherColor in coloredPaths.keys) {
-                    val startSize = paths.size
-                    
-                    if (preFilter(coloredPaths, pathsData, color, otherColor))
-                        changed = true
-                    
-                    if (startSize != paths.size)
-                        println("color $color: " + startSize + " -> " + paths.size)
+            val checkedColors = HashMap(changedColors)
+            changedColors.clear()
+            
+            for ((color, paths) in checkedColors) {
+                executor.execute {
+                    for (otherColor in coloredPaths.keys) {
+                        val startSize = paths.size
+                        
+                        if (preFilter(coloredPaths, pathsData, color, otherColor))
+                            changedColors.put(color, paths)
+                        
+                        if (startSize != paths.size)
+                            println("color $color: " + startSize + " -> " + paths.size)
+                    }
                 }
-
-//                }
             }
             
             executor.shutdown()
             executor.awaitTermination(365, TimeUnit.DAYS)
-        } while (changed)
+        } while (!changedColors.isEmpty())
     } + " ms\n")
 }
 

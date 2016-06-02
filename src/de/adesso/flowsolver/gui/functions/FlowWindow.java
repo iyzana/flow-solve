@@ -85,7 +85,7 @@ public class FlowWindow {
 		mainLayout.setCenter(centerLayout);
 		Scene scene = new Scene(mainLayout);
 		stageSize();
-		scene.getStylesheets().add("de/adesso/flowsolver/gui/design/FWDesign.css");
+		scene.getStylesheets().add("css/FWDesign.css");
 		primaryStage.setScene(scene);
 	}
 	
@@ -158,15 +158,15 @@ public class FlowWindow {
 		vbLeft = new VBox();
 		fpNotes = new FlowPane();
 		
-		generateNotes();
+		generateNodes();
 		
 		vbLeft.getChildren().add(fpNotes);
 	}
 	
-	public void generateNotes() {
+	public void generateNodes() {
 		possibleFlowNodes.clear();
 		fpNotes.getChildren().clear();
-		for (int i = 0; i < events.getAmountNotes(); i++) {
+		for (int i = 0; i < events.getAmountNodes(); i++) {
 			Button b1 = new Button("" + (char) ('A' + i));
 			b1.setId("flowNode");
 			Button b2 = new Button("" + (char) ('A' + i));

@@ -5,15 +5,22 @@ import de.adesso.flowsolver.solver.SolverKt;
 import de.adesso.flowsolver.solver.model.Grid;
 import de.adesso.flowsolver.solver.model.NodeKt;
 import de.adesso.flowsolver.solver.model.Path;
+import java.awt.AlphaComposite;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Labeled;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
@@ -49,7 +56,7 @@ public class FWController {
 	}
 	
 	public void generate() {
-		window.generateNotes();
+		window.generateNodes();
 		window.generateTable();
 	}
 	
@@ -69,11 +76,10 @@ public class FWController {
 		amountNodesMap.put(15, 20);
 	}
 	
-	public int getAmountNotes() {
+	public int getAmountNodes() {
 		int size = Integer.parseInt(window.getGridSize());
 		
-		if (amountNodesMap.containsKey(size)) return amountNodesMap.get(size);
-		else return 0;
+		return amountNodesMap.getOrDefault(size, 0);
 	}
 	
 	public void reset() {
@@ -84,7 +90,7 @@ public class FWController {
 		Grid g = parseGridIntoModel(guiPane);
 		Map<Integer, Path> solution = new HashMap<>();
 		try {
-			solution = SolverKt.solve(g);
+			solution = SolverKt.verboseSolve(g);
 		} catch (IllegalArgumentException e) {
 			System.out.println("Du bist doof");
 		}
@@ -100,14 +106,41 @@ public class FWController {
 			
 			for (Iterator<Byte> it = path.iterator(); it.hasNext(); nextNode = toNode(it.next(), color)) {
 				if (currentNode != null) {
+					int x = currentNode.getX();
+					int y = currentNode.getY();
+					
+					Pane container = (Pane) getNodeByRowColumnIndex(x, y, guiPane);
+					
+					ImageView imageView = new ImageView();
+					String fileName;
+					Color pathColor;
+					int rotation;
+					
 					if (lastNode == null) {
 						// Only one connection
-					} else if (((lastNode.getX() == currentNode.getX()) && (nextNode.getX() == currentNode.getX())) ||
-					           ((lastNode.getY() == currentNode.getY()) && (nextNode.getY() == currentNode.getY()))) {
+						fileName = "images/start.png";
+						pathColor = Color.CYAN;
+						rotation = 90;
+					} else if (((lastNode.getX() == x) && (nextNode.getX() == x)) ||
+					           ((lastNode.getY() == y) && (nextNode.getY() == y))) {
 						// Straight connection
+						fileName = "images/straight.png";
+						pathColor = Color.CYAN;
+						rotation = 90;
 					} else {
 						// Curvy connection
+						fileName = "images/curve.png";
+						pathColor = Color.CYAN;
+						rotation = 90;
 					}
+					
+					String source = getClass().getClassLoader().getResource(fileName).toExternalForm();
+					BufferedImage image = SwingFXUtils.fromFXImage(new Image(source), null);
+					Image transformedImage = SwingFXUtils.toFXImage(transform(image, pathColor, rotation), null);
+					
+					imageView.setImage(transformedImage);
+					
+					container.getChildren().add(imageView);
 				}
 				
 				lastNode = currentNode;
@@ -143,8 +176,37 @@ public class FWController {
 		return new de.adesso.flowsolver.solver.model.Node(NodeKt.getX(b), NodeKt.getY(b), color);
 	}
 	
+	private de.adesso.flowsolver.solver.model.Node toNode(int x, int y, int color) {
+		return new de.adesso.flowsolver.solver.model.Node(x, y, color);
+	}
+	
+	private Node getNodeByRowColumnIndex(int row, int column, GridPane gridPane) {
+		return gridPane.getChildren().stream()
+		               .filter(node -> GridPane.getRowIndex(node) == row && GridPane.getColumnIndex(node) == column)
+		               .findFirst().orElseThrow(
+						() -> new ArrayIndexOutOfBoundsException("No such gridpane child: " + row + ", " + column));
+	}
+	
+	private static BufferedImage transform(BufferedImage image, Color color, int rotation) {
+		int w = image.getWidth();
+		int h = image.getHeight();
+		
+		BufferedImage dyed = new BufferedImage(32, 32, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g = dyed.createGraphics();
+		
+		g.rotate(Math.toRadians(rotation));
+		g.drawImage(image, 0, 0, 32, 32, null);
+		g.setComposite(AlphaComposite.SrcAtop);
+		g.setColor(color);
+		g.fillRect(0, 0, 32, 32);
+		g.dispose();
+		
+		return dyed;
+	}
+	
 	private Grid parseGridIntoModel(GridPane guiPane) {
 		Grid g = new Grid(getGridSize(), getGridSize());
+		
 		guiPane.getChildrenUnmodifiable().forEach(flow -> {
 			int x = GridPane.getColumnIndex(flow);
 			int y = GridPane.getRowIndex(flow);
@@ -152,10 +214,11 @@ public class FWController {
 			List<Node> boxedFlows = ((Pane) flow).getChildrenUnmodifiable();
 			if (!boxedFlows.isEmpty()) {
 				int color = ((Labeled) boxedFlows.get(0)).getText().toCharArray()[0] - 'A' + 1;
-				de.adesso.flowsolver.solver.model.Node node = new de.adesso.flowsolver.solver.model.Node(x, y, color);
-				g.set(x, y, node);
+				
+				g.set(x, y, toNode(x, y, color));
 			}
 		});
+		
 		return g;
 	}
 	

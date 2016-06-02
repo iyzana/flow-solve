@@ -97,7 +97,7 @@ private fun buildAllPaths(coloredPaths: HashMap<Int, MutableList<Path>>, grid: G
                 val start = pair.first.lastNode(color)
                 val end = pair.second.lastNode(color)
                 
-                val paths = allPaths(grid.copy(), start, end, maxLength, pairs).toMutableList()
+                val paths = allPaths(start, grid.copy(), end, pairs, maxLength).toMutableList()
                 println("color $color: ${paths.size} paths")
                 
                 pathsData.add(color, paths)
