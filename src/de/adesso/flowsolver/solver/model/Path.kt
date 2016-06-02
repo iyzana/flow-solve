@@ -31,7 +31,9 @@ class Path private constructor(val nodes: ByteArray) {
     
     operator fun get(index: Int) = nodes[index]
     
-    fun lastNode(color: Int): Node = Node(nodes[pos - 1], color)
+    fun lastNode(color: Int) = Node(nodes[pos - 1], color)
+    
+    fun last() = nodes[pos - 1]
     
     fun nodes() = (0..pos - 1).map { nodes[it] }
     

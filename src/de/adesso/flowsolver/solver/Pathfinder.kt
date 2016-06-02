@@ -3,12 +3,15 @@ package de.adesso.flowsolver.solver
 import de.adesso.flowsolver.solver.model.Grid
 import de.adesso.flowsolver.solver.model.Node
 import de.adesso.flowsolver.solver.model.Path
+import de.adesso.flowsolver.solver.model.x
+import de.adesso.flowsolver.solver.model.y
 import java.util.ArrayList
 import java.util.HashMap
 import java.util.HashSet
 import java.util.LinkedList
 
 fun distance(node1: Node, node2: Node) = Math.abs(node1.x - node2.x) + Math.abs(node1.y - node2.y)
+fun distance(node1: Byte, node2: Byte) = Math.abs(node1.x - node2.x) + Math.abs(node1.y - node2.y)
 
 fun shortestPath(grid: Grid, start: Node, end: Node): Path {
     val parents = HashMap<Node, Node>()

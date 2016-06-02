@@ -16,12 +16,13 @@ fun main(args: Array<String>) {
 //    Application.launch(FlowSolverGUI::class.java, *args)
 
 //    for (i in 0..999) {
-        val grids = Grid.fromFile(TestGrids::class.java.classLoader.getResource("levels/5x5 Regular.dat").readText())
+        val grids = Grid.fromFile(TestGrids::class.java.classLoader.getResource("levels/13x13 Jumbo.dat").readText())
 
         println("complete time = " + measureTimeMillis {
             for ((index, grid) in grids.withIndex()) {
                 level = index
                 println("level $index")
+                grid.print()
                 solve(grid)
             }
         } + " ms")
