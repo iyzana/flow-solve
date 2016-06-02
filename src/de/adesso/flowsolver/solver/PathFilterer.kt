@@ -25,14 +25,14 @@ fun preFilter(coloredPaths: HashMap<Int, MutableList<Path>>, pathsData: PathsDat
         val changedColors = ConcurrentHashMap(coloredPaths)
         
         do {
-            val executor = Executors.newFixedThreadPool(coloredPaths.size)
+            val executor = Executors.newFixedThreadPool(changedColors.size)
             
             val checkedColors = HashMap(changedColors)
             changedColors.clear()
             
-            for ((color, paths) in checkedColors) {
+            for ((color, paths) in coloredPaths) {
                 executor.execute {
-                    for (otherColor in coloredPaths.keys) {
+                    for (otherColor in checkedColors.keys) {
                         val startSize = paths.size
                         
                         if (preFilter(coloredPaths, pathsData, color, otherColor))
@@ -75,26 +75,27 @@ fun fullFilter(grid: Grid, coloredPaths: HashMap<Int, MutableList<Path>>): List<
     var fullFilter: List<Map<Int, Path>> = mutableListOf()
     println("full filtering paths")
     println("time = " + measureTimeMillis {
-        fullFilter = fullFilter(grid, coloredPaths, 1)
+        fullFilter = fullFilter(grid, coloredPaths, 1, Array(coloredPaths.size) { null }, LinkedList())
     } + " ms\n")
     return fullFilter
 }
 
-private fun fullFilter(grid: Grid, coloredPaths: HashMap<Int, MutableList<Path>>, color: Int): MutableList<MutableMap<Int, Path>> {
+private fun fullFilter(grid: Grid, coloredPaths: HashMap<Int, MutableList<Path>>, color: Int, pathList: Array<Path?>, solutions: LinkedList<Map<Int, Path>>): List<Map<Int, Path>> {
     if (color > coloredPaths.size) {
-        if (grid.nodes.any { it.color == 0 }) return mutableListOf()
-        return mutableListOf(HashMap())
+        if (grid.nodes.none { it.color == 0 })
+            solutions.add(pathList.mapIndexed { i, path -> i + 1 to path!! }.toMap())
+        return solutions
     }
     
     val paths = coloredPaths[color]!!
     
-    val solutions = LinkedList<MutableMap<Int, Path>>()
-    
     for (path in paths) {
         if (!tryAddPath(grid, path, color)) continue
-        val subSolutions = fullFilter(grid, coloredPaths, color + 1)
-        subSolutions.forEach { it.put(color, path) }
-        solutions.addAll(subSolutions)
+        pathList[color - 1] = path
+//        val subSolutions = 
+        fullFilter(grid, coloredPaths, color + 1, pathList, solutions)
+//        subSolutions.forEach { it.put(color, path) }
+//        solutions.addAll(subSolutions)
         removePath(grid, path, color)
     }
     
