@@ -122,6 +122,10 @@ private fun allPaths(current: Node, findingData: FindingData): List<Path> {
         return solutions
     }
     
+    if (isCutoff(grid, path, pairs, end.color)) {
+        return solutions
+    }
+    
     processNeighbors(current, findingData)
     
     return solutions
@@ -165,12 +169,6 @@ private fun setCallReset(node: Node, findingData: FindingData) {
     val previousColor = node.color
     path.add(node.compressed())
     node.color = end.color
-    
-    if (isCutoff(grid, path, pairs, end.color)) {
-        path.remove()
-        node.color = previousColor
-        return
-    }
     
     // TODO: Check for empty spaces
     // TODO: filter by filling/splitting
