@@ -2,14 +2,14 @@
 <project version="4">
   <component name="PublishConfigData">
     <serverData>
-      <paths name="fh">
+      <paths name="N40">
         <serverdata>
           <mappings>
-            <mapping deploy="/tmp/flowsolver" local="$PROJECT_DIR$/out/artifacts/FlowSolve_jar" web="/" />
+            <mapping deploy="/mnt/FB4/home/hesch003/linux/FlowSolve" local="$PROJECT_DIR$/out/artifacts/FlowSolve_jar" web="/" />
           </mappings>
         </serverdata>
       </paths>
-      <paths name="peter">
+      <paths name="test">
         <serverdata>
           <mappings>
             <mapping local="$PROJECT_DIR$" web="/" />
