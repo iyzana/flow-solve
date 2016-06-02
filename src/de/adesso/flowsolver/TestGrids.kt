@@ -9,6 +9,14 @@ import java.util.Scanner
  * @author kaiser
  * Created on 12.05.2016
  */
+enum class Pack(val file: String) {
+    Regular5("levels/5x5 Regular.dat"),
+    Jumbo10("levels/10x10 Jumbo.dat"),
+    Jumbo11("levels/11x11 Jumbo.dat"),
+    Jumbo12("levels/12x12 Jumbo.dat"),
+    Jumbo13("levels/13x13 Jumbo.dat"),
+}
+
 object TestGrids {
     private val A = 1;
     private val B = 2;
@@ -26,11 +34,15 @@ object TestGrids {
     private val N = 14;
     private val O = 15;
     
-    fun readGrid(): Grid {
-        val input = Scanner(System.`in`.reader()).nextLine()
+    fun loadGrid(pack: Pack, level: Int) = loadGrids(pack)[level]
+    
+    fun loadGrids(pack: Pack): List<Grid> {
+        val file = TestGrids::class.java.classLoader.getResource(pack.file).readText()
         
-        return Grid.fromString(input)
+        return Grid.fromFile(file)
     }
+    
+    fun readGrid() = Grid.fromString(Scanner(System.`in`.reader()).nextLine())
     
     fun createHard9Grid() = Grid.fromString("aaaaaaaaa,aaaaaaaea,aadaaaada,aahafaaaa,aaiahcaaa,aaaabgafa,aaaaiaaaa,aeaaaagca,aaabaaaaa")
     

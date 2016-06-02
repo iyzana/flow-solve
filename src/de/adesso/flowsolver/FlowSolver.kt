@@ -1,6 +1,5 @@
 package de.adesso.flowsolver
 
-import de.adesso.flowsolver.solver.model.Grid
 import de.adesso.flowsolver.solver.solve
 import kotlin.system.measureTimeMillis
 
@@ -16,9 +15,9 @@ fun main(args: Array<String>) {
 //    Application.launch(FlowSolverGUI::class.java, *args)
 
 //    for (i in 0..999) {
-        val grids = Grid.fromFile(TestGrids::class.java.classLoader.getResource("levels/13x13 Jumbo.dat").readText())
-
-        println("complete time = " + measureTimeMillis {
+    val grids = TestGrids.loadGrids(Pack.Jumbo13)
+    
+    println("complete time = " + measureTimeMillis {
             for ((index, grid) in grids.withIndex()) {
                 level = index
                 println("level $index")

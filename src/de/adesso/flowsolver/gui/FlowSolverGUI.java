@@ -10,7 +10,7 @@ import javafx.stage.Stage;
 
 public class FlowSolverGUI extends Application {
 	
-	FWController window = new FWController();
+	private FWController window = new FWController();
 	
 	@Override
 	public void start(Stage primaryStage) {
