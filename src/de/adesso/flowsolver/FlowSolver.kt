@@ -1,6 +1,7 @@
 package de.adesso.flowsolver
 
 import de.adesso.flowsolver.solver.verboseSolve
+import java.io.File
 import kotlin.system.measureTimeMillis
 
 /**
@@ -12,19 +13,20 @@ import kotlin.system.measureTimeMillis
 var level = -1
 
 fun main(args: Array<String>) {
+    File("results").deleteRecursively()
+
 //    Application.launch(FlowSolverGUI::class.java, *args)
 
 //    for (i in 0..999) {
-    val grids = TestGrids.loadGrids(Pack.Jumbo13)
-    val grid = TestGrids.create14Grid()
+    val grids = TestGrids.loadGrids(Pack.Jumbo11)
+//    val grid = TestGrids.loadGrid(Pack.Jumbo12, 3)
     
     println("complete time = " + measureTimeMillis {
-//            for ((index, grid) in grids.withIndex()) {
-//                level = index
-//                println("level $index")
-                grid.print()
-                verboseSolve(grid)
-//            }
-        } + " ms")
+        for ((index, grid) in grids.withIndex()) {
+            level = index
+            println("level $index")
+            verboseSolve(grid)
+        }
+    } + " ms")
 //    }
 }

@@ -89,6 +89,12 @@ private fun fullFilter(grid: Grid, coloredPaths: HashMap<Int, MutableList<Path>>
     
     val paths = coloredPaths[color]!!
     
+    mainFullFilterCalc(color, coloredPaths, grid, pathList, paths, solutions)
+    
+    return solutions
+}
+
+private fun mainFullFilterCalc(color: Int, coloredPaths: HashMap<Int, MutableList<Path>>, grid: Grid, pathList: Array<Path?>, paths: MutableList<Path>, solutions: LinkedList<Map<Int, Path>>) {
     for (path in paths) {
         if (!tryAddPath(grid, path, color)) continue
         pathList[color - 1] = path
@@ -98,8 +104,6 @@ private fun fullFilter(grid: Grid, coloredPaths: HashMap<Int, MutableList<Path>>
 //        solutions.addAll(subSolutions)
         removePath(grid, path, color)
     }
-    
-    return solutions
 }
 
 fun tryAddPath(grid: Grid, path: Path, color: Int): Boolean {

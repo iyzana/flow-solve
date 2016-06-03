@@ -1,6 +1,7 @@
 package de.adesso.flowsolver.solver
 
 import de.adesso.flowsolver.forEach
+import de.adesso.flowsolver.level
 import de.adesso.flowsolver.mapValues
 import de.adesso.flowsolver.solver.model.Grid
 import de.adesso.flowsolver.solver.model.Path
@@ -45,9 +46,11 @@ fun verboseSolve(grid: Grid): Map<Int, Path> {
     
     println("input grid")
     grid.print()
+    grid.toImage("level_$level/0_input")
     val pairs = fillGrid(grid, points)
     println("filled grid")
     grid.print()
+    grid.toImage("level_$level/2_filled")
     
     require((1..(pairs.keys.max() ?: 1)).toSet() == pairs.keys) { "The level is missing flows or has incomplete flows" }
     
@@ -59,7 +62,17 @@ fun verboseSolve(grid: Grid): Map<Int, Path> {
     val maxLengths = pairs.keys.associate { it to pathSum + shortestPaths[it]!! }
     
     buildAllPaths(coloredPaths, grid, pairs, pathsData, maxLengths)
+    
     preFilter(coloredPaths, pathsData)
+    
+    coloredPaths.forEach { color, paths ->
+        paths.sortedByDescending { it.size }.take(100).forEachIndexed { index, path ->
+            val gridCopy = grid.copy()
+            gridCopy.writePath(path, color)
+            gridCopy.toImage("level_$level/filtered/color_$color/$index")
+        }
+    }
+    
     val solutions = fullFilter(grid, coloredPaths)
     
     if (solutions.isEmpty())
@@ -78,6 +91,12 @@ fun verboseSolve(grid: Grid): Map<Int, Path> {
             println("color $key $value")
         }
         println()
+        
+        val gridCopy = grid.copy()
+        completeSolution.forEach { color, path ->
+            gridCopy.writePath(path, color)
+        }
+        gridCopy.toImage("level_$level/1_solution_$index")
     }
     println()
     println("====================")
@@ -99,6 +118,12 @@ private fun buildAllPaths(coloredPaths: HashMap<Int, MutableList<Path>>, grid: G
                 
                 val paths = allPaths(start, grid.copy(), end, pairs, maxLength).toMutableList()
                 println("color $color: ${paths.size} paths")
+                
+                paths.sortedByDescending { it.size }.take(100).forEachIndexed { index, path ->
+                    val gridCopy = grid.copy()
+                    gridCopy.writePath(path, color)
+                    gridCopy.toImage("level_$level/raw/color_$color/$index")
+                }
                 
                 pathsData.add(color, paths)
                 

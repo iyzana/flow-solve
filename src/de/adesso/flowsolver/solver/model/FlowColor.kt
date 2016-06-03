@@ -6,7 +6,7 @@ package de.adesso.flowsolver.solver.model
  * @author kaiser
  * Created on 23.05.2016
  */
-enum class Color(val hex: String, index: Int) {
+enum class FlowColor(val hex: String, index: Int) {
     A("fe0103", 1),
     B("048100", 2),
     C("0003f8", 3),

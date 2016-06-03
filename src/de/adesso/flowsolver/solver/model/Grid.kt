@@ -1,5 +1,10 @@
 package de.adesso.flowsolver.solver.model
 
+import java.awt.Color
+import java.awt.image.BufferedImage
+import java.io.File
+import javax.imageio.ImageIO
+
 /**
  * FlowSolve
  * adesso AG
@@ -54,6 +59,25 @@ data class Grid(val w: Int, val h: Int) {
             println()
         }
         println()
+    }
+    
+    fun toImage(fileName: String) {
+        val image = BufferedImage(w*10, h*10, BufferedImage.TYPE_INT_RGB)
+        val graphics = image.graphics
+        
+        for (x in 0..w - 1) {
+            for (y in 0..h - 1) {
+                val flowColor = this[x, y].color
+                graphics.color = if(flowColor == 0) Color.BLACK else Color.decode("#" + FlowColor.values()[flowColor - 1].hex)
+                graphics.fillRect(x * 10, y * 10, 10, 10)
+            }
+        }
+    
+        graphics.dispose()
+    
+        val file = File("results", "$fileName.bmp")
+        file.parentFile.mkdirs()
+        ImageIO.write(image, "BMP", file)
     }
     
     //    operator fun set(x: Int, y: Int, v: Node) {

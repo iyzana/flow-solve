@@ -15,10 +15,10 @@ import java.util.LinkedList
  * @author kaiser
  * Created on 06.05.2016
  */
-fun neighbor(grid: Grid, x: Int, y: Int, opened: MutableList<Node>, closed: MutableSet<Node>, result: MutableList<Node>): Int {
+fun neighbor(grid: Grid, x: Int, y: Int, opened: MutableList<Node>, closed: MutableSet<Byte>, result: MutableList<Node>): Int {
     if (valid(grid, x, y)) {
         val neighbor = grid[x, y]
-        if (!closed.add(neighbor)) return neighbor.color
+        if (!closed.add(neighbor.compressed())) return neighbor.color
         
         if (neighbor.color == 0) opened.add(neighbor)
         else if (neighbor.color > 0) result.add(neighbor)
@@ -30,7 +30,7 @@ fun neighbor(grid: Grid, x: Int, y: Int, opened: MutableList<Node>, closed: Muta
 
 
 fun isCutoff(grid: Grid, by: Path, colors: Map<Int, Pair<Path, Path>>, pathColor: Int): Boolean {
-    if(by.size == 0) return false
+    if (by.size == 0) return false
     if (checkCutoff(grid, by, colors, pathColor, false) > 0)
         return true
     val bottleNecks = identifyBottlenecks(by, grid)
@@ -48,23 +48,23 @@ private fun checkCutoff(grid: Grid, by: Path, colors: Map<Int, Pair<Path, Path>>
 //    if (preCheckByNeighbors(by, grid)) return false
     
     if (by.size >= 2) {
-        val previous = by.nodes[by.size-2]
+        val previous = by.nodes[by.size - 2]
         val end = colors[pathColor]!!.second.last()
         if (distance(previous, end) == 1) return colors.size
     }
     
-    val closed = HashSet<Node>(grid.w * grid.h)
-    closed.addAll(by.nodes().dropLast(1).map { grid[it.x, it.y] })
+    val closed = HashSet<Byte>(grid.w * grid.h)
+    closed.addAll(by.nodes().dropLast(1).map { grid[it.x, it.y].compressed() })
     
     val nodePairs = mutableSetOf<Int>()
     
-    grid.nodes.asSequence().filter { it.color == 0 }.forEach { node ->
-        if (node in closed) return@forEach
+    for (node in grid.nodes.asSequence().filter { it.color == 0 }) {
+        if (node.compressed() in closed) continue
         
         val opened = LinkedList<Node>()
         val results = mutableListOf<Node>()
         opened.add(node)
-        closed.add(node)
+        closed.add(node.compressed())
         stack@ while (!opened.isEmpty()) {
             val current = opened.pop()
             
@@ -76,10 +76,14 @@ private fun checkCutoff(grid: Grid, by: Path, colors: Map<Int, Pair<Path, Path>>
             if (!withBottlenecks && containsIllegalPattern(color1, color2, color3, color4, colors, current, grid)) return colors.size
         }
         
-        closed.removeAll(results)
+        closed.removeAll(results.map { it.compressed() })
         
         val resultColors = results.map { it.color }.toMutableList()
         resultColors.distinct().forEach { color -> resultColors.remove(color) }
+        
+        // TODO: If only one group direct connection must fill all fields
+        // TODO: Illegal pattern checking near end
+        // TODO: Bottleneck finding next to wall
         
         if (!withBottlenecks && resultColors.isEmpty()) return colors.size
         
@@ -107,19 +111,26 @@ private fun containsIllegalPattern(color1: Int, color2: Int, color3: Int, color4
              */
     val color = if (color1 > 0) color1 else if (color2 > 0) color2 else if (color3 > 0) color3 else return false
     var count = 0
-    var wallCount = 0
     val start = colors[color]?.first
     val end = colors[color]?.second
+    if (color1 == color) count++ // && grid[current.x, current.y - 1] !in end!!
+    if (color2 == color) count++ // && grid[current.x + 1, current.y] !in end!!
+    if (color3 == color) count++ // && grid[current.x, current.y + 1] !in end!!
+    if (color4 == color) count++ // && grid[current.x - 1, current.y] !in end!!
+    
+    if (count == 3) return true
+    
+    count = 0
     if (color1 == color && grid[current.x, current.y - 1] !in end!!) count++
     if (color2 == color && grid[current.x + 1, current.y] !in end!!) count++
     if (color3 == color && grid[current.x, current.y + 1] !in end!!) count++
     if (color4 == color && grid[current.x - 1, current.y] !in end!!) count++
+    var wallCount = 0
     if (color1 == -1) wallCount++
     if (color2 == -1) wallCount++
     if (color3 == -1) wallCount++
     if (color4 == -1) wallCount++
     
-    if (count == 3) return true
     if (count == 2) {
         /* Disallowing the following
                     x11x
@@ -150,6 +161,16 @@ private fun containsIllegalPattern(color1: Int, color2: Int, color3: Int, color4
         val color10 = grid[current.x - dx, current.y].color
         if (color8 == color && color9 == color && color10 == 0)
             return true
+    }
+    
+    if (count == 1 && wallCount == 2) {
+        val dx = if (current.x == 0) 1 else -1
+        val dy = if (current.y == 0) 1 else -1
+        
+        if (grid[current.x + dx, current.y + dy].color == color) {
+            if (grid[current.x + dx, current.y].color == color) return true
+            if (grid[current.x, current.y + dy].color == color) return true
+        }
     }
     
     return false
