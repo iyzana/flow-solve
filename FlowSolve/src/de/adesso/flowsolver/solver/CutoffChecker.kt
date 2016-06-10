@@ -36,6 +36,7 @@ fun isCutoff(grid: Grid, by: Path, colors: Map<Int, Pair<Path, Path>>, pathColor
     val bottleNecks = identifyBottlenecks(by, grid)
     bottleNecks.filter { distance(it.compressed(), by.last()) <= 4 }.forEach { bottleNeck ->
         bottleNeck.color = -1
+        grid.print()
         val cutoffColors = checkCutoff(grid, by, colors, pathColor, true)
         bottleNeck.color = 0
         if (cutoffColors > 1) return true

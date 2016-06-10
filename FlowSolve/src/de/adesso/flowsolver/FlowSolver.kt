@@ -1,5 +1,6 @@
 package de.adesso.flowsolver
 
+import de.adesso.flowsolver.solver.model.Grid
 import de.adesso.flowsolver.solver.verboseSolve
 import java.io.File
 import kotlin.system.measureTimeMillis
@@ -11,9 +12,12 @@ import kotlin.system.measureTimeMillis
  * Created on 12.05.2016
  */
 var level = -1
+val threading = false
 
 fun main(args: Array<String>) {
     File("results").deleteRecursively()
+    
+    
 
 //    Application.launch(FlowSolverGUI::class.java, *args)
 

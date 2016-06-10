@@ -5,6 +5,7 @@ import de.adesso.flowsolver.solver.model.Path
 import de.adesso.flowsolver.solver.model.PathsData
 import de.adesso.flowsolver.solver.model.x
 import de.adesso.flowsolver.solver.model.y
+import de.adesso.flowsolver.threading
 import java.util.HashMap
 import java.util.LinkedList
 import java.util.concurrent.ConcurrentHashMap
@@ -25,7 +26,8 @@ fun preFilter(coloredPaths: HashMap<Int, MutableList<Path>>, pathsData: PathsDat
         val changedColors = ConcurrentHashMap(coloredPaths)
         
         do {
-            val executor = Executors.newFixedThreadPool(changedColors.size)
+            
+            val executor = if(threading) Executors.newFixedThreadPool(changedColors.size) else Executors.newSingleThreadExecutor()
             
             val checkedColors = HashMap(changedColors)
             changedColors.clear()

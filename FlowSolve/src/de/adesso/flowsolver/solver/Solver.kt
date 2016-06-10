@@ -6,6 +6,7 @@ import de.adesso.flowsolver.mapValues
 import de.adesso.flowsolver.solver.model.Grid
 import de.adesso.flowsolver.solver.model.Path
 import de.adesso.flowsolver.solver.model.PathsData
+import de.adesso.flowsolver.threading
 import java.util.HashMap
 import java.util.LinkedList
 import java.util.concurrent.Executors
@@ -106,7 +107,7 @@ fun verboseSolve(grid: Grid): Map<Int, Path> {
 }
 
 private fun buildAllPaths(coloredPaths: HashMap<Int, MutableList<Path>>, grid: Grid, pairs: Map<Int, Pair<Path, Path>>, pathsData: PathsData, maxLengths: Map<Int, Int>) {
-    val executor = Executors.newFixedThreadPool(pairs.size)
+    val executor = if(threading) Executors.newFixedThreadPool(pairs.size) else Executors.newSingleThreadExecutor()
     
     println("building all paths")
     println("time = " + measureTimeMillis {
