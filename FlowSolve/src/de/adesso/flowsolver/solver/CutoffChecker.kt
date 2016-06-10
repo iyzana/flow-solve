@@ -36,7 +36,6 @@ fun isCutoff(grid: Grid, by: Path, colors: Map<Int, Pair<Path, Path>>, pathColor
     val bottleNecks = identifyBottlenecks(by, grid)
     bottleNecks.filter { distance(it.compressed(), by.last()) <= 4 }.forEach { bottleNeck ->
         bottleNeck.color = -1
-        grid.print()
         val cutoffColors = checkCutoff(grid, by, colors, pathColor, true)
         bottleNeck.color = 0
         if (cutoffColors > 1) return true
@@ -209,31 +208,33 @@ private fun preCheckByNeighbors(by: Path, grid: Grid): Boolean {
 
 
 private fun identifyBottlenecks(by: Path, grid: Grid): List<Node> {
+    val bottleNeckPatterns = arrayOf(12, 17, 24, 25, 28, 29, 34, 36, 38, 44, 48, 52, 56, 57, 60, 61, 65, 66, 67, 68, 70, 71, 97, 98, 99, 100, 102, 103, 136, 137, 145, 152, 153, 156, 157, 184, 185, 188, 189, 193, 194, 195, 198, 199, 226, 227, 230, 231)
+    
+    /*
+    * BottleNeck patterns are generated as follows:
+    * 1 2 3
+    * 4 . 5
+    * 6 7 8
+    * 
+    * The number is the bit position
+    * */
+    
     val bottleNecks = ArrayList<Node>()
     grid.nodes.filter { n -> n.color == 0 }.forEach { node ->
-        var dx = -1
-        var dy = -1
         
-        while (grid[node.x + dx, node.y + dy, 1].color != 0) {
-            if (++dx > 1) {
-                dx = -1
-                if (++dy > 0) break
+        var pattern = 0
+        var index = 0
+        
+        for (dx in -1..1) {
+            for (dy in -1..1) {
+                if (dx == 0 && dy == 0) continue
+                pattern = pattern or ((if (grid[node.x + dx, node.y + dy, 1].color > 0) 1 else 0) shl index)
+                index++
             }
         }
         
-        var sum = 0
-        if (dx == 0) sum = grid[node.x - 1, node.y + 1, 1].color + grid[node.x, node.y + 1, 1].color + grid[node.x + 1, node.y + 1, 1].color
-        else sum = grid[node.x - dx, node.y - 1, 1].color + grid[node.x - dx, node.y, 1].color + grid[node.x - dx, node.y + 1, 1].color
-        
-        val color1 = if (grid[node.x, node.y - 1, 1].color > 0) 1 else 0
-        val color2 = if (grid[node.x + 1, node.y, 1].color > 0) 1 else 0
-        val color3 = if (grid[node.x, node.y + 1, 1].color > 0) 1 else 0
-        val color4 = if (grid[node.x - 1, node.y, 1].color > 0) 1 else 0
-        
-        if (sum > 0 && color1 + color2 + color3 + color4 < 3) {
-            if(bottleNecks.none { distance(it, node) == 1 })
+        if (bottleNeckPatterns.contains(pattern) && bottleNecks.none { distance(it, node) == 1 })
             bottleNecks.add(node)
-        }
     }
     
     return bottleNecks
