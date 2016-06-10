@@ -46,7 +46,7 @@ fun shortestPath(grid: Grid, start: Node, end: Node): Path {
                 3 -> x--
             }
             
-            if (!valid(grid, x, y)) continue
+            if (!grid.valid(x, y)) continue
             
             val node = grid[x, y]
             
@@ -82,10 +82,10 @@ fun pathExists(grid: Grid, start: Node, end: Node): Boolean {
         dx = if (dx > 0) 1 else if (dx < 0) -1 else 0
         dy = if (dy > 0) 1 else if (dy < 0) -1 else 0
         
-        if (valid(grid, x, y - dy) && (grid[x, y - dy].color == 0 || grid[x, y - dy].color == end.color)) stack.add(grid[x, y - dy])
-        if (valid(grid, x - dx, y) && (grid[x - dx, y].color == 0 || grid[x - dx, y].color == end.color)) stack.add(grid[x - dx, y])
-        if (valid(grid, x, y + dy) && (grid[x, y + dy].color == 0 || grid[x, y + dy].color == end.color)) stack.add(grid[x, y + dy])
-        if (valid(grid, x + dx, y) && (grid[x + dx, y].color == 0 || grid[x + dx, y].color == end.color)) stack.add(grid[x + dx, y])
+        if (grid.valid(x, y - dy) && (grid[x, y - dy].color == 0 || grid[x, y - dy].color == end.color)) stack.add(grid[x, y - dy])
+        if (grid.valid(x - dx, y) && (grid[x - dx, y].color == 0 || grid[x - dx, y].color == end.color)) stack.add(grid[x - dx, y])
+        if (grid.valid(x, y + dy) && (grid[x, y + dy].color == 0 || grid[x, y + dy].color == end.color)) stack.add(grid[x, y + dy])
+        if (grid.valid(x + dx, y) && (grid[x + dx, y].color == 0 || grid[x + dx, y].color == end.color)) stack.add(grid[x + dx, y])
     }
     
     return false
@@ -145,16 +145,16 @@ private fun processNeighbors(current: Node, findingData: FindingData) {
 
 private fun processNeighbor(x: Int, y: Int, findingData: FindingData) {
     val (grid, end, pairs) = findingData
-    if (!valid(grid, x, y)) return
+    if (!grid.valid(x, y)) return
     
     var count = 0
     
     val endPath = pairs[end.color]!!.second
     
-    if (valid(grid, x, y - 1) && grid[x, y - 1].color == end.color && grid[x, y - 1] !in endPath) count++
-    if (valid(grid, x + 1, y) && grid[x + 1, y].color == end.color && grid[x + 1, y] !in endPath) count++
-    if (valid(grid, x, y + 1) && grid[x, y + 1].color == end.color && grid[x, y + 1] !in endPath) count++
-    if (valid(grid, x - 1, y) && grid[x - 1, y].color == end.color && grid[x - 1, y] !in endPath) count++
+    if (grid.valid(x, y - 1) && grid[x, y - 1].color == end.color && grid[x, y - 1] !in endPath) count++
+    if (grid.valid(x + 1, y) && grid[x + 1, y].color == end.color && grid[x + 1, y] !in endPath) count++
+    if (grid.valid(x, y + 1) && grid[x, y + 1].color == end.color && grid[x, y + 1] !in endPath) count++
+    if (grid.valid(x - 1, y) && grid[x - 1, y].color == end.color && grid[x - 1, y] !in endPath) count++
     
     if (count >= 2) return
     
@@ -163,8 +163,6 @@ private fun processNeighbor(x: Int, y: Int, findingData: FindingData) {
     
     setCallReset(node, findingData)
 }
-
-fun valid(grid: Grid, x: Int, y: Int) = x >= 0 && y >= 0 && x < grid.w && y < grid.h
 
 private fun setCallReset(node: Node, findingData: FindingData) {
     val (grid, end, pairs, maxLength, depth, path) = findingData

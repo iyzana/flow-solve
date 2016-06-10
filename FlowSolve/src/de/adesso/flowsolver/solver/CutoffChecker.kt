@@ -16,7 +16,7 @@ import java.util.LinkedList
  * Created on 06.05.2016
  */
 fun neighbor(grid: Grid, x: Int, y: Int, opened: MutableList<Node>, closed: MutableSet<Byte>, result: MutableList<Node>): Int {
-    if (valid(grid, x, y)) {
+    if (grid.valid(x, y)) {
         val neighbor = grid[x, y]
         if (!closed.add(neighbor.compressed())) return neighbor.color
         
@@ -146,7 +146,7 @@ private fun containsIllegalPattern(color1: Int, color2: Int, color3: Int, color4
         }
         val color5 = grid[current.x + dx, current.y + dy].color
         val color6 =
-                if (valid(grid, current.x, current.y + 2 * dy))
+                if (grid.valid(current.x, current.y + 2 * dy))
                     grid[current.x, current.y + 2 * dy].color
                 else color
         val color7 = grid[current.x, current.y + dy].color
@@ -155,7 +155,7 @@ private fun containsIllegalPattern(color1: Int, color2: Int, color3: Int, color4
         
         val color8 = grid[current.x - dx, current.y - dy].color
         val color9 =
-                if (valid(grid, current.x - 2 * dx, current.y))
+                if (grid.valid(current.x - 2 * dx, current.y))
                     grid[current.x - 2 * dx, current.y].color
                 else color
         val color10 = grid[current.x - dx, current.y].color
@@ -193,7 +193,7 @@ private fun preCheckByNeighbors(by: Path, grid: Grid): Boolean {
         loop@ for (dx in Math.max(-1, -1 + fromX)..Math.min(1, 1 + fromX)) {
             for (dy in Math.max(-1, -1 + fromY)..Math.min(1, 1 + fromY)) {
                 if (dx == 0 && dy == 0) continue
-                if (!valid(grid, x + dx, y + dy))
+                if (!grid.valid(x + dx, y + dy))
                     return false
                 if (grid[x + dx, y + dy].color != 0)
                     return false
@@ -209,11 +209,11 @@ private fun preCheckByNeighbors(by: Path, grid: Grid): Boolean {
 
 private fun identifyBottlenecks(by: Path, grid: Grid): List<Node> {
     val bottleNecks = ArrayList<Node>()
-    grid.nodes.filter { n -> n.color == 0 && n.x > 0 && n.y > 0 && n.x < grid.w - 1 && n.y < grid.h - 1 }.forEach { node ->
+    grid.nodes.filter { n -> n.color == 0 }.forEach { node ->
         var dx = -1
         var dy = -1
         
-        while (grid[node.x + dx, node.y + dy].color != 0) {
+        while (grid[node.x + dx, node.y + dy, 1].color != 0) {
             if (++dx > 1) {
                 dx = -1
                 if (++dy > 0) break
@@ -221,15 +221,18 @@ private fun identifyBottlenecks(by: Path, grid: Grid): List<Node> {
         }
         
         var sum = 0
-        if (dx == 0) sum = grid[node.x - 1, node.y + 1].color + grid[node.x, node.y + 1].color + grid[node.x + 1, node.y + 1].color
-        else sum = grid[node.x - dx, node.y - 1].color + grid[node.x - dx, node.y].color + grid[node.x - dx, node.y + 1].color
+        if (dx == 0) sum = grid[node.x - 1, node.y + 1, 1].color + grid[node.x, node.y + 1, 1].color + grid[node.x + 1, node.y + 1, 1].color
+        else sum = grid[node.x - dx, node.y - 1, 1].color + grid[node.x - dx, node.y, 1].color + grid[node.x - dx, node.y + 1, 1].color
         
-        val color1 = if (grid[node.x, node.y - 1].color > 0) 1 else 0
-        val color2 = if (grid[node.x + 1, node.y].color > 0) 1 else 0
-        val color3 = if (grid[node.x, node.y + 1].color > 0) 1 else 0
-        val color4 = if (grid[node.x - 1, node.y].color > 0) 1 else 0
+        val color1 = if (grid[node.x, node.y - 1, 1].color > 0) 1 else 0
+        val color2 = if (grid[node.x + 1, node.y, 1].color > 0) 1 else 0
+        val color3 = if (grid[node.x, node.y + 1, 1].color > 0) 1 else 0
+        val color4 = if (grid[node.x - 1, node.y, 1].color > 0) 1 else 0
         
-        if (sum > 0 && color1 + color2 + color3 + color4 < 3) bottleNecks.add(node)
+        if (sum > 0 && color1 + color2 + color3 + color4 < 3) {
+            if(bottleNecks.none { distance(it, node) == 1 })
+            bottleNecks.add(node)
+        }
     }
     
     return bottleNecks

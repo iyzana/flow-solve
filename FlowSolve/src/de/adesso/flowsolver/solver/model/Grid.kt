@@ -26,12 +26,19 @@ data class Grid(val w: Int, val h: Int) {
         }
     }
     
+    
+    fun valid(x: Int, y: Int) = x >= 0 && y >= 0 && x < this.w && y < this.h
+    
     fun writePath(path: Path, color: Int) {
         path.forEach { node ->
             this[node.x, node.y].color = color
         }
     }
-    
+    operator fun get(x: Int, y: Int, wallColor: Int): Node {
+        if(valid(x, y)) return grid[x][y]
+        if(x >= -1 && y >= -1 && x <= this.w && y <= this.h) return Node(x, y, wallColor)
+        throw IndexOutOfBoundsException("x: $x, y: $y")
+    }
     operator fun get(x: Int, y: Int) = grid[x][y]
     
     operator fun set(x: Int, y: Int, v: Node) {
