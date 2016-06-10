@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/FlowSolve.iml" filepath="$PROJECT_DIR$/FlowSolve.iml" />
+      <module fileurl="file://$PROJECT_DIR$/FlowSolveGui/FlowSolveGui.iml" filepath="$PROJECT_DIR$/FlowSolveGui/FlowSolveGui.iml" />
     </modules>
   </component>
 </project>
