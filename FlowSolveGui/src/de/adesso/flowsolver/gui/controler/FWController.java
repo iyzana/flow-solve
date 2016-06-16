@@ -215,7 +215,7 @@ public class FWController {
 			if (!boxedFlows.isEmpty()) {
 				int color = ((Labeled) boxedFlows.get(0)).getText().toCharArray()[0] - 'A' + 1;
 				
-				g.set(x, y, toNode(x, y, color));
+				g.get(x, y).setColor(color);
 			}
 		});
 		

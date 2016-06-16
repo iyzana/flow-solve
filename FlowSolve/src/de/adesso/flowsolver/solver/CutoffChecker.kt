@@ -6,7 +6,6 @@ import de.adesso.flowsolver.solver.model.Path
 import de.adesso.flowsolver.solver.model.x
 import de.adesso.flowsolver.solver.model.y
 import java.util.ArrayList
-import java.util.HashSet
 import java.util.LinkedList
 
 /**
@@ -15,9 +14,31 @@ import java.util.LinkedList
  * @author kaiser
  * Created on 06.05.2016
  */
-fun neighbor(grid: Grid, x: Int, y: Int, opened: MutableList<Node>, closed: MutableSet<Byte>, result: MutableList<Node>): Int {
+
+fun BooleanArray.add(node: Byte): Boolean {
+    val node = node.toUInt()
+    val ret = !this[node]
+    this[node] = true
+    return ret
+}
+
+fun Byte.toUInt() = toInt() + 127
+
+fun BooleanArray.remove(node: Byte): Boolean {
+    val node = node.toUInt()
+    val ret = this[node]
+    this[node] = false
+    return ret
+}
+
+operator fun BooleanArray.contains(node: Byte) = this[node.toUInt()]
+fun BooleanArray.addAll(elements: Collection<Byte>) = elements.fold(initial = false) { current, node -> add(node) || current }
+fun BooleanArray.removeAll(elements: Collection<Byte>) = elements.fold(initial = false) { current, node -> remove(node) || current }
+
+fun neighbor(grid: Grid, x: Int, y: Int, opened: MutableList<Node>, closed: BooleanArray, result: MutableList<Node>): Int {
     if (grid.valid(x, y)) {
         val neighbor = grid[x, y]
+        
         if (!closed.add(neighbor.compressed())) return neighbor.color
         
         if (neighbor.color == 0) opened.add(neighbor)
@@ -53,7 +74,7 @@ private fun checkCutoff(grid: Grid, by: Path, colors: Map<Int, Pair<Path, Path>>
         if (distance(previous, end) == 1) return colors.size
     }
     
-    val closed = HashSet<Byte>(grid.w * grid.h)
+    val closed = BooleanArray(256)
     closed.addAll(by.nodes().dropLast(1).map { grid[it.x, it.y].compressed() })
     
     val nodePairs = mutableSetOf<Int>()
@@ -206,10 +227,10 @@ private fun preCheckByNeighbors(by: Path, grid: Grid): Boolean {
     return false
 }
 
+val bottleNeckCache = ArrayList<Node>();
+val bottleNeckPatterns = arrayOf(12, 17, 24, 25, 28, 29, 34, 36, 38, 44, 48, 52, 56, 57, 60, 61, 65, 66, 67, 68, 70, 71, 97, 98, 99, 100, 102, 103, 136, 137, 145, 152, 153, 156, 157, 184, 185, 188, 189, 193, 194, 195, 198, 199, 226, 227, 230, 231)
 
-private fun identifyBottlenecks(by: Path, grid: Grid): List<Node> {
-    val bottleNeckPatterns = arrayOf(12, 17, 24, 25, 28, 29, 34, 36, 38, 44, 48, 52, 56, 57, 60, 61, 65, 66, 67, 68, 70, 71, 97, 98, 99, 100, 102, 103, 136, 137, 145, 152, 153, 156, 157, 184, 185, 188, 189, 193, 194, 195, 198, 199, 226, 227, 230, 231)
-    
+fun cacheBottlenecks(grid: Grid) {
     /*
     * BottleNeck patterns are generated as follows:
     * 1 2 3
@@ -218,24 +239,36 @@ private fun identifyBottlenecks(by: Path, grid: Grid): List<Node> {
     * 
     * The number is the bit position
     * */
-    
-    val bottleNecks = ArrayList<Node>()
     grid.nodes.filter { n -> n.color == 0 }.forEach { node ->
-        
-        var pattern = 0
-        var index = 0
-        
-        for (dx in -1..1) {
-            for (dy in -1..1) {
-                if (dx == 0 && dy == 0) continue
-                pattern = pattern or ((if (grid[node.x + dx, node.y + dy, 1].color > 0) 1 else 0) shl index)
-                index++
-            }
-        }
-        
-        if (bottleNeckPatterns.contains(pattern) && bottleNecks.none { distance(it, node) == 1 })
-            bottleNecks.add(node)
+        if (bottleNeckPatterns.contains(generatePattern(grid, node)) && bottleNeckCache.none { distance(it, node) == 1 })
+            bottleNeckCache.add(node)
     }
     
-    return bottleNecks
+}
+
+private fun identifyBottlenecks(by: Path, grid: Grid): List<Node> {
+    val bottleNecks = ArrayList<Node>()
+    for (dx in -1..1) {
+        for (dy in -1..1) {
+            if (dx == 0 && dy == 0) continue
+            val node = grid[by.last().x + dx, by.last().y + dy, -1]
+            if (node.color == 0 && bottleNeckPatterns.contains(generatePattern(grid, node)) && bottleNecks.none { distance(it, node) == 1 })
+                bottleNecks.add(node)
+        }
+    }
+    return bottleNeckCache + bottleNecks
+}
+
+private fun generatePattern(grid: Grid, node: Node): Int {
+    var pattern = 0
+    var index = 0
+    
+    for (dx in -1..1) {
+        for (dy in -1..1) {
+            if (dx == 0 && dy == 0) continue
+            pattern = pattern or ((if (grid[node.x + dx, node.y + dy, 1].color > 0) 1 else 0) shl index)
+            index++
+        }
+    }
+    return pattern
 }

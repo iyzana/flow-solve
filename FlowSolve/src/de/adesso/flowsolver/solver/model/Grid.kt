@@ -3,6 +3,7 @@ package de.adesso.flowsolver.solver.model
 import java.awt.Color
 import java.awt.image.BufferedImage
 import java.io.File
+import java.util.ArrayList
 import javax.imageio.ImageIO
 
 /**
@@ -14,16 +15,23 @@ import javax.imageio.ImageIO
 data class Grid(val w: Int, val h: Int) {
     val grid: Array<Array<Node>>
     
-    val nodes: List<Node>
-        get() = (0..w - 1).flatMap { x -> (0..h - 1).map { y -> grid[x][y] } }
+    var nodes: List<Node>
+        private set
+    
+    private constructor(w: Int, h: Int, nodes: List<Node>): this(w, h) {
+        require(nodes.size == w*h)
+        
+        
+    }
     
     init {
         require(w <= 15 && h <= 15) { "maximum width and height is 15" }
-        grid = Array(w.toInt()) { x ->
-            Array(h.toInt()) { y ->
+        grid = Array(w) { x ->
+            Array(h) { y ->
                 Node(x, y)
             }
         }
+        nodes = (0..w - 1).flatMap { x -> (0..h - 1).map { y -> grid[x][y] } }
     }
     
     
@@ -41,18 +49,21 @@ data class Grid(val w: Int, val h: Int) {
     }
     operator fun get(x: Int, y: Int) = grid[x][y]
     
-    operator fun set(x: Int, y: Int, v: Node) {
+    private operator fun set(x: Int, y: Int, v: Node) {
         grid[x][y] = v
     }
     
     fun copy(): Grid {
         val copy = Grid(w, h)
-        
+        val nodesCache = ArrayList<Node>(w*h)
         for (y in 0..h - 1) {
             for (x in 0..w - 1) {
                 copy[x, y] = this[x, y].copy()
+                nodesCache.add(copy[x, y])
             }
         }
+        
+        copy.nodes = nodesCache
         
         return copy
     }

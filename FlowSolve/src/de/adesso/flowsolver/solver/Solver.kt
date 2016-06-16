@@ -26,6 +26,7 @@ fun solve(grid: Grid): Map<Int, Path> {
     val coloredPaths = HashMap<Int, MutableList<Path>>()
     val pathsData = PathsData(pairs.keys, grid)
     
+    cacheBottlenecks(grid)
     buildAllPaths(coloredPaths, grid, pairs, pathsData, maxLengths)
     preFilter(coloredPaths, pathsData)
     val solutions = fullFilter(grid, coloredPaths)

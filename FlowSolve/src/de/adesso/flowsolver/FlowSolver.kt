@@ -11,15 +11,15 @@ import kotlin.system.measureTimeMillis
  * Created on 12.05.2016
  */
 var level = -1
-val threading = false
+val threading = true
 
 fun main(args: Array<String>) {
     File("results").deleteRecursively()
-
+    
 //    Application.launch(FlowSolverGUI::class.java, *args)
 
 //    for (i in 0..999) {
-    val grids = TestGrids.loadGrids(Pack.Jumbo11)
+    val grids = TestGrids.loadGrids(Pack.Jumbo12)
 //    val grid = TestGrids.loadGrid(Pack.Jumbo12, 3)
     
     println("complete time = " + measureTimeMillis {
