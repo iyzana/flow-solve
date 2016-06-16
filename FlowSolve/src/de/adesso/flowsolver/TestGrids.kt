@@ -10,11 +10,16 @@ import java.util.Scanner
  * Created on 12.05.2016
  */
 enum class Pack(val file: String) {
-    Regular5("levels/5x5 Regular.dat"),
-    Jumbo10("levels/10x10 Jumbo.dat"),
-    Jumbo11("levels/11x11 Jumbo.dat"),
-    Jumbo12("levels/12x12 Jumbo.dat"),
-    Jumbo13("levels/13x13 Jumbo.dat"),
+    Regular5("levels/Regular/5x5.dat"),
+    Regular6("levels/Regular/6x6.dat"),
+    Regular7("levels/Regular/7x7.dat"),
+    Regular8("levels/Regular/8x8.dat"),
+    Regular9("levels/Regular/9x9.dat"),
+    Jumbo10("levels/Jumbo/10x10.dat"),
+    Jumbo11("levels/Jumbo/11x11.dat"),
+    Jumbo12("levels/Jumbo/12x12.dat"),
+    Jumbo13("levels/Jumbo/13x13.dat"),
+    Jumbo14("levels/Jumbo/14x14.dat"),
 }
 
 object TestGrids {
