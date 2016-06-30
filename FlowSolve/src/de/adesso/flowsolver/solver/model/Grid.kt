@@ -18,10 +18,8 @@ data class Grid(val w: Int, val h: Int) {
     var nodes: List<Node>
         private set
     
-    private constructor(w: Int, h: Int, nodes: List<Node>): this(w, h) {
-        require(nodes.size == w*h)
-        
-        
+    private constructor(w: Int, h: Int, nodes: List<Node>) : this(w, h) {
+        require(nodes.size == w * h)
     }
     
     init {
@@ -34,20 +32,22 @@ data class Grid(val w: Int, val h: Int) {
         nodes = (0..w - 1).flatMap { x -> (0..h - 1).map { y -> grid[x][y] } }
     }
     
-    
     fun valid(x: Int, y: Int) = x >= 0 && y >= 0 && x < this.w && y < this.h
     
-    fun writePath(path: Path, color: Int) {
+    fun addPath(path: Path, color: Int) {
         path.forEach { node ->
             this[node.x, node.y].color = color
         }
     }
+    
     operator fun get(x: Int, y: Int, wallColor: Int): Node {
-        if(valid(x, y)) return grid[x][y]
-        if(x >= -1 && y >= -1 && x <= this.w && y <= this.h) return Node(x, y, wallColor)
+        if (valid(x, y)) return grid[x][y]
+        if (x >= -1 && y >= -1 && x <= this.w && y <= this.h) return Node(x, y, wallColor)
         throw IndexOutOfBoundsException("x: $x, y: $y")
     }
+    
     operator fun get(x: Int, y: Int) = grid[x][y]
+    operator fun get(node: Node) = get(node.x, node.y)
     
     private operator fun set(x: Int, y: Int, v: Node) {
         grid[x][y] = v
@@ -55,7 +55,7 @@ data class Grid(val w: Int, val h: Int) {
     
     fun copy(): Grid {
         val copy = Grid(w, h)
-        val nodesCache = ArrayList<Node>(w*h)
+        val nodesCache = ArrayList<Node>(w * h)
         for (y in 0..h - 1) {
             for (x in 0..w - 1) {
                 copy[x, y] = this[x, y].copy()
@@ -80,19 +80,19 @@ data class Grid(val w: Int, val h: Int) {
     }
     
     fun toImage(fileName: String) {
-        val image = BufferedImage(w*10, h*10, BufferedImage.TYPE_INT_RGB)
+        val image = BufferedImage(w * 10, h * 10, BufferedImage.TYPE_INT_RGB)
         val graphics = image.graphics
         
         for (x in 0..w - 1) {
             for (y in 0..h - 1) {
                 val flowColor = this[x, y].color
-                graphics.color = if(flowColor == 0) Color.BLACK else Color.decode("#" + FlowColor.values()[flowColor - 1].hex)
+                graphics.color = if (flowColor == 0) Color.BLACK else Color.decode("#" + FlowColor.values()[flowColor - 1].hex)
                 graphics.fillRect(x * 10, y * 10, 10, 10)
             }
         }
-    
+        
         graphics.dispose()
-    
+        
         val file = File("results", "$fileName.bmp")
         file.parentFile.mkdirs()
         ImageIO.write(image, "BMP", file)

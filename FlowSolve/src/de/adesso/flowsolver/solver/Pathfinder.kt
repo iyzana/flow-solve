@@ -171,11 +171,6 @@ private fun setCallReset(node: Node, findingData: FindingData) {
     path.add(node.compressed())
     node.color = end.color
     
-    // TODO: Check for empty spaces
-    // TODO: filter by filling/splitting
-    // TODO: Apply B paths to A after allPaths
-    // TODO: Sort by size before filtering
-    // TODO: Use previously built data (cache?)
     //    if (depth == 8) {
     //        for (color in 1..start.color - 1) {
     //            if (pathsMap.safeIntersectsAll(path, color)) {

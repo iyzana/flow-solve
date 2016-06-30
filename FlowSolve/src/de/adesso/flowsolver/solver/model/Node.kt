@@ -17,6 +17,11 @@ data class Node(val x: Int, val y: Int, var color: Int = 0) {
 
     fun compressed() = compressedInt().toByte()
     private fun compressedInt() = (((x shl 4) or y) + 1)
+    
+    fun u(grid: Grid) = grid[x, y - 1]
+    fun d(grid: Grid) = grid[x, y + 1]
+    fun l(grid: Grid) = grid[x - 1, y]
+    fun r(grid: Grid) = grid[x + 1, y]
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

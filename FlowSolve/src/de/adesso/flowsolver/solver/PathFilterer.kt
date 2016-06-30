@@ -20,7 +20,6 @@ import kotlin.system.measureTimeMillis
  * Created on 13.05.2016
  */
 fun preFilter(coloredPaths: HashMap<Int, MutableList<Path>>, pathsData: PathsData) {
-    // TODO: Don't prefilter with unchanged colors
     println("pre filtering paths")
     println("time = " + measureTimeMillis {
         val changedColors = ConcurrentHashMap(coloredPaths)

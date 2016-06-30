@@ -14,27 +14,33 @@ import java.util.concurrent.TimeUnit
 import kotlin.system.measureTimeMillis
 
 fun solve(grid: Grid): Map<Int, Path> {
+    val w = grid.w
+    val h = grid.h
+    
     val points = grid.nodes.filter { it.color != 0 }
+    
     val pairs = fillGrid(grid, points)
     
     require((1..(pairs.keys.max() ?: 1)).toSet() == pairs.keys) { "The level is missing flows or has incomplete flows" }
     
     val shortestPaths = shortestPaths(grid, pairs)
-    val pathSum = grid.w * grid.h - shortestPaths.values.sumBy { it - 2 } - pairs.values.sumBy { it.first.size + it.second.size }
-    val maxLengths = pairs.keys.associate { it to pathSum + shortestPaths[it]!! }
+    val pathSum = w * h - shortestPaths.values.sumBy { it - 2 } - pairs.values.sumBy { it.first.size + it.second.size }
     
     val coloredPaths = HashMap<Int, MutableList<Path>>()
     val pathsData = PathsData(pairs.keys, grid)
+    val maxLengths = pairs.keys.associate { it to pathSum + shortestPaths[it]!! }
     
-    cacheBottlenecks(grid)
     buildAllPaths(coloredPaths, grid, pairs, pathsData, maxLengths)
+    
     preFilter(coloredPaths, pathsData)
+    
     val solutions = fullFilter(grid, coloredPaths)
     
     if (solutions.isEmpty())
         throw IllegalArgumentException("grid is not solvable")
     
     val completeSolutions = joinPaths(solutions, pairs)
+    
     return completeSolutions[0]
 }
 
@@ -70,7 +76,7 @@ fun verboseSolve(grid: Grid): Map<Int, Path> {
     coloredPaths.forEach { color, paths ->
         paths.sortedByDescending { it.size }.take(100).forEachIndexed { index, path ->
             val gridCopy = grid.copy()
-            gridCopy.writePath(path, color)
+            gridCopy.addPath(path, color)
             gridCopy.toImage("level_$level/filtered/color_$color/$index")
         }
     }
@@ -81,7 +87,7 @@ fun verboseSolve(grid: Grid): Map<Int, Path> {
         throw IllegalArgumentException("grid is not solvable")
     
     println("solved grid")
-    solutions[0].forEach { key, value -> grid.writePath(value, key) }
+    solutions[0].forEach { key, value -> grid.addPath(value, key) }
     grid.print()
     
     val completeSolutions = joinPaths(solutions, pairs)
@@ -96,7 +102,7 @@ fun verboseSolve(grid: Grid): Map<Int, Path> {
         
         val gridCopy = grid.copy()
         completeSolution.forEach { color, path ->
-            gridCopy.writePath(path, color)
+            gridCopy.addPath(path, color)
         }
         gridCopy.toImage("level_$level/1_solution_$index")
     }
@@ -123,7 +129,7 @@ private fun buildAllPaths(coloredPaths: HashMap<Int, MutableList<Path>>, grid: G
                 
                 paths.sortedByDescending { it.size }.take(100).forEachIndexed { index, path ->
                     val gridCopy = grid.copy()
-                    gridCopy.writePath(path, color)
+                    gridCopy.addPath(path, color)
                     gridCopy.toImage("level_$level/raw/color_$color/$index")
                 }
                 

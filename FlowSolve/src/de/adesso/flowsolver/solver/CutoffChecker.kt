@@ -6,7 +6,6 @@ import de.adesso.flowsolver.solver.model.Path
 import de.adesso.flowsolver.solver.model.x
 import de.adesso.flowsolver.solver.model.y
 import java.util.ArrayList
-import java.util.LinkedList
 
 /**
  * FlowSolve
@@ -49,10 +48,14 @@ fun neighbor(grid: Grid, x: Int, y: Int, opened: MutableList<Node>, closed: Bool
     return -1
 }
 
+var filtered = -1
+val closedSource = BooleanArray(256)
 
 fun isCutoff(grid: Grid, by: Path, colors: Map<Int, Pair<Path, Path>>, pathColor: Int): Boolean {
     if (by.size == 0) return false
     if (checkCutoff(grid, by, colors, pathColor, false) > 0)
+        return true
+    if (filtered != -1)
         return true
     val bottleNecks = identifyBottlenecks(by, grid)
     bottleNecks.filter { distance(it.compressed(), by.last()) <= 4 }.forEach { bottleNeck ->
@@ -67,6 +70,7 @@ fun isCutoff(grid: Grid, by: Path, colors: Map<Int, Pair<Path, Path>>, pathColor
 
 private fun checkCutoff(grid: Grid, by: Path, colors: Map<Int, Pair<Path, Path>>, pathColor: Int, withBottlenecks: Boolean): Int {
 //    if (preCheckByNeighbors(by, grid)) return false
+    filtered = -1
     
     if (by.size >= 2) {
         val previous = by.nodes[by.size - 2]
@@ -74,40 +78,58 @@ private fun checkCutoff(grid: Grid, by: Path, colors: Map<Int, Pair<Path, Path>>
         if (distance(previous, end) == 1) return colors.size
     }
     
-    val closed = BooleanArray(256)
+    val closed = closedSource.copyOf()
     closed.addAll(by.nodes().dropLast(1).map { grid[it.x, it.y].compressed() })
     
     val nodePairs = mutableSetOf<Int>()
+    val startNode = colors[pathColor]!!.first.lastNode(pathColor)
     
-    for (node in grid.nodes.asSequence().filter { it.color == 0 }) {
+    for (node in grid.nodes) {
+        if (node.color != 0) continue
         if (node.compressed() in closed) continue
-        
-        val opened = LinkedList<Node>()
+    
+        var index = 0
+        val opened = ArrayList<Node>(grid.w * grid.h)
         val results = mutableListOf<Node>()
         opened.add(node)
         closed.add(node.compressed())
-        stack@ while (!opened.isEmpty()) {
-            val current = opened.pop()
-            
+        stack@ while (index < opened.size) {
+            val current = opened[index++]
+        
             val color1 = neighbor(grid, current.x, current.y - 1, opened, closed, results)
             val color2 = neighbor(grid, current.x + 1, current.y, opened, closed, results)
             val color3 = neighbor(grid, current.x, current.y + 1, opened, closed, results)
             val color4 = neighbor(grid, current.x - 1, current.y, opened, closed, results)
-            
+        
             if (!withBottlenecks && containsIllegalPattern(color1, color2, color3, color4, colors, current, grid)) return colors.size
         }
-        
+    
+        if (!withBottlenecks && results.contains(startNode) && results.contains(by.lastNode(0)))
+            results.remove(startNode)
+    
         closed.removeAll(results.map { it.compressed() })
-        
+    
         val resultColors = results.map { it.color }.toMutableList()
         resultColors.distinct().forEach { color -> resultColors.remove(color) }
-        
-        // TODO: If only one group direct connection must fill all fields
-        // TODO: Illegal pattern checking near end
-        // TODO: Bottleneck finding next to wall
-        
+    
         if (!withBottlenecks && resultColors.isEmpty()) return colors.size
-        
+    
+        // TODO: If only one group direct connection must fill all fields
+        if (!withBottlenecks && resultColors.size == 1) {
+            if (hasNonFillableGroup(by, colors, grid, index, opened, pathColor, resultColors))
+                return colors.size
+//
+//            val path = shortestPath(grid, start.lastNode(color), end.lastNode(color))
+//            val length = path.size - 2
+
+//            if ((0..opened.lastIndex - 1).any { distance(opened[it], opened[it + 1]) != 1 })
+//                filtered = resultColors[0]
+//            if (level == 12 && filtered != -1)
+//                Math.random()
+        }
+    
+        // TODO: Illegal pattern checking near end
+    
         nodePairs.addAll(resultColors)
     }
     
@@ -123,6 +145,39 @@ private fun checkCutoff(grid: Grid, by: Path, colors: Map<Int, Pair<Path, Path>>
     }
     
     return colors.size - nodePairs.size - 1
+}
+
+private fun hasNonFillableGroup(by: Path, colors: Map<Int, Pair<Path, Path>>, grid: Grid, index: Int, opened: MutableList<Node>, pathColor: Int, resultColors: MutableList<Int>): Boolean {
+    val color = resultColors[0]
+    if (color != pathColor) {
+        val (start, end) = colors[color]!!
+        val s = start.lastNode(0)
+        if (grid.valid(s.x, s.y - 1) && s.u(grid).color == 0 && s.u(grid) !in opened)
+            s.u(grid).color = -1
+        if (grid.valid(s.x + 1, s.y) && s.r(grid).color == 0 && s.r(grid) !in opened)
+            s.r(grid).color = -1
+        if (grid.valid(s.x, s.y + 1) && s.d(grid).color == 0 && s.d(grid) !in opened)
+            s.d(grid).color = -1
+        if (grid.valid(s.x - 1, s.y) && s.l(grid).color == 0 && s.l(grid) !in opened)
+            s.l(grid).color = -1
+        
+        val startNode = if (pathColor == color) by.lastNode(pathColor) else start.lastNode(color)
+        val path = shortestPath(grid, startNode, end.lastNode(color))
+        val length = path.size - 2
+        
+        if (grid.valid(s.x, s.y - 1) && s.u(grid).color == -1)
+            s.u(grid).color = 0
+        if (grid.valid(s.x + 1, s.y) && s.r(grid).color == -1)
+            s.r(grid).color = 0
+        if (grid.valid(s.x, s.y + 1) && s.d(grid).color == -1)
+            s.d(grid).color = 0
+        if (grid.valid(s.x - 1, s.y) && s.l(grid).color == -1)
+            s.l(grid).color = 0
+        
+        if (length < index)
+            return true
+    }
+    return false
 }
 
 private fun containsIllegalPattern(color1: Int, color2: Int, color3: Int, color4: Int, colors: Map<Int, Pair<Path, Path>>, current: Node, grid: Grid): Boolean {

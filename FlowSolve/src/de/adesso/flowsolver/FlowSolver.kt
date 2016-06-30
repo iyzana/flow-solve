@@ -20,7 +20,7 @@ fun main(args: Array<String>) {
 
 //    for (i in 0..999) {
     val grids = TestGrids.loadGrids(Pack.Jumbo12)
-//    val grid = TestGrids.loadGrid(Pack.Jumbo12, 3)
+//    val grid = TestGrids.loadGrid(Pack.Jumbo11, 28)
     
     println("complete time = " + measureTimeMillis {
         for ((index, grid) in grids.withIndex()) {
