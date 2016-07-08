@@ -1,5 +1,6 @@
 package de.adesso.flowsolver.solver
 
+import de.adesso.flowsolver.StateListener
 import de.adesso.flowsolver.forEach
 import de.adesso.flowsolver.level
 import de.adesso.flowsolver.mapValues
@@ -12,6 +13,12 @@ import java.util.LinkedList
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.system.measureTimeMillis
+
+var states: StateListener = object: StateListener {
+    override fun stateUpdated(state: String) {
+
+    }
+};
 
 fun solve(grid: Grid): Map<Int, Path> {
     val w = grid.w
@@ -85,7 +92,7 @@ fun verboseSolve(grid: Grid): Map<Int, Path> {
     
     if (solutions.isEmpty())
         throw IllegalArgumentException("grid is not solvable")
-    
+
     println("solved grid")
     solutions[0].forEach { key, value -> grid.addPath(value, key) }
     grid.print()
@@ -114,9 +121,10 @@ fun verboseSolve(grid: Grid): Map<Int, Path> {
 }
 
 private fun buildAllPaths(coloredPaths: HashMap<Int, MutableList<Path>>, grid: Grid, pairs: Map<Int, Pair<Path, Path>>, pathsData: PathsData, maxLengths: Map<Int, Int>) {
-    val executor = if(threading) Executors.newFixedThreadPool(pairs.size) else Executors.newSingleThreadExecutor()
+    val executor = if (threading) Executors.newFixedThreadPool(pairs.size) else Executors.newSingleThreadExecutor()
     
     println("building all paths")
+
     println("time = " + measureTimeMillis {
         for ((color, pair) in pairs.entries) {
             executor.execute {

@@ -33,8 +33,7 @@ public class FlowWindow {
 	private FlowPane     fpNotes;
 	private GridPane     center;
 	private List<Button> possibleFlowNodes;
-	private Button       btnChallange;
-	
+
 	public FlowWindow(Stage stage, FWController eventhandler, int heigth, int wight) {
 		primaryStage = stage;
 		events = eventhandler;
@@ -74,7 +73,6 @@ public class FlowWindow {
 		btnGenerate.setOnAction(e -> events.generate());
 		
 		btnReset.setOnAction(e -> events.reset());
-		btnChallange.setOnAction(e -> events.challenge());
 		btnSolve.setOnAction(e -> events.solve(center));
 		
 		mainLayout.setTop(hbTop);
@@ -83,6 +81,7 @@ public class FlowWindow {
 		centerLayout.setCenter(center);
 		centerLayout.setBottom(hbBottom);
 		mainLayout.setCenter(centerLayout);
+
 		Scene scene = new Scene(mainLayout);
 		stageSize();
 		scene.getStylesheets().add("css/FWDesign.css");
@@ -124,31 +123,20 @@ public class FlowWindow {
 		
 		for (int i = 0; i < size; i++) {
 			for (int j = 0; j < size; j++) {
-				addPane(i, j);
+				center.add(events.newPane(), i, j);
 			}
 		}
 		
 		events.resize();
 	}
 	
-	private void addPane(int colIndex, int rowIndex) {
-		GridPane pane = new GridPane();
-		pane.setId("pane");
-		
-		pane.setOnDragDropped(e -> events.dropped(e, pane));
-		pane.setOnDragOver(e -> events.dropable(e, pane));
-		center.add(pane, colIndex, rowIndex);
-	}
-	
 	private void bottomBox() {
 		btnReset = new Button("Reset");
-		btnChallange = new Button("Challange");
 		btnSolve = new Button("Solve");
 		
 		hbBottom = new HBox();
 		
 		hbBottom.getChildren().add(btnReset);
-		hbBottom.getChildren().add(btnChallange);
 		hbBottom.getChildren().add(btnSolve);
 	}
 	

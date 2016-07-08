@@ -1,7 +1,9 @@
 package de.adesso.flowsolver.gui.controler;
 
+import de.adesso.flowsolver.gui.FlowSolverGUI;
 import de.adesso.flowsolver.gui.functions.FlowWindow;
 import de.adesso.flowsolver.solver.SolverKt;
+import de.adesso.flowsolver.solver.model.FlowColor;
 import de.adesso.flowsolver.solver.model.Grid;
 import de.adesso.flowsolver.solver.model.NodeKt;
 import de.adesso.flowsolver.solver.model.Path;
@@ -38,10 +40,15 @@ public class FWController {
 	private FlowWindow window;
 	private int length = 475, height = 375;
 	private List<Button> flowNodes = new LinkedList<>();
+	private FlowSolverGUI controller;
 	
-	public void init(Stage primaryStage) {
+	public void init(Stage primaryStage, FlowSolverGUI controller) {
+		this.controller = controller;
 		window = new FlowWindow(primaryStage, this, height, length);
 		window.init();
+	}
+
+	public void show() {
 		window.show();
 	}
 	
@@ -77,22 +84,30 @@ public class FWController {
 	}
 	
 	public int getAmountNodes() {
-		int size = Integer.parseInt(window.getGridSize());
-		
-		return amountNodesMap.getOrDefault(size, 0);
+		return amountNodesMap.getOrDefault(Integer.parseInt(window.getGridSize()), 0);
 	}
 	
 	public void reset() {
 		generate();
 	}
-	
+
+	public Pane newPane() {
+		GridPane pane = new GridPane();
+		pane.setId("pane");
+
+		pane.setOnDragDropped(e -> dropped(e, pane));
+		pane.setOnDragOver(e -> dropable(e, pane));
+		return pane;
+	}
+
 	public void solve(GridPane guiPane) {
+		controller.sswController();
 		Grid g = parseGridIntoModel(guiPane);
 		Map<Integer, Path> solution = new HashMap<>();
 		try {
 			solution = SolverKt.verboseSolve(g);
 		} catch (IllegalArgumentException e) {
-			System.out.println("Du bist doof");
+			e.printStackTrace();
 		}
 		if (solution.isEmpty()) System.out.println("Du bist doof2");
 		else renderSolution(guiPane, solution);
@@ -104,42 +119,54 @@ public class FWController {
 			de.adesso.flowsolver.solver.model.Node currentNode = null;
 			de.adesso.flowsolver.solver.model.Node nextNode = null;
 			
-			for (Iterator<Byte> it = path.iterator(); it.hasNext(); nextNode = toNode(it.next(), color)) {
+			for (Iterator<Byte> it = path.iterator();
+			     it.hasNext() || currentNode != null; nextNode = it.hasNext() ? toNode(it.next(), color) : null) {
 				if (currentNode != null) {
 					int x = currentNode.getX();
 					int y = currentNode.getY();
-					
-					Pane container = (Pane) getNodeByRowColumnIndex(x, y, guiPane);
-					
+
+					Pane container = (Pane) getNodeByRowColumnIndex(y, x, guiPane);
+
 					ImageView imageView = new ImageView();
-					String fileName;
-					Color pathColor;
-					int rotation;
-					
-					if (lastNode == null) {
-						// Only one connection
-						fileName = "images/start.png";
-						pathColor = Color.CYAN;
-						rotation = 90;
-					} else if (((lastNode.getX() == x) && (nextNode.getX() == x)) ||
-					           ((lastNode.getY() == y) && (nextNode.getY() == y))) {
-						// Straight connection
-						fileName = "images/straight.png";
-						pathColor = Color.CYAN;
-						rotation = 90;
-					} else {
-						// Curvy connection
-						fileName = "images/curve.png";
-						pathColor = Color.CYAN;
-						rotation = 90;
-					}
-					
-					String source = getClass().getClassLoader().getResource(fileName).toExternalForm();
-					BufferedImage image = SwingFXUtils.fromFXImage(new Image(source), null);
-					Image transformedImage = SwingFXUtils.toFXImage(transform(image, pathColor, rotation), null);
-					
-					imageView.setImage(transformedImage);
-					
+					String fileName = "";
+					Color pathColor = Color.decode(FlowColor.getHex(color));
+					BufferedImage endImage = new BufferedImage(20, 20, BufferedImage.TYPE_INT_ARGB);
+
+					fileName =
+							(lastNode == null) || (nextNode == null) ? (lastNode == null) ? (nextNode.getY() == y - 1)
+							                                                                ? "images/start1.png" : ""
+							                                                              : (lastNode.getY() == y - 1)
+							                                                                ? "images/start1.png" : "" :
+							(lastNode.getY() == y - 1) || (nextNode.getY() == y - 1) ? "images/start1.png" : "";
+					if (!fileName.isEmpty()) endImage = getBufferedImage(fileName, endImage);
+
+					fileName =
+							(lastNode == null) || (nextNode == null) ? (lastNode == null) ? (nextNode.getX() == x + 1)
+							                                                                ? "images/start2.png" : ""
+							                                                              : (lastNode.getX() == x + 1)
+							                                                                ? "images/start2.png" : "" :
+							(lastNode.getX() == x + 1) || (nextNode.getX() == x + 1) ? "images/start2.png" : "";
+					if (!fileName.isEmpty()) endImage = getBufferedImage(fileName, endImage);
+
+					fileName =
+							(lastNode == null) || (nextNode == null) ? (lastNode == null) ? (nextNode.getY() == y + 1)
+							                                                                ? "images/start3.png" : ""
+							                                                              : (lastNode.getY() == y + 1)
+							                                                                ? "images/start3.png" : "" :
+							(lastNode.getY() == y + 1) || (nextNode.getY() == y + 1) ? "images/start3.png" : "";
+					if (!fileName.isEmpty()) endImage = getBufferedImage(fileName, endImage);
+
+					fileName =
+							(lastNode == null) || (nextNode == null) ? (lastNode == null) ? (nextNode.getX() == x - 1)
+							                                                                ? "images/start4.png" : ""
+							                                                              : (lastNode.getX() == x - 1)
+							                                                                ? "images/start4.png" : "" :
+							(lastNode.getX() == x - 1) || (nextNode.getX() == x - 1) ? "images/start4.png" : "";
+					if (!fileName.isEmpty()) endImage = getBufferedImage(fileName, endImage);
+
+					endImage = transform(endImage, pathColor);
+
+					imageView.setImage(SwingFXUtils.toFXImage(endImage, null));
 					container.getChildren().add(imageView);
 				}
 				
@@ -147,29 +174,18 @@ public class FWController {
 				currentNode = nextNode;
 			}
 		});
-		
-		// solution.forEach((color, path) -> {
-		// 	guiPane.getChildrenUnmodifiable().forEach(node -> {
-		// 		int x = GridPane.getColumnIndex(node);
-		// 		int y = GridPane.getRowIndex(node);
-		// 		de.adesso.flowsolver.solver.model.Node gridNode = new de.adesso.flowsolver.solver.model.Node(x, y,
-		// 		                                                                                             color);
-		//		
-		// 		int gridNodeIndex = path.indexOf(gridNode);
-		// 		if (gridNodeIndex > -1) {
-		// 			de.adesso.flowsolver.solver.model.Node previousNode = new de.adesso.flowsolver.solver.model.Node(
-		// 					path.get(gridNodeIndex - 1), color);
-		// 			de.adesso.flowsolver.solver.model.Node nextNode = new de.adesso.flowsolver.solver.model.Node(
-		// 					path.get(gridNodeIndex + 1), color);
-		// 			if (((previousNode.getX() == gridNode.getX()) && (nextNode.getX() == gridNode.getX())) ||
-		// 			    ((previousNode.getY() == gridNode.getY()) && (nextNode.getY() == gridNode.getY()))) {
-		//				
-		// 			} else {
-		//				
-		// 			}
-		// 		}
-		// 	});
-		// });
+	}
+
+	private BufferedImage getBufferedImage(String fileName, BufferedImage endImage) {
+		String source;
+		BufferedImage image;
+		if (fileName.length() > 0) {
+			source = getClass().getClassLoader().getResource(fileName).toExternalForm();
+			Image tmpimage = new Image(source);
+			image = SwingFXUtils.fromFXImage(tmpimage, null);
+			endImage = ImageMerge.merge(endImage, image);
+		}
+		return endImage;
 	}
 	
 	private de.adesso.flowsolver.solver.model.Node toNode(byte b, int color) {
@@ -187,18 +203,17 @@ public class FWController {
 						() -> new ArrayIndexOutOfBoundsException("No such gridpane child: " + row + ", " + column));
 	}
 	
-	private static BufferedImage transform(BufferedImage image, Color color, int rotation) {
-		int w = image.getWidth();
-		int h = image.getHeight();
-		
-		BufferedImage dyed = new BufferedImage(32, 32, BufferedImage.TYPE_INT_ARGB);
+	private static BufferedImage transform(BufferedImage image, Color color) {
+		int w = 40;
+		int h = 40;
+
+		BufferedImage dyed = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g = dyed.createGraphics();
 		
-		g.rotate(Math.toRadians(rotation));
-		g.drawImage(image, 0, 0, 32, 32, null);
+		g.drawImage(image, 0, 0, w, h, null);
 		g.setComposite(AlphaComposite.SrcAtop);
 		g.setColor(color);
-		g.fillRect(0, 0, 32, 32);
+		g.fillRect(0, 0, w, h);
 		g.dispose();
 		
 		return dyed;
@@ -212,7 +227,7 @@ public class FWController {
 			int y = GridPane.getRowIndex(flow);
 			
 			List<Node> boxedFlows = ((Pane) flow).getChildrenUnmodifiable();
-			if (!boxedFlows.isEmpty()) {
+			if (!boxedFlows.isEmpty() && boxedFlows.get(0) instanceof Labeled) {
 				int color = ((Labeled) boxedFlows.get(0)).getText().toCharArray()[0] - 'A' + 1;
 				
 				g.get(x, y).setColor(color);
@@ -285,8 +300,5 @@ public class FWController {
 		}
 		
 		event.consume();
-	}
-	
-	public void challenge() {
 	}
 }

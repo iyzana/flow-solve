@@ -16,7 +16,7 @@ val threading = true
 fun main(args: Array<String>) {
     File("results").deleteRecursively()
     
-//    Application.launch(FlowSolverGUI::class.java, *args)
+    //Application.launch(FlowSolverGUI::class.java, *args)
 
 //    for (i in 0..999) {
     val grids = TestGrids.loadGrids(Pack.Jumbo12)
