@@ -30,6 +30,7 @@ public class SolveStateWindow {
 		events = controler;
 		states = new LinkedList<>();
 		primaryStage.setTitle("Flow Solver - Solving State");
+		addState("Vorbereitungen werden getroffen");
 	}
 
 	public void init() {
@@ -40,10 +41,7 @@ public class SolveStateWindow {
 		hbTop.getChildren().add(lblTitle);
 
 		vbCenter = new VBox();
-		states.clear();
-		addState("Vorbereitungen werden getroffen");
-		states.stream().forEach(state -> vbCenter.getChildren().add(new Label((states.indexOf(state) == states.size()-1) ? state + "..." : state)));
-
+		refreshStates();
 
 		hbBottom = new HBox();
 		btnHide = new Button("Hide");
@@ -55,11 +53,17 @@ public class SolveStateWindow {
 		btnDetails.setOnAction(e -> events.showDetails());
 
 		mainLayout.setTop(hbTop);
+		mainLayout.setCenter(vbCenter);
 		mainLayout.setBottom(hbBottom);
 
 		Scene scene = new Scene(mainLayout);
 		scene.getStylesheets().add("css/FWDesign.css");
 		primaryStage.setScene(scene);
+	}
+
+	public void refreshStates() {
+		vbCenter.getChildren().clear();
+		states.stream().forEach(state -> vbCenter.getChildren().add(new Label((states.indexOf(state) == states.size() - 1) ? state + "..." : state)));
 	}
 
 	public boolean addState(String state){

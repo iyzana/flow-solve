@@ -1,5 +1,6 @@
 package de.adesso.flowsolver.solver.model
 
+import java.awt.Graphics
 import java.awt.image.BufferedImage
 import java.io.File
 import java.util.ArrayList
@@ -53,6 +54,38 @@ class PathsData(colors: Collection<Int>, grid: Grid) {
             ImageIO.write(imageView, "BMP", File("${color}_view.bmp"))
             ImageIO.write(imageData, "BMP", File("${color}_data.bmp"))
         }
+    }
+
+    fun createMoreStatisticalData() {
+        var allimageView = BufferedImage(w, h, BufferedImage.TYPE_INT_RGB)
+        var allimageData = BufferedImage(w, h, BufferedImage.TYPE_INT_RGB)
+        for (color in colorPaths.keys) {
+            val imageView = BufferedImage(w, h, BufferedImage.TYPE_INT_RGB)
+            val imageData = BufferedImage(w, h, BufferedImage.TYPE_INT_RGB)
+            val pathCount = sizeFor(color)
+            val data = pathsMap[color]!!
+            for (x in 0..w - 1) {
+                for (y in 0..h - 1) {
+                    imageView.setRGB(x, y, 255 * data[x][y].size / pathCount)
+                    imageData.setRGB(x, y, 16777215 * data[x][y].size / pathCount)
+                }
+            }
+            val combinedView = BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB)
+
+            val g = combinedView.graphics
+            g.drawImage(allimageView, 0, 0, null)
+            g.drawImage(imageView, 0, 0, null)
+
+            allimageView = combinedView
+            val combined = BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB)
+
+            g.drawImage(allimageData, 0, 0, null)
+            g.drawImage(imageData, 0, 0, null)
+
+            allimageData = combined
+        }
+        ImageIO.write(allimageView, "BMP", File("allview.bmp"))
+        ImageIO.write(allimageData, "BMP", File("alldata.bmp"))
     }
     
     fun intersectsAll(node: Node, color: Int): Boolean {

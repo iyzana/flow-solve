@@ -19,24 +19,24 @@ public class FlowSolverGUI extends Application {
 
 	@Override
 	public void start(Stage primaryStage) {
+		this.primaryStage = primaryStage;
 		init(primaryStage);
 	}
 
-	private void init(Stage stage) {
+	private void init(Stage primaryStage) {
 		fwController.init(primaryStage, this);
 		fwController.show();
 	}
 
 	public void sswController() {
-		sswController.init(primaryStage, this);
+		sswController.init(new Stage(), this);
 		sswController.show();
 	}
 
 	public void sdwController() {
-		sdwController.init(primaryStage, this);
+		sdwController.init(new Stage(), this);
 		sdwController.show();
 	}
 
-
-
+	//TODO finde heraus wie ein zweites(drittes) fenster in fx aufgemacht weden kann!!11elf
 }

@@ -14,13 +14,14 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.system.measureTimeMillis
 
-var states: StateListener = object: StateListener {
+var stateListener: StateListener = object: StateListener {
     override fun stateUpdated(state: String) {
 
     }
 };
 
 fun solve(grid: Grid): Map<Int, Path> {
+    stateListener.stateUpdated("Chinesen anheuern")
     val w = grid.w
     val h = grid.h
     
@@ -29,29 +30,38 @@ fun solve(grid: Grid): Map<Int, Path> {
     val pairs = fillGrid(grid, points)
     
     require((1..(pairs.keys.max() ?: 1)).toSet() == pairs.keys) { "The level is missing flows or has incomplete flows" }
-    
+
+    stateListener.stateUpdated("Grid an Chinesen austeilen")
     val shortestPaths = shortestPaths(grid, pairs)
     val pathSum = w * h - shortestPaths.values.sumBy { it - 2 } - pairs.values.sumBy { it.first.size + it.second.size }
     
     val coloredPaths = HashMap<Int, MutableList<Path>>()
     val pathsData = PathsData(pairs.keys, grid)
     val maxLengths = pairs.keys.associate { it to pathSum + shortestPaths[it]!! }
-    
+
+    stateListener.stateUpdated("Chinesen arbeiten lassen")
     buildAllPaths(coloredPaths, grid, pairs, pathsData, maxLengths)
-    
+
+    stateListener.stateUpdated("Origami der Chinesen verbrennen")
     preFilter(coloredPaths, pathsData)
-    
+
+    stateListener.stateUpdated("Chinesen das Ziel ihrer Arbeit erklären")
     val solutions = fullFilter(grid, coloredPaths)
     
-    if (solutions.isEmpty())
+    if (solutions.isEmpty()) {
+        stateListener.stateUpdated("Chinesen sind wegen zu guten Arbeisbedingungen weggelaufen")
         throw IllegalArgumentException("grid is not solvable")
-    
+    }
+    stateListener.stateUpdated("Chinesen Hunde mit PS2-Anschluss essen lassen")
     val completeSolutions = joinPaths(solutions, pairs)
-    
+
+    stateListener.stateUpdated("Lösung gefunden")
+    stateListener.stateUpdated("")
     return completeSolutions[0]
 }
 
 fun verboseSolve(grid: Grid): Map<Int, Path> {
+    stateListener.stateUpdated("Chinesen anheuern")
     val w = grid.w
     val h = grid.h
     println("solving $w x $h grid")
@@ -68,35 +78,45 @@ fun verboseSolve(grid: Grid): Map<Int, Path> {
     grid.toImage("level_$level/2_filled")
     
     require((1..(pairs.keys.max() ?: 1)).toSet() == pairs.keys) { "The level is missing flows or has incomplete flows" }
-    
+
+    stateListener.stateUpdated("Grid an Chinesen austeilen")
     val shortestPaths = shortestPaths(grid, pairs)
     val pathSum = w * h - shortestPaths.values.sumBy { it - 2 } - pairs.values.sumBy { it.first.size + it.second.size }
     
     val coloredPaths = HashMap<Int, MutableList<Path>>()
     val pathsData = PathsData(pairs.keys, grid)
     val maxLengths = pairs.keys.associate { it to pathSum + shortestPaths[it]!! }
-    
+
+    stateListener.stateUpdated("Chinesen arbeiten lassen")
     buildAllPaths(coloredPaths, grid, pairs, pathsData, maxLengths)
-    
+
+    stateListener.stateUpdated("Origami der Chinesen verbrennen")
     preFilter(coloredPaths, pathsData)
     
     coloredPaths.forEach { color, paths ->
-        paths.sortedByDescending { it.size }.take(100).forEachIndexed { index, path ->
+        paths.sortedByDescending { it.size }.take(400).forEachIndexed { index, path ->
             val gridCopy = grid.copy()
             gridCopy.addPath(path, color)
             gridCopy.toImage("level_$level/filtered/color_$color/$index")
         }
     }
-    
+
+    pathsData.createStatisticalData()
+    pathsData.createMoreStatisticalData()
+
+    stateListener.stateUpdated("Chinesen das Ziel ihrer Arbeit erklären")
     val solutions = fullFilter(grid, coloredPaths)
     
-    if (solutions.isEmpty())
+    if (solutions.isEmpty()) {
+        stateListener.stateUpdated("Chinesen sind wegen zu guten Arbeisbedingungen weggelaufen")
         throw IllegalArgumentException("grid is not solvable")
+    }
 
     println("solved grid")
     solutions[0].forEach { key, value -> grid.addPath(value, key) }
     grid.print()
-    
+
+    stateListener.stateUpdated("Chinesen Hunde mit PS2-Anschluss essen lassen")
     val completeSolutions = joinPaths(solutions, pairs)
     println()
     
@@ -116,7 +136,9 @@ fun verboseSolve(grid: Grid): Map<Int, Path> {
     println()
     println("====================")
     println()
-    
+
+    stateListener.stateUpdated("Lösung gefunden")
+    stateListener.stateUpdated("")
     return completeSolutions[0]
 }
 

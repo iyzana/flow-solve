@@ -6,7 +6,9 @@ import java.util.List;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.FlowPane;
@@ -68,12 +70,16 @@ public class FlowWindow {
 		hbBottom.setId("hbBottom");
 		hbBottom.getStyleClass().add("hb");
 		
+		Scene scene = new Scene(mainLayout);
+		
 		btnUp.setOnAction(e -> events.increase());
 		btnDown.setOnAction(e -> events.decrease());
 		btnGenerate.setOnAction(e -> events.generate());
 		
 		btnReset.setOnAction(e -> events.reset());
 		btnSolve.setOnAction(e -> events.solve(center));
+		
+		scene.setOnKeyReleased(e -> events.keyPressed(e));
 		
 		mainLayout.setTop(hbTop);
 		mainLayout.setLeft(vbLeft);
@@ -82,7 +88,6 @@ public class FlowWindow {
 		centerLayout.setBottom(hbBottom);
 		mainLayout.setCenter(centerLayout);
 
-		Scene scene = new Scene(mainLayout);
 		stageSize();
 		scene.getStylesheets().add("css/FWDesign.css");
 		primaryStage.setScene(scene);
@@ -214,7 +219,7 @@ public class FlowWindow {
 	}
 	
 	public String getGridSize() {
-		return tfGridSize.getText();
+		return events.transferToParsableInteger(tfGridSize.getText());
 	}
 	
 	public void setGridSize(String gridSize) {

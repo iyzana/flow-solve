@@ -21,11 +21,13 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Labeled;
+import javafx.scene.control.TreeTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.GridPane;
@@ -54,17 +56,22 @@ public class FWController {
 	
 	public void decrease() {
 		int i = Integer.parseInt(window.getGridSize()) - 1;
-		window.setGridSize(Integer.toString(i >= 5 ? i : 5));
+		window.setGridSize(Integer.toString(i >= 5 ? i <= 15 ? i : 15 : 5));
 	}
 	
 	public void increase() {
 		int i = Integer.parseInt(window.getGridSize()) + 1;
-		window.setGridSize(Integer.toString(i <= 15 ? i : 15));
+		window.setGridSize(Integer.toString(i <= 15 ? i >= 5 ? i : 5 : 15));
 	}
 	
 	public void generate() {
-		window.generateNodes();
-		window.generateTable();
+		String gridSize = window.getGridSize();
+		System.out.println(gridSize);
+		int i = Integer.parseInt(gridSize);
+		if (i <= 15 && i >= 5) {
+			window.generateNodes();
+			window.generateTable();
+		}
 	}
 	
 	private Map<Integer, Integer> amountNodesMap = new HashMap<>();
@@ -99,12 +106,20 @@ public class FWController {
 		pane.setOnDragOver(e -> dropable(e, pane));
 		return pane;
 	}
+	
+	public void keyPressed(KeyEvent e) {
+		switch (e.getCode()){
+			case ENTER: generate(); break;
+			case UP: increase(); break;
+			case DOWN: decrease(); break;
+		}
+	}
 
 	public void solve(GridPane guiPane) {
-		controller.sswController();
 		Grid g = parseGridIntoModel(guiPane);
 		Map<Integer, Path> solution = new HashMap<>();
 		try {
+			controller.sswController();
 			solution = SolverKt.verboseSolve(g);
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
@@ -250,7 +265,8 @@ public class FWController {
 	}
 	
 	public void dragged(MouseEvent event, Button source) {
-	    /* drag was detected, start a drag-and-drop gesture*/
+		System.out.println("FWController.dragged");
+		/* drag was detected, start a drag-and-drop gesture*/
 	    /* allow any transfer mode */
 		Dragboard db = source.startDragAndDrop(TransferMode.ANY);
 
@@ -258,11 +274,14 @@ public class FWController {
 		ClipboardContent content = new ClipboardContent();
 		content.putString(source.getText());
 		db.setContent(content);
+		System.out.println("  Dragged source = " + source.getText());
 		
 		event.consume();
+		System.out.println("###");
 	}
 	
 	public void dropped(DragEvent event, Pane target) {
+		System.out.println("FWController.dropped");
 		 /* data dropped */
 		/* if there is a string data on dragboard, read it and use it */
 		Dragboard db = event.getDragboard();
@@ -271,9 +290,12 @@ public class FWController {
 		if (db.hasString()) {
 			Optional<Button> button = getButton(db.getString());
 			button.ifPresent(b -> {
-				flowNodes.add(b);
-				target.getChildren().add(b);
-				b.setOnDragDetected(e -> dragged(e, b));
+				if(target.getChildren().isEmpty()){
+					flowNodes.add(b);
+					target.getChildren().add(b);
+					b.setOnDragDetected(e -> dragged(e, b));
+					System.out.println("  'button = " + b.getText() + "' is dropped on 'target= " + target.toString() + "'");
+				}
 			});
 			success = button.isPresent();
 		}
@@ -282,6 +304,7 @@ public class FWController {
 		event.setDropCompleted(success);
 		
 		event.consume();
+		System.out.println("###");
 	}
 	
 	private Optional<Button> getButton(String string) {
@@ -298,7 +321,12 @@ public class FWController {
 		    /* allow for both copying and moving, whatever user chooses */
 			event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
 		}
-		
 		event.consume();
+	}
+	
+	public String transferToParsableInteger(String toTraslatedleInt) {
+		toTraslatedleInt = toTraslatedleInt.replaceAll("[^0-9]","");
+		System.out.println(toTraslatedleInt);
+		return !toTraslatedleInt.equals("") ? toTraslatedleInt : "0";
 	}
 }

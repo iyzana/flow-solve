@@ -86,7 +86,7 @@ data class Grid(val w: Int, val h: Int) {
         for (x in 0..w - 1) {
             for (y in 0..h - 1) {
                 val flowColor = this[x, y].color
-                graphics.color = if (flowColor == 0) Color.BLACK else Color.decode("#" + FlowColor.values()[flowColor - 1].hex)
+                graphics.color = if (flowColor == 0) Color.BLACK else Color.decode(FlowColor.values()[flowColor - 1].hex)
                 graphics.fillRect(x * 10, y * 10, 10, 10)
             }
         }

@@ -1,8 +1,6 @@
 package de.adesso.flowsolver.gui.controler;
 
-import de.adesso.flowsolver.StateListener;
 import de.adesso.flowsolver.gui.FlowSolverGUI;
-import de.adesso.flowsolver.gui.functions.FlowWindow;
 import de.adesso.flowsolver.gui.functions.SolveStateWindow;
 import de.adesso.flowsolver.solver.SolverKt;
 import javafx.stage.Stage;
@@ -18,9 +16,13 @@ public class SSWController {
 	public void init(Stage primaryStage, FlowSolverGUI controller) {
 		this.controller = controller;
 		window = new SolveStateWindow(primaryStage, this);
-		window.init();
 
-		SolverKt.setStates(state -> window.addState(state));
+		SolverKt.setStateListener(state -> {
+			window.addState(state);
+			window.init();
+		});
+		
+		window.init();
 	}
 	
 	public void showDetails() {
