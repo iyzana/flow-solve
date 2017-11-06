@@ -1,0 +1,6 @@
+# build direcroy
+out/
+
+# ide file
+*.iml
+.idea/
