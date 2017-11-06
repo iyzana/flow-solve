@@ -4,3 +4,7 @@ out/
 # ide file
 *.iml
 .idea/
+
+# solve output
+*.bmp
+results/
